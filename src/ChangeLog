@@ -1,5 +1,8 @@
 2002-07-31  Jon Trowbridge  <trow@ximian.com>
 
+	* rcpackagecmds.py (PackageSolveCmd.execute): Applied a patch from
+	Peter Teichman that allows for versioned dependencies.
+	
 	* rcpackagecmds.py (PackageInfoProvidesCmd.aliases): Added 'ip' as
 	an alias for 'info-provides'.
 	(PackageInfoRequirementsCmd.aliases): Added 'ir' as an alias for

@@ -21,6 +21,7 @@ import sys
 import string
 import time
 import zlib
+import re
 
 import rctalk
 import rcfault
@@ -1352,12 +1353,36 @@ class PackageSolveCmd(TransactCmd):
 
         for d in non_option_args:
             dep = {}
-            dep["name"] = d
-            dep["relation"] = "(any)"
-            dep["has_epoch"] = 0
-            dep["epoch"] = 0
-            dep["version"] = "foo"
-            dep["release"] = "bar"
+            package = string.split(d)
+
+            if len(package) > 1:
+                dep["name"] = package[0]
+                dep["relation"] = package[1]
+
+                version_regex = re.compile("^(?:(\d+):)?(.*?)(?:-([^-]+))?$")
+                match = version_regex.match(package[2])
+
+                if match.group(1):
+                    dep["has_epoch"] = 1
+                    dep["epoch"] = match.group(1)
+                else:
+                    dep["has_epoch"] = 0
+                    dep["epoch"] = 0
+
+                dep["version"] = match.group(2)
+
+                if match.group(3):
+                    dep["release"] = match.group(3)
+                else:
+                    dep["release"] = ""
+
+            else:
+                dep["name"] = d
+                dep["relation"] = "(any)"
+                dep["has_epoch"] = 0
+                dep["epoch"] = 0
+                dep["version"] = "foo"
+                dep["release"] = "bar"
 
             dlist.append(dep)
 
