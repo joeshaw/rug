@@ -1,3 +1,11 @@
+2002-08-23  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Blah.  Catching the KeyboardInterrupt here
+	wasn't enough.
+
+	* rc.in: Put -everything- in a try block with a KeyboardInterrupt
+	except.
+
 2002-08-22  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Change the socket path from /tmp/rcd to

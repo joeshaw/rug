@@ -168,10 +168,6 @@ def main(ver):
 
     try:
         command.execute(server, opt_dict, args)
-    except KeyboardInterrupt:
-        # Just quietly exit if we got a control C.
-        print
-        sys.exit(0)
     except IOError:
         # Just quietly exit in this case, too.  It is probably a
         # broken pipe from something like quitting "less" before

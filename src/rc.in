@@ -17,31 +17,37 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ###
 
-import sys
-import os
+try:
+    import sys
+    import os
 
-rc_dir = "@DDIR@/rc"
-rc_version = "@VERSION@"
+    rc_dir = "@DDIR@/rc"
+    rc_version = "@VERSION@"
 
-# FIXME: This has a special check to allow us to run rc in-place
-# without having done a "make install".  We might want to take this
-# out at some point.
+    # FIXME: This has a special check to allow us to run rc in-place
+    # without having done a "make install".  We might want to take this
+    # out at some point.
 
-if not (os.path.isfile("./rcmain.py") \
-        or (os.path.isdir(rc_dir) and os.path.isfile(rc_dir + "/rcmain.py"))):
-    print "ERROR: The Red Carpet Command Line Client doesn't appear to be"
-    print "ERROR: installed properly.  Please check your installation."
-    sys.exit(1)
+    if not (os.path.isfile("./rcmain.py") \
+            or (os.path.isdir(rc_dir) and os.path.isfile(rc_dir + "/rcmain.py"))):
+        print "ERROR: The Red Carpet Command Line Client doesn't appear to be"
+        print "ERROR: installed properly.  Please check your installation."
+        sys.exit(1)
 
 
-sys.path.append(rc_dir)
-import rcmain
+    sys.path.append(rc_dir)
+    import rcmain
 
-if "--rc-profile" in sys.argv:
-    import profile
-    sys.stderr.write("*** Profiling Enabled ***\n")
-    sys.argv = filter(lambda x:x != "--rc-profile", sys.argv)
-    profile.run("rcmain.main(rc_version)")
-else:
-    rcmain.main(rc_version)
+    if "--rc-profile" in sys.argv:
+        import profile
+        sys.stderr.write("*** Profiling Enabled ***\n")
+        sys.argv = filter(lambda x:x != "--rc-profile", sys.argv)
+        profile.run("rcmain.main(rc_version)")
+    else:
+        rcmain.main(rc_version)
+except KeyboardInterrupt:
+    # Just quietly exit if we got a ^C
+    print
+    sys.exit(0)
     
+
