@@ -209,9 +209,10 @@ def refresh_channels(server, channels):
                 if polling:
                     time.sleep(0.4)
 
-            rctalk.message_finished("Download complete")
-
         except KeyboardInterrupt:
 
             rctalk.message_finished("The download will finish in the background")
             sys.exit(0)
+
+    rctalk.message_finished("Refresh complete")
+

@@ -1,3 +1,9 @@
+2003-08-21  Joe Shaw  <joe@ximian.com>
+
+	* rcchannelutils.py (refresh_channels): When we're through with
+	the refresh, print it out, not just after we've completed
+	downloading.
+
 2003-08-19  Joe Shaw  <joe@ximian.com>
 
 	* rcmountcmds.py (MountCmd): Go back to only allowing local
