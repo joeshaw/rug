@@ -1,3 +1,10 @@
+2003-01-16  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Handle ProtocolErrors from ximian_xmlrpclib
+	that have an error code of -1, which means that the client
+	couldn't communicate with the server.  Most likely to come up when
+	the user uses "-h http://host" instead of https.
+
 2003-01-10  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (TransactCmd.resolve_deps): Fixed a typo --

@@ -194,7 +194,11 @@ def main(ver):
         rctalk.error("Please ensure that the service is running.")
         sys.exit(1)
     except ximian_xmlrpclib.ProtocolError, e:
-        if e.errcode == 401:
+        if e.errcode == -1:
+            rctalk.error("Unable to connect to the daemon.  Please check ")
+            rctalk.error("the hostname and protocol.")
+            sys.exit(1)
+        elif e.errcode == 401:
             rctalk.error("Unable to authenticate with the daemon; you must")
             rctalk.error("provide a username and password")
             sys.exit(1)
