@@ -1,0 +1,16 @@
+
+Implement "verify".
+
+Fix formatting for package searching, updates, etc.
+
+Properly format the "history" output.
+
+Show some history for an installed package when it is "info"ed.
+
+Activation/registration.
+
+Hide all channel IDs from the user.
+
+Implements "preferences" command.
+
+Need docs and a man page.
