@@ -187,13 +187,17 @@ class RecurringCmd(rccommand.RCCommand):
                 sys.exit(1)
             else:
                 raise
-            
+
         items.sort(lambda x, y: cmp(x["when"], y["when"]))
 
         table = []
         for rec in items:
-            next_str = "%s (%s)" % (rec["when_str"],
-                                    rcformat.seconds_to_str(rec["when_delta"]))
+            if rec["when_delta"] > 0:
+                when_delta = rcformat.seconds_to_str(rec["when_delta"])
+            else:
+                when_delta = "running"
+            next_str = "%s (%s)" % (rec["when_str"], when_delta)
+
             if rec.has_key("prev_str"):
                 prev_str = "%s (%s)" % (rec["prev_str"],
                                         rcformat.seconds_to_str(rec["prev_delta"]))
