@@ -14,18 +14,19 @@ rugsupport_DATA = 		\
 	ximian_xmlrpclib.py
 
 rugcmdsdir = $(rugsupportdir)/commands
-rugcmds_DATA = 		\
+rugcmds_DATA = 			\
 	rcchannelcmds.py	\
 	rclockcmds.py		\
 	rclogcmds.py		\
+	rcmountcmds.py		\
 	rcnewscmds.py		\
 	rcpackagecmds.py	\
 	rcprefscmds.py		\
-	rcsystemcmds.py	\
+	rcservicecmds.py	\
+	rcsystemcmds.py		\
 	rctransactcmds.py	\
 	rcusercmds.py		\
 	rcwhatcmds.py		\
-	rcmountcmds.py
 
 EXTRA_DIST = $(rugsupport_DATA) $(rugcmds_DATA)
 

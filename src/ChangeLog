@@ -1,3 +1,16 @@
+2003-08-28  Joe Shaw  <joe@ximian.com>
+
+	* Makefile.am: Install rcservicecmds.py.
+
+	* rcprefscmds.py (PrefsMirrorsCmd): Remove this from here, it's in
+	rcservicecmds.py now.
+
+	* rcservicecmds.py: Added.  Contains all the service-related
+	commands previously in rcprefscmds.py and rcsystemcmds.py.  Get
+	the mirrors working again, per-service.
+
+	* rcsystemcmds.py: Move service commands to rcservicecmds.py.
+
 2003-08-27  Joe Shaw  <joe@ximian.com>
 
 	* rcformat.py (package_to_row): Check for "package_set", not
