@@ -46,7 +46,8 @@ class ListChannelsCmd(rccommand.RCCommand):
 
     def local_opt_table(self):
         return [["s", "subscribed", "", "List only subscribed channels"],
-                ["u", "unsubscribed", "", "List only unsubscribed channels"]]
+                ["u", "unsubscribed", "", "List only unsubscribed channels"],
+                ["", "show-ids", "", "Show channel IDs"]]
 
     def local_orthogonal_opts(self):
         return [["subscribed", "unsubscribed"]]
@@ -55,6 +56,10 @@ class ListChannelsCmd(rccommand.RCCommand):
 
         channels = rcchannelutils.get_channels(server)
         channel_table = []
+
+        headers = ["subd?", "Alias", "Name"]
+        if options_dict.has_key("show-ids"):
+            headers.insert(2, "ID")
 
         for c in channels:
 
@@ -73,13 +78,14 @@ class ListChannelsCmd(rccommand.RCCommand):
                     show = 0
 
             if show:
-                channel_table.append([subflag,
-                                      rcchannelutils.get_channel_alias(c),
-                                      c["name"]])
+                row = [subflag, rcchannelutils.get_channel_alias(c), c["name"]]
+                if options_dict.has_key("show-ids"):
+                    row.insert(2, str(c["id"]))
+                channel_table.append(row)
 
         if channel_table:
             channel_table.sort(lambda x, y:cmp(x[2],y[2]))
-            rcformat.tabular(["subd?", "Alias", "Name"], channel_table)
+            rcformat.tabular(headers, channel_table)
         else:
             if options_dict.has_key("unsubscribed"):
                 rctalk.message("--- No unsubscribed channels ---")
