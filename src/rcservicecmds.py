@@ -159,10 +159,10 @@ class ServiceDeleteCmd(rccommand.RCCommand):
         return ["sd"]
 
     def arguments(self):
-        return "<service uri> ..."
+        return "<service> ..."
 
     def description_short(self):
-        return "Delete a service"
+        return "Delete a service. Specify service URI, name, or number."
 
     def category(self):
         return "service"
