@@ -2,3 +2,12 @@ Activation/registration.
 
 Need docs and a man page.
 
+We need to review all of the user-visible strings for grammar and
+intelligibility.  And we need to add long descriptions for the
+commands.  Aaron would probably be a good person to do this with,
+since he knows about words and stuff.
+
+Add a 'debug' command that gets and spits out an XMLified version of
+the RCWorld.  (This will replace cur_to_xml.)
+
+
