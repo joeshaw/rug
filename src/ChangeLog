@@ -1,3 +1,17 @@
+2002-10-15  Joe Shaw  <joe@ximian.com>
+
+	* rcchannelutils.py (refresh_channels): Added.  Moved the bulk of
+	the work refreshing channels here.
+
+	* rcchannelcmds.py (RefreshChannelCmd.execute): Mostly just a
+	wrapper around above.
+
+	* rcfault.py: Added undefined_method fault (mapping to an xmlrpc-c
+	fault)
+
+	* rcsystemcmds.py (ActivateCmd): Added.  Activates the system
+	against a server and refreshes the channels on success.
+
 2002-10-11  Joe Shaw  <joe@ximian.com>
 
 	* rcprefscmds.py (PrefsListCmd): add a -d option to not show the

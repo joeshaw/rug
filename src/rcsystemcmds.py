@@ -17,9 +17,12 @@
 
 import sys
 import os
+import rcchannelutils
 import rctalk
 import rcformat
 import rccommand
+import ximian_xmlrpclib
+import rcfault
 
 class PingCmd(rccommand.RCCommand):
 
@@ -90,4 +93,52 @@ class ShutdownCmd(rccommand.RCCommand):
         server.rcd.system.shutdown()
 
 rccommand.register(ShutdownCmd)
+
+class ActivateCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "activate"
+
+    def aliases(self):
+        return ["act"]
+
+    def arguments(self):
+        return "<activation code> <email address>"
+
+    def description_short(self):
+        return "Activates the machine against a premium server"
+
+    def category(self):
+        return "system"
+
+    def local_opt_table(self):
+        return [["n", "no-refresh", "", "Don't refresh channel data after a successful activation"]]
+
+    def execute(self, server, options_dict, non_option_args):
+        if len(non_option_args) < 2:
+            self.usage()
+            sys.exit(1)
+
+        # Support older daemons which don't have this method.
+        try:
+            success = server.rcd.system.activate(non_option_args[0],
+                                                 non_option_args[1])
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                rctalk.error("This daemon does not support activation")
+                sys.exit(1)
+            else:
+                raise
+
+        if success:
+            rctalk.message("System successfully activated")
+
+            if not options_dict.has_key("no-refresh"):
+                rcchannelutils.refresh_channels(server, [])
+            
+        else:
+            rctalk.warning("System could not be activated")
+            sys.exit(1)
+
+rccommand.register(ActivateCmd)
 

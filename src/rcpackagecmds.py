@@ -161,7 +161,7 @@ def find_local_package(server, package):
     return p
 
 
-def find_package(server, str, allow_unsub):
+def find_package(server, str, allow_unsub, allow_system=1):
 
     channel = None
     package = None
@@ -180,7 +180,8 @@ def find_package(server, str, allow_unsub):
             package = str
 
         if not channel:
-            p = find_package_on_system(server, package)
+            if allow_system:
+                p = find_package_on_system(server, package)
 
             if not p:
                 p, inform = find_package_in_channel(server, -1, package, allow_unsub)
@@ -1482,34 +1483,7 @@ class PackageInstallCmd(TransactCmd):
 
                 packages_to_remove.append(p)
             else:
-                p = find_local_package(server, a)
-
-                if not p:
-                    p = find_remote_package(server, a)
-                
-                if not p:
-                    off = string.find(a, ":")
-                    if off != -1:
-                        channel = a[:off]
-                        package = a[off+1:]
-                    else:
-                        package = a
-
-                    if not channel:
-                        c = -1
-                    else:
-                        clist = rcchannelutils.get_channels_by_name(server, channel)
-                        if not rcchannelutils.validate_channel_list(channel, clist):
-                            sys.exit(1)
-                        c = clist[0]["id"]
-
-                    p, inform = find_package_in_channel(server, c, package, allow_unsub)
-
-                    if inform:
-                        rctalk.message("Using " + p["name"] + " " +
-                                       rcformat.evr_to_str(p) + " from the '" +
-                                       rcchannelutils.channel_id_to_name(server, p["channel"]) +
-                                       "' channel")
+                p = find_package(server, a, allow_unsub, allow_system=0)
 
                 if not p:
                     sys.exit(1)
