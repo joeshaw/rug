@@ -22,6 +22,8 @@ import rcutil
 import rctalk
 import rcformat, rcchannelutils
 import rccommand
+import rcfault
+import ximian_xmlrpclib
 
 class MountCmd(rccommand.RCCommand):
 
@@ -71,7 +73,14 @@ class MountCmd(rccommand.RCCommand):
                            (old_alias, alias))
 
         name = options_dict.get("name", path)
-        server.rcd.packsys.mount_directory(path, name, alias)
+        try:
+            server.rcd.packsys.mount_directory(path, name, alias)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                rctalk.error("Server does not support mount.")
+                sys.exit(1)
+            else:
+                raise
 
         rctalk.message("Mounted '%s' as a channel." % path)
 
@@ -103,7 +112,14 @@ class UnmountCmd(rccommand.RCCommand):
 
         channel = channels[0]
 
-        retval = server.rcd.packsys.unmount_directory(channel["id"])
+        try:
+            retval = server.rcd.packsys.unmount_directory(channel["id"])
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                rctalk.error("Server does not support unmount.")
+                sys.exit(1)
+            else:
+                raise
 
         if retval:
             results = "succeeded"

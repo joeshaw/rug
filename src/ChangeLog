@@ -1,3 +1,21 @@
+2002-10-10  Joe Shaw  <joe@ximian.com>
+
+	* rcfault.py: Added undefined_method fault.
+
+	* rcmountcmds.py: Catch an undefined_method fault when trying to
+	mount or unmount and tell the user that the daemon doesn't support
+	it.
+
+	* rcpackagecmds.py (find_remote_package): Added.  Uses urllib to
+	parse and download URLs for packages.
+	(find_package: Call find_remote_package() if find_local_package()
+	fails.
+	(TransactCmd.resolve_deps): Take a rollback argument, which calls
+	rcd.packsys.rollback_dependencies().
+	(TransactCmd.transact): Take a rollback argument.
+	(PackageRollbackCmd): Added.  Rolls back packages to their
+	previous state.
+
 2002-10-10  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py: Import rcmountcmds.

@@ -21,6 +21,7 @@
 
 type_mismatch          = -501 # matches xmlrpc-c
 invalid_stream_type    = -503 # matches xmlrpc-c
+undefined_method       = -506 # matches xmlrpc-c
 permission_denied      = -600
 package_not_found      = -601
 package_is_newest      = -602

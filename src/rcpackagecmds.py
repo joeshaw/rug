@@ -87,6 +87,45 @@ def find_package_on_system(server, package):
 
     return p
 
+def find_remote_package(server, package):
+    try:
+        import urllib
+    except ImportError:
+        return None
+
+    # Figure out if the protocol is valid.  Copied mostly from urllib.
+    proto, rest = urllib.splittype(package)
+
+    if not proto:
+        return None
+
+    name = "open_" + proto
+    if "-" in name:
+        # replace - with _
+        name = string.join(string.split(name, "-"), "_")
+
+    if not hasattr(urllib.URLopener, name):
+        return None
+
+    rctalk.message("Fetching %s..." % package)
+    u = urllib.URLopener().open(package)
+    pdata = ximian_xmlrpclib.Binary(u.read())
+
+    try:
+        p = server.rcd.packsys.query_file(pdata)
+    except ximian_xmlrpclib.Fault,f :
+        if f.faultCode == rcfault.package_not_found:
+            return None
+        elif f.faultCode == rcfault.invalid_package_file:
+            rctalk.warning ("'" + package + "' is not a valid package file")
+            return None
+        else:
+            raise
+
+    p["package_data"] = pdata
+
+    return p
+
 def find_local_package(server, package):
     try:
         os.stat(package)
@@ -128,6 +167,9 @@ def find_package(server, str, allow_unsub):
     package = None
 
     p = find_local_package(server, str)
+
+    if not p:
+        p = find_remote_package(server, str)
 
     if not p:
         off = string.find(str, ":")
@@ -1255,10 +1297,23 @@ class TransactCmd(rccommand.RCCommand):
         return opts
 
     def resolve_deps(self, server, options_dict,
-                     install_packages, remove_packages, extra_reqs, verify):
+                     install_packages, remove_packages, extra_reqs,
+                     verify, rollback):
+        
         try:
             if verify:
                 dep_install, dep_remove, dep_info = server.rcd.packsys.verify_dependencies()
+            elif rollback:
+                try:
+                    dep_install, dep_remove, dep_info = server.rcd.packsys.rollback_dependencies(install_packages)
+                except ximian_xmlrpclib.Fault, f:
+                    if f.faultCode == rcfault.undefined_method:
+                        rctalk.error("Server does not support rollback.")
+                        sys.exit(1)
+                    else:
+                        raise
+
+                install_packages = []
             else:
                 install_packages = filter_dups(install_packages)
                 remove_packages = filter_dups(remove_packages)
@@ -1320,7 +1375,9 @@ class TransactCmd(rccommand.RCCommand):
         return dep_install, dep_remove, dep_info
 
     def transact(self, server, options_dict,
-                 install_packages, remove_packages, extra_reqs=[], verify=0):
+                 install_packages, remove_packages, extra_reqs=[],
+                 verify=0, rollback=0):
+
         if not options_dict.has_key("download-only"):
             dep_install, dep_remove, dep_info = \
                          self.resolve_deps(server,
@@ -1328,7 +1385,7 @@ class TransactCmd(rccommand.RCCommand):
                                            install_packages,
                                            remove_packages,
                                            extra_reqs,
-                                           verify)
+                                           verify, rollback)
         else:
             dep_install = []
             dep_remove = []
@@ -1357,7 +1414,12 @@ class TransactCmd(rccommand.RCCommand):
             flags = DOWNLOAD_ONLY
         else:
             flags = 0
-        
+
+        # Kind of an icky hack.  If rollback is set, install_packages should
+        # be empty.
+        if rollback:
+            install_packages = []
+
         transact_and_poll(server,
                           install_packages + extract_packages(dep_install),
                           remove_packages + extract_packages(dep_remove),
@@ -1421,6 +1483,10 @@ class PackageInstallCmd(TransactCmd):
                 packages_to_remove.append(p)
             else:
                 p = find_local_package(server, a)
+
+                if not p:
+                    p = find_remote_package(server, a)
+                
                 if not p:
                     off = string.find(a, ":")
                     if off != -1:
@@ -1604,6 +1670,67 @@ class PackageVerifyCmd(TransactCmd):
     def execute(self, server, options_dict, non_option_args):
         self.transact(server, options_dict, [], [], [], verify=1)
 
+class PackageRollbackCmd(TransactCmd):
+
+    def name(self):
+        return "rollback"
+
+    def aliases(self):
+        return ["ro"]
+
+    def category(self):
+        return "package"
+
+    def arguments(self):
+        return "<package> ..."
+
+    def description_short(self):
+        return "Rollback a package to its last installed version"
+
+    def execute(self, server, options_dict, non_option_args):
+        if non_option_args:
+            self.transact(server, options_dict, non_option_args,
+                          [], [], rollback=1)
+        else:
+            try:
+                packages = server.rcd.packsys.get_rollback_packages()
+            except ximian_xmlrpclib.Fault, f:
+                if f.faultCode == rcfault.undefined_method:
+                    rctalk.error("Server does not support rollback.")
+                    sys.exit(1)
+                else:
+                    raise
+
+            package_table = []
+            no_abbrev = options_dict.has_key("no-abbrev")
+
+            for p in packages:
+                row = rcformat.package_to_row(server, p, no_abbrev,
+                                              ["name", "version"])
+                newp = find_package_on_system(server, p["name"])
+
+                if newp:
+                    if no_abbrev:
+                        row.append(rcformat.evr_to_str(newp))
+                    else:
+                        row.append(rcformat.evr_to_abbrev_str(newp))
+                else:
+                    row.append("")
+                
+                package_table.append(row)
+
+            if package_table:
+                package_table.sort(lambda x,y:cmp(string.lower(x[0]),
+                                                  string.lower(y[0])))
+
+                rcformat.tabular(["Package Name",
+                                  "Last Installed Version",
+                                  "Current Version"],
+                                 package_table)
+            else:
+                rctalk.message("--- No packages found ---")
+            
+
 ###
 ### "solvedeps" command
 ###
@@ -1738,3 +1865,4 @@ rccommand.register(PackageUpdateCmd)
 rccommand.register(PackageVerifyCmd)
 rccommand.register(PackageDumpCmd)
 rccommand.register(PackageSolveCmd)
+rccommand.register(PackageRollbackCmd)
