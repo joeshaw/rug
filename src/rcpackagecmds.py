@@ -99,7 +99,7 @@ def find_local_package(server, package):
             raise
 
     if rcmain.local:
-        pdata = package
+        pdata = os.path.abspath(package)
     else:
         pdata = ximian_xmlrpclib.Binary(open(package).read())
 
@@ -118,7 +118,7 @@ def find_local_package(server, package):
         p["package_filename"] = pdata
     else:
         p["package_data"] = pdata
-        
+
     return p
 
 
