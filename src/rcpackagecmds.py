@@ -103,6 +103,39 @@ def find_package_on_system(server, package):
 
     return p
 
+def get_updates(server, non_option_args):
+    up = server.rcd.packsys.get_updates()
+
+    # Filter out unsubscribed channels
+    up = filter(lambda x,s=server:\
+                rcchannelcmds.check_subscription_by_id(s, x[1]["channel"]),
+                up)
+    
+    # If channels are specified by the command line, filter out all except
+    # for updates from those channels.
+    if non_option_args:
+        channel_id_list = []
+        failed = 0
+        for a in non_option_args:
+            clist = rcchannelcmds.get_channels_by_name(server, a)
+            if not rcchannelcmds.validate_channel_list(a, clist):
+                failed = 1
+            else:
+                c = clist[0]
+                if c["subscribed"]:
+                    channel_id_list.append(c["id"])
+                else:
+                    rctalk.warning("You are not subscribed to "
+                                   + rcchannelcmds.channel_to_str(c)
+                                   + ", so no updates are available.")
+                    
+        if failed:
+            sys.exit(1)
+
+        up = filter(lambda x, cidl=channel_id_list:x[1]["channel"] in cidl, up)
+
+    return up
+
 class PackageListCmd(rccommand.RCCommand):
 
     def name(self):
@@ -216,39 +249,10 @@ class PackageUpdatesCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        up = server.rcd.packsys.get_updates()
-
         no_abbrev = options_dict.has_key("no-abbrev") or \
                     options_dict.has_key("terse")
 
-        # Filter out unsubscribed channels
-        up = filter(lambda x,s=server:\
-                    rcchannelcmds.check_subscription_by_id(s, x[1]["channel"]),
-                    up)
-
-        # If channels are specified by the command line, filter out all except
-        # for updates from those channels.
-        if non_option_args:
-            channel_id_list = []
-            failed = 0
-            for a in non_option_args:
-                clist = rcchannelcmds.get_channels_by_name(server, a)
-                if not rcchannelcmds.validate_channel_list(a, clist):
-                    failed = 1
-                else:
-                    c = clist[0]
-                    if c["subscribed"]:
-                        channel_id_list.append(c["id"])
-                    else:
-                        rctalk.warning("You are not subscribed to "
-                                       + rcchannelcmds.channel_to_str(c)
-                                       + ", so no updates are available.")
-                    
-            if failed:
-                sys.exit(1)
-
-            up = filter(lambda x, cidl=channel_id_list:x[1]["channel"] in cidl, up)
-
+        up = get_updates(server, non_option_args)
 
         table = []
 
@@ -297,30 +301,6 @@ class PackageUpdatesCmd(rccommand.RCCommand):
             else:
                 rctalk.message("No updates are available.")
 
-def transact_and_poll(server, packages_to_install, packages_to_remove):
-    tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove)
-    message_offset = 0
-    download_percent = 0.0
-
-    while 1:
-        tid_info = server.rcd.system.poll_pending(tid)
-
-        if rctalk.show_verbose and tid_info["percent_complete"] > download_percent:
-            download_percent = tid_info["percent_complete"]
-            rctalk.message("Download " + str(int(download_percent)) + "% complete")
-            
-        message_len = len(tid_info["messages"])
-            
-        if message_len > message_offset:
-            for e in tid_info["messages"][message_offset:]:
-                rctalk.message(rcformat.transaction_status(e))
-            message_offset = message_len
-                    
-        if tid_info["status"] == "finished" or tid_info["status"] == "failed":
-            break
-
-        time.sleep(1)
-
 class PackageInfoCmd(rccommand.RCCommand):
 
     def name(self):
@@ -360,6 +340,30 @@ class PackageInfoCmd(rccommand.RCCommand):
             rctalk.message("Description: ")
             rctalk.message("  " + pinfo["description"])
 
+def transact_and_poll(server, packages_to_install, packages_to_remove):
+    tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove)
+    message_offset = 0
+    download_percent = 0.0
+
+    while 1:
+        tid_info = server.rcd.system.poll_pending(tid)
+
+        if rctalk.show_verbose and tid_info["percent_complete"] > download_percent:
+            download_percent = tid_info["percent_complete"]
+            rctalk.message("Download " + str(int(download_percent)) + "% complete")
+            
+        message_len = len(tid_info["messages"])
+            
+        if message_len > message_offset:
+            for e in tid_info["messages"][message_offset:]:
+                rctalk.message(rcformat.transaction_status(e))
+            message_offset = message_len
+                    
+        if tid_info["status"] == "finished" or tid_info["status"] == "failed":
+            break
+
+        time.sleep(1)
+
 def format_dependencies(dep_list):
     dep_list.sort(lambda x,y:cmp(string.lower(x["name"]),
                                  string.lower(y["name"])))
@@ -372,6 +376,9 @@ class PackageInstallCmd(rccommand.RCCommand):
 
     def name(self):
         return "install"
+
+    def local_opt_table(self):
+        return [["y", "no-confirmation", "", "Perform the actions without confirmation"]]
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_install = []
@@ -412,12 +419,21 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.message("The following packages must be REMOVED:")
             format_dependencies(dep_remove)
 
+        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+            confirm = raw_input("Do you want to continue? [Y/n] ")
+            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Aborted.")
+                sys.exit(0)
+
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
 class PackageRemoveCmd(rccommand.RCCommand):
 
     def name(self):
         return "remove"
+
+    def local_opt_table(self):
+        return [["y", "no-confirmation", "", "Perform the actions without confirmation"]]
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_remove = []
@@ -445,7 +461,51 @@ class PackageRemoveCmd(rccommand.RCCommand):
             rctalk.message("The following packages must also be REMOVED:")
             format_dependencies(dep_remove)
 
+        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+            confirm = raw_input("Do you want to continue? [Y/n] ")
+            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Aborted.")
+                sys.exit(0)
+
         transact_and_poll(server, dep_install, packages_to_remove + dep_remove)
+
+class PackageUpdateCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "update-all"
+
+    def local_opt_table(self):
+        return [["d", "allow-removals", "", "Allow removals with no confirmation"],
+                ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
+
+    def execute(self, server, options_dict, non_option_args):
+        up = get_updates(server, non_option_args)
+
+        # x[1] is the package to be updated
+        packages_to_install = map(lambda x:x[1], up)
+
+        if not packages_to_install:
+            rctalk.message("--- No packages to update ---")
+            sys.exit(0)
+
+        dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
+
+        if dep_install:
+            rctalk.message("The following additional packages will be installed:")
+            format_dependencies(dep_install)
+
+        if dep_remove:
+            rctalk.message("The following packages must be REMOVED:")
+            format_dependencies(dep_remove)
+
+        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+            confirm = raw_input("Do you want to continue? [Y/n] ")
+            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Aborted.")
+                sys.exit(0)
+
+        transact_and_poll(server, packages_to_install + dep_install, dep_remove)
+        
 
 rccommand.register(PackageListCmd,    "List the packages in a channel")
 rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")
@@ -453,3 +513,4 @@ rccommand.register(PackageUpdatesCmd, "List pending updates")
 rccommand.register(PackageInfoCmd,    "Show info on a package")
 rccommand.register(PackageInstallCmd, "Install a package")
 rccommand.register(PackageRemoveCmd,  "Remove a package")
+rccommand.register(PackageUpdateCmd,  "Update all available packages")

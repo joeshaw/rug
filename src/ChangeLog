@@ -1,3 +1,10 @@
+2002-06-18  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageUpdateCmd): Added.  Gets a list of
+	updates from the server and performs an update.
+	(PackageInstallCmd, PackageRemoveCmd): Add confirmation by default
+	and handle -y/--no-confirmation.
+
 2002-06-17  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInstallCmd, PackageRemoveCmd): Get
