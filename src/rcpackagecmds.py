@@ -1112,7 +1112,10 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
                 rctalk.message("--- %s %s ---" %
                                (pkg["name"], rcformat.evr_to_str(pkg)))
 
-            rcformat.tabular(["!", "Requirement"] + row_headers, table)
+            if not table:
+                rctalk.message("--- No requirements ---")
+            else:
+                rcformat.tabular(["!", "Requirement"] + row_headers, table)
 
             if len(plist) > 1:
                 rctalk.message("")
