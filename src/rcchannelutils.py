@@ -175,7 +175,7 @@ def refresh_channels(server, channels):
                 for tid in stuff_to_poll:
                     pending = server.rcd.system.poll_pending(tid)
 
-                    if pending["is_active"]:
+                    if pending.get("is_active", 0):
                         polling = 1
 
                         percent = percent + pending["percent_complete"]

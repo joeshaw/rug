@@ -1,5 +1,10 @@
 2002-11-08  Joe Shaw  <joe@ximian.com>
 
+	* rcchannelutils.py (refresh_channels): Use pending.get() instead
+	of pending[] to avoid a traceback when refreshing a mounted channel.
+
+2002-11-08  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (TransactCmd.resolve_deps): If we get back a
 	"package not found" fault, handle it.
 
