@@ -332,7 +332,7 @@ class TransactCmd(rccommand.RCCommand):
 
         download_id, transact_id, step_id = \
                      server.rcd.packsys.transact(install_packages + extract_packages(install_deps),
-                                                 remove_packages + extract_packages(install_deps),
+                                                 remove_packages + extract_packages(remove_deps),
                                                  flags,
                                                  rcmain.rc_name,
                                                  rcmain.rc_version)
