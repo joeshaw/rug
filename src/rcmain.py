@@ -38,6 +38,9 @@ import rcnewscmds
 rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
 
+# Whether we are connecting over Unix domain sockets or TCP.
+local = 0
+
 def main(rc_version):
 
     ###

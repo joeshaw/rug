@@ -1,3 +1,18 @@
+2002-07-01  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py: Make local a file-global variable, so we can see if
+	we're connecting locally or over HTTP.
+
+	* rcpackagecmds.py (find_package_in_channel): Take a fourth
+	option, "allow_unsub" to allow searching for a matching package in
+	unsubscribed channels.
+	(find_local_package): Added.  Given a local file, returns a
+	package reference.
+	(PackageInfoCmd, PackageInstallCmd): Add a -u option to allow
+	searching in unsubscribed channels.
+	(PackageInstallCmd): Try to match any non-package on the command
+	line to a local file package.
+
 2002-06-28  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py: Strip out comments when processing the .rcrc file.

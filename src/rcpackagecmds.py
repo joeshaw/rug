@@ -15,6 +15,8 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ###
 
+import errno
+import os
 import sys
 import string
 import time
@@ -22,6 +24,7 @@ import rctalk
 import rcformat
 import rccommand
 import rcchannelcmds
+import rcmain
 import ximian_xmlrpclib
 
 def get_packages(server, channel):
@@ -74,7 +77,7 @@ def sort_and_format_table(package_table, multi):
                                            string.lower(y[1])))
         rcformat.tabular(header[:1]+header[2:], package_table)
 
-def find_package_in_channel(server, channel, package):
+def find_package_in_channel(server, channel, package, allow_unsub):
     if channel != -1:
         plist = server.rcd.packsys.search([["name",      "is", package],
                                            ["installed", "is", "false"],
@@ -88,7 +91,12 @@ def find_package_in_channel(server, channel, package):
         inform = 0
     else:
         try:
-            p = server.rcd.packsys.find_latest_version(package)
+            if allow_unsub:
+                b = ximian_xmlrpclib.False;
+            else:
+                b = ximian_xmlrpclib.True;
+            
+            p = server.rcd.packsys.find_latest_version(package, b)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == -601:
                 p = None
@@ -109,6 +117,30 @@ def find_package_on_system(server, package):
         p = plist[0]
 
     return p
+
+def find_local_package(server, package):
+    try:
+        os.stat(package)
+    except OSError, e:
+        eno, estr = e
+        if eno == errno.ENOENT:
+            # No such file or directory.
+            return None
+        else:
+            raise
+
+    try:
+        server.rcd.packsys.query_file(package)
+    except ximian_xmlrpclib.Fault, f:
+        if f.faultCode == -613:
+            return None
+        else:
+            raise
+
+    if rcmain.local:
+        return package
+    else:
+        return ximian_xmlrpclib.Binary(open(package).read())
 
 def get_updates(server, non_option_args):
     up = server.rcd.packsys.get_updates()
@@ -390,7 +422,16 @@ class PackageInfoCmd(rccommand.RCCommand):
     def name(self):
         return "info"
 
+    def local_opt_table(self):
+        return [["u", "allow-unsubscribed", "", "Search in unsubscribed channels as well"]]
+
     def execute(self, server, options_dict, non_option_args):
+
+        if options_dict.has_key("allow-unsubscribed"):
+            allow_unsub = 1
+        else:
+            allow_unsub = 0
+
         for a in non_option_args:
             channel = -1
             package = None
@@ -405,10 +446,13 @@ class PackageInfoCmd(rccommand.RCCommand):
             if channel == -1:
                 p = find_package_on_system(server, package)
             else:
-                p, inform = find_package_in_channel(server, channel, package)
+                p, inform = find_package_in_channel(server, channel, package, allow_unsub)
 
             if not p:
-                rctalk.error("Unable to find package '" + package + "'")
+                if allow_unsub:
+                    rctalk.error("Unable to find package '" + package + "' in any subscribed channel")
+                else:
+                    rctalk.error("Unable to find package '" + package + "'")
                 sys.exit(1)
 
             pinfo = server.rcd.packsys.package_info(p)
@@ -417,7 +461,7 @@ class PackageInfoCmd(rccommand.RCCommand):
             rctalk.message("Version: " + p["version"])
             rctalk.message("Release: " + p["release"])
             if pinfo.has_key("file_size"):
-                rctalk.message("Package size: 99" + str(pinfo["file_size"]))
+                rctalk.message("Package size: " + str(pinfo["file_size"]))
             if pinfo.has_key("installed_size"):
                 rctalk.message("Installed size: " + str(pinfo["installed_size"]))
             rctalk.message("Summary: " + pinfo["summary"])
@@ -479,11 +523,17 @@ class PackageInstallCmd(rccommand.RCCommand):
 
     def local_opt_table(self):
         return [["d", "allow-removals", "", "Allow removals with no confirmation"],
-                ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
+                ["y", "no-confirmation", "", "Perform the actions without confirmation"],
+                ["u", "allow-unsubscribed", "", "Search in unsubscribed channels as well"]]
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_install = []
         
+        if options_dict.has_key("allow-unsubscribed"):
+            allow_unsub = 1
+        else:
+            allow_unsub = 0
+
         for a in non_option_args:
             channel = -1
             package = None
@@ -495,11 +545,18 @@ class PackageInstallCmd(rccommand.RCCommand):
             else:
                 package = a
 
-            p, inform = find_package_in_channel(server, channel, package)
+            p, inform = find_package_in_channel(server, channel, package, allow_unsub)
 
             if not p:
-                rctalk.error("Unable to find package '" + package + "'")
-                sys.exit(1)
+                inform = 0
+                if not find_local_package(server, package):
+                    if allow_unsub:
+                        rctalk.error("Unable to find package '" + package + "'")
+                    else:
+                        rctalk.error("Unable to find package '" + package + "' in any subscribed channel")
+                    sys.exit(1)
+                else:
+                    p = package
 
             if inform:
                 rctalk.message("Using " + p["name"] + " " + rcformat.evr_to_str(p) + " from the '" + rcchannelcmds.channel_id_to_name(server, p["channel"]) + "' channel")
