@@ -1,3 +1,10 @@
+2003-03-10  Joe Shaw  <joe@ximian.com>
+
+	* rcsystemcmds.py (ActivateCmd): Add a -a/--alias option to the
+	activate command.  If -a is set, call activate_with_alias() on the
+	daemon, else regular activate().  Deal with trying to use aliases
+	with old daemons that don't support it.
+
 2003-02-12  Joe Shaw  <joe@ximian.com>
 
 	* rctalk.py (prompt): Added.  Prints out the prompt, flushes

@@ -137,20 +137,28 @@ class ActivateCmd(rccommand.RCCommand):
         return "system"
 
     def local_opt_table(self):
-        return [["n", "no-refresh", "", "Don't refresh channel data after a successful activation"]]
+        return [["a", "alias", "alias", "Use \"alias\" to name this machine"],
+                ["n", "no-refresh", "", "Don't refresh channel data after a successful activation"]]
 
     def execute(self, server, options_dict, non_option_args):
         if len(non_option_args) < 2:
             self.usage()
             sys.exit(1)
 
-        # Support older daemons which don't have this method.
         try:
-            success = server.rcd.system.activate(non_option_args[0],
-                                                 non_option_args[1])
+            if options_dict.has_key("alias"):
+                success = server.rcd.system.activate_with_alias(non_option_args[0],
+                                                                non_option_args[1],
+                                                                options_dict["alias"])
+            else:
+                success = server.rcd.system.activate(non_option_args[0],
+                                                     non_option_args[1])
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.undefined_method:
-                rctalk.error("This daemon does not support activation")
+                if options_dict.has_key("alias"):
+                    rctalk.error("This daemon does not support activation with aliases")
+                else:
+                    rctalk.error("This daemon does not support activation")
                 sys.exit(1)
             else:
                 raise
