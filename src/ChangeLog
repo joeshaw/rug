@@ -1,3 +1,15 @@
+2002-09-13  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py: Add DRY_RUN and DOWNLOAD_ONLY
+	(transact_and_poll): Take in a flags argument, pass that into
+	rcd.packsys.transact() instead of the dry_run argument.  Add some
+	logic for download only transactions.
+	(TransactCmd.transact): Split out the dependency resolution out
+	into the resolve_deps method.  Skip it if we're in download only
+	mode.  Set the flags and pass them into transact_and_poll().
+	(PackageInstallCmd, PackageUpdateCmd): Add a -d/--download-only
+	option to the local_opt_table.
+
 2002-09-13  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (pkg_to_key): Include the channel or channel

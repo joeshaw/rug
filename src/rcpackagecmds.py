@@ -1085,15 +1085,18 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
 ### Transacting commands 
 ###
 
+DRY_RUN       = 1
+DOWNLOAD_ONLY = 2
+
 def transact_and_poll(server,
                       packages_to_install,
                       packages_to_remove,
-                      dry_run):
+                      flags):
     
     download_id, transact_id, step_id = server.rcd.packsys.transact(
         packages_to_install,
         packages_to_remove,
-        ximian_xmlrpclib.Boolean(dry_run),
+        flags,
         rcmain.rc_name, rcmain.rc_version)
     
     message_offset = 0
@@ -1111,6 +1114,15 @@ def transact_and_poll(server,
                     download_complete = 1
                 elif pending["status"] == "failed":
                     rctalk.message_finished("Download failed: %s" % pending["error_msg"])
+                    break
+            elif transact_id == -1:
+                # We're in "download only" mode.
+                if download_complete:
+                    break
+                elif download_id == -1:
+                    # We're in "download only" mode, but everything we wanted
+                    # to download is already cached on the system.
+                    rctalk.message_finished("Nothing to download")
                     break
             else:
                 pending = server.rcd.system.poll_pending(transact_id)
@@ -1231,11 +1243,12 @@ class TransactCmd(rccommand.RCCommand):
                 ["y", "no-confirmation", "", "Permit all actions without confirmations"]]
 
         if not self.unattended_removals():
-            opts.append(["d", "allow-removals", "", "Permit removal of software without confirmation"])
+            opts.append(["r", "allow-removals", "", "Permit removal of software without confirmation"])
 
         return opts
 
-    def transact(self, server, options_dict, install_packages, remove_packages, extra_reqs=[], verify=0):
+    def resolve_deps(self, server, options_dict,
+                     install_packages, remove_packages, extra_reqs, verify):
         try:
             if verify:
                 dep_install, dep_remove, dep_info = server.rcd.packsys.verify_dependencies()
@@ -1243,7 +1256,7 @@ class TransactCmd(rccommand.RCCommand):
                 install_packages = filter_dups(install_packages)
                 remove_packages = filter_dups(remove_packages)
                 extra_reqs = filter_dups(extra_reqs)
-                
+
                 dep_install, dep_remove, dep_info = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.failed_dependencies:
@@ -1259,7 +1272,7 @@ class TransactCmd(rccommand.RCCommand):
             rctalk.message("Requirements are already met on the system.  No "
                            "packages need to be")
             rctalk.message("installed or removed.")
-            return
+            sys.exit(0)
 
         if install_packages:
             rctalk.message("The following requested packages will be installed:")
@@ -1270,7 +1283,7 @@ class TransactCmd(rccommand.RCCommand):
                 rctalk.message("The following additional packages will be installed:")
             else:
                 rctalk.message("The following packages will be installed:")
-                
+
             format_dependencies(server, dep_install)
 
         if remove_packages:
@@ -1297,15 +1310,51 @@ class TransactCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        if options_dict.has_key("dry-run"):
-            dry_run = 1
+        return dep_install, dep_remove, dep_info
+
+    def transact(self, server, options_dict,
+                 install_packages, remove_packages, extra_reqs=[], verify=0):
+        if not options_dict.has_key("download-only"):
+            dep_install, dep_remove, dep_info = \
+                         self.resolve_deps(server,
+                                           options_dict,
+                                           install_packages,
+                                           remove_packages,
+                                           extra_reqs,
+                                           verify)
         else:
-            dry_run = 0
+            dep_install = []
+            dep_remove = []
+            remove_packages = []
+
+            rctalk.message("The following packages will be downloaded:")
+
+            install_packages.sort(lambda x,y:cmp(string.lower(x["name"]),
+                                                 string.lower(y["name"])))
+
+            for p in install_packages:
+                c = rcchannelutils.channel_id_to_name(server, p["channel"])
+                if c:
+                    c = "(" + c + ")"
+                else:
+                    c = ""
+
+                rctalk.message("  " + p["name"] + " " +
+                               rcformat.evr_to_str(p) + " " + c)
+
+            rctalk.message("")
+
+        if options_dict.has_key("dry-run"):
+            flags = DRY_RUN
+        elif options_dict.has_key("download-only"):
+            flags = DOWNLOAD_ONLY
+        else:
+            flags = 0
         
         transact_and_poll(server,
                           install_packages + extract_packages(dep_install),
                           remove_packages + extract_packages(dep_remove),
-                          dry_run)
+                          flags)
 
 
 ###
@@ -1336,6 +1385,7 @@ class PackageInstallCmd(TransactCmd):
         opts = TransactCmd.local_opt_table(self)
 
         opts.append(["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"])
+        opts.append(["d", "download-only", "", "Only download packages, don't install them"])
 
         return opts
 
@@ -1489,6 +1539,7 @@ class PackageUpdateCmd(TransactCmd):
         opts = TransactCmd.local_opt_table(self)
 
         opts.append(["i", "importance", "importance", "Only install updates as or more important than 'importance' (valid are " + str(update_importances.keys()) + ")"])
+        opts.append(["d", "download-only", "", "Only download packages, don't install them"])
 
         return opts
 
