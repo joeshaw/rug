@@ -1,3 +1,8 @@
+2004-09-26  Tambet Ingo  <tambet@ximian.com>
+
+	* unmarshaller.c (node_new): Don't use
+	g_value_take_boxed, we don't want to depend on glib2.4 (yet).
+
 2004-09-21  Tambet Ingo  <tambet@ximian.com>
 
 	* ximian_unmarshaller/unmarshaller.c (node_new): Use

@@ -107,7 +107,9 @@ node_new (GType type, GValue *parent, GValueArray *array)
 	node->parent = parent;
 	node->array = array;
 
-	g_value_take_boxed (self, (gpointer) node);
+    g_value_set_boxed (self, (gpointer) node);
+    node_free (node);
+
 	return self;
 }
 
