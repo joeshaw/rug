@@ -56,7 +56,7 @@ class MountCmd(rccommand.RCCommand):
                       rcchannelutils.get_channels(server))
 
         complain_about_collision = 0
-        alias = path_base
+        alias = string.lower(path_base)
         if options_dict.has_key("alias"):
             alias = options_dict["alias"]
             complain_about_collision = 1
