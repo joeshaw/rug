@@ -46,8 +46,8 @@ def message_status(str):
             print esc + "[1G" + str + esc + "[0K",
             sys.stdout.flush()
 
-def message_finished(str):
-    if show_messages and not be_terse:
+def message_finished(str, force_output=0):
+    if show_messages and (force_output or not be_terse):
         # If we've redirected to a file, don't print escape characters
         if stdout_is_file:
             print str

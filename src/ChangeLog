@@ -1,3 +1,11 @@
+2003-10-09  Tambet Ingo  <tambet@ximian.com>
+
+	* rctransactcmds.py (TransactCmd.poll_transaction): Force output
+	of failed transactions.
+
+	* rctalk.py (message_finished): Accept optional parameter
+	"force_output", print messages even in terse format.
+
 2003-09-29  Joe Shaw  <joe@ximian.com>
 
 	* rcservicecmds.py (ServiceAddCmd.execute): Change the wording of

@@ -297,7 +297,8 @@ class TransactCmd(rccommand.RCCommand):
                         rctalk.message_finished("Transaction finished")
                         break
                     elif pending["status"] == "failed":
-                        rctalk.message_finished("Transaction failed: %s" % pending["error_msg"])
+                        rctalk.message_finished("Transaction failed: %s" % pending["error_msg"],
+                                                force_output=1)
                         sys.exit(1)
 
                 time.sleep(0.4)
