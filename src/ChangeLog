@@ -1,3 +1,9 @@
+2003-05-12  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageFileListCmd): Added a "file-list"
+	command which lists the files within an installed package or
+	package file.
+
 2003-04-18  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoRequirementsCmd): Added an

@@ -2147,6 +2147,66 @@ class PackageDanglingRequiresCmd(rccommand.RCCommand):
                 channel = ""
 
         rcformat.tabular(["Package", "Channel", "Requirement"], table)
+
+###
+### "file list" command
+###
+
+class PackageFileListCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "file-list"
+
+    def is_basic(self):
+        return 1
+
+    def aliases(self):
+        return ["fl"]
+
+    def category(self):
+        return "package"
+
+    def arguments(self):
+        return "<package or file>"
+
+    def description_short(self):
+        return "List files within a package"
+
+    def execute(self, server, options_dict, non_option_args):
+        if len(non_option_args) != 1:
+            self.usage()
+            sys.exit(1)
+
+        plist = find_package(server, non_option_args[0], 1)
+
+        if not plist:
+            rctalk.message("--- No package found ---")
+            sys.exit(1)
+
+        pkg = None
+        for p in plist:
+            if p["installed"] or p.get("package_filename", None):
+                pkg = p
+                break
+
+        if not pkg:
+            rctalk.message("--- File information not available ---")
+            sys.exit(1)
+
+        try:
+            file_list = server.rcd.packsys.file_list(pkg)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                rctalk.error("File list is not supported by this daemon")
+                sys.exit(1)
+            else:
+                raise
+
+        if not file_list:
+            rctalk.message("--- No files available ---")
+
+        for f in file_list:
+            print f
         
 ###
 ### Don't forget to register!
@@ -2169,3 +2229,4 @@ rccommand.register(PackageDumpCmd)
 rccommand.register(PackageSolveCmd)
 rccommand.register(PackageRollbackCmd)
 rccommand.register(PackageDanglingRequiresCmd)
+rccommand.register(PackageFileListCmd)
