@@ -1,3 +1,9 @@
+2003-01-20  Jon Trowbridge  <trow@ximian.com>
+
+	* rcchannelcmds.py (ListChannelsCmd.execute): Added --show-ids
+	option.  Users should never need this information, but we
+	need it all of the time.
+
 2003-01-16  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Handle ProtocolErrors from ximian_xmlrpclib
