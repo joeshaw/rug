@@ -1,3 +1,8 @@
+2003-08-27  Joe Shaw  <joe@ximian.com>
+
+	* rcformat.py (package_to_row): Check for "package_set", not
+	"is_package_set".
+
 2003-08-27  Tambet Ingo  <tambet@ximian.com>
 
 	* rctransactcmds.py (TransactCmd.transact): Fix fixme.

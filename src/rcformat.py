@@ -164,7 +164,7 @@ def package_to_row(server, pkg, no_abbrev, key_list):
             if pkg.get("locked"):
                 val = val + "L"
 
-            if pkg.get("is_package_set"):
+            if pkg.get("package_set"):
                 val = val + "S"
 
         elif key == "channel":
