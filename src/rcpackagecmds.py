@@ -391,11 +391,11 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
 
         min_importance = None
         if options_dict.has_key("importance"):
-            if not update_importances.has_key(options_dict["importance"]):
+            if not rcpackageutils.update_importances.has_key(options_dict["importance"]):
                 rctalk.warning("Invalid importance: " +
                                options_dict["importance"])
             else:
-                min_importance = update_importances[options_dict["importance"]]
+                min_importance = rcpackageutils.update_importances[options_dict["importance"]]
 
         update_list = rcpackageutils.get_updates(server, non_option_args)
 
