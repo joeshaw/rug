@@ -119,10 +119,18 @@ Set the preference variable \fIkey\fRto the value \fI<value>\fR.
 
 .LP 
 \fBSystem commands:\fR
+.br 
+.TP 
+activate (act)<activation code> <email address>
+Activates the machine for a premium server, allowing it access to private channels hosted there.
+
 .TP 
 dump
-.br 
-Get an XML dump of system information.
+Get an XML dump of system information. Usually used for debugging purposes; the output of this command is best directed to a file and compressed.
+
+.TP 
+mount <path>
+Mount a directory as a channel, adding all packages within the directory to the channel. The platform for the channel is assumed to be the same as the platform of the server.
 
 .TP 
 ping \fI<servername>\fR 
@@ -134,6 +142,9 @@ Refresh channel data for all channels.
 .TP 
 shutdown
 Halt the server's rcd process.
+.TP 
+unmount <channel>
+Unmount a directory that has been mounted as a channel.
 
 .LP 
 \fBUser management commands:\fR 
@@ -236,6 +247,11 @@ Displays the version number of the program and exits.
 .SH "COMMAND OPTIONS"
 .LP 
 Many rc commands have options which apply only to them.  They are listed here alphabetically.
+
+.TP 
+\fBrc activate (act)\fR
+.B \fI\-n, \-\-no\-refresh\fR: Do not refresh the channel data after activation.
+
 .TP 
 \fBrc channels (ch)\fR
 .B \fI\-s, \-\-subscribed\fR: List only channels to which you are subscribed.
@@ -288,6 +304,11 @@ Many rc commands have options which apply only to them.  They are listed here al
 .B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
 .br 
 .B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
+\fBrc mount\fR
+.B \fI\-a, \-\-alias\fR: Alias for the new channel. If one is not provided, it will be the same as the name of the directory.
+.B \fI\-n, \-\-name\fR: Name for new channel. If one is not provided, it will be the same as the alias.
 
 .TP 
 \fBrc packages\fR <\fIchannelname\fR>
@@ -348,8 +369,7 @@ Output Options:
 .br 
 .B \fI\-d, \-\-allow\-removals\fR: Permit removal of software without confirmation
 .br 
-.B \fI\-i, \-\-importance=<importance>\fR: Only install updates as or more important than
-the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
+.B \fI\-i, \-\-importance=<importance>\fR: Only install updates as or more important than the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
 
 .TP 
 \fBrc unsubscribe (unsub)\fR <\fIchannel\fR>

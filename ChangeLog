@@ -1,3 +1,7 @@
+2002-10-16 Aaron Weber <aaron@ximian.com>
+
+	* rc.1: Add activate, mount, unmount.
+	
 2002-10-01  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.0.0
