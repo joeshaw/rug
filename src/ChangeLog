@@ -1,3 +1,8 @@
+2003-05-23  Joe Shaw  <joe@ximian.com>
+
+	* rcprefscmds.py (PrefsMirrorsCmd): Gracefully handle when there
+	are no available mirrors.
+
 2003-05-21  Joe Shaw  <joe@ximian.com>
 
 	* rug.in: Fix another rc -> rug directory reference.

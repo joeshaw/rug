@@ -184,6 +184,11 @@ class PrefsMirrorsCmd(rccommand.RCCommand):
             return cmp(aname, bname)
 
         mirrors = server.rcd.mirror.get_all()
+
+        if not mirrors:
+            rctalk.message("--- No mirrors available ---")
+            return
+        
         mirrors.sort(sort_cb)
 
         if show_list:
