@@ -1,3 +1,8 @@
+2002-11-14  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (TransactCmd.resolve_deps): Tell the user how
+	many packages will be installed and how many will be removed.
+
 2002-11-13  Joe Shaw  <joe@ximian.com>
 
 	* rcwhatcmds.py (WhateverCmd.execute): If we don't have any

@@ -1410,6 +1410,18 @@ class TransactCmd(rccommand.RCCommand):
 
             format_dependencies(server, dep_remove)
 
+        if not options_dict.has_key("terse"):
+            msg_list = []
+            count = len(install_packages) + len(dep_install)
+            if count:
+                msg_list.append("%d packages will be installed" % count)
+
+            count = len(remove_packages) + len(dep_remove)
+            if count:
+                msg_list.append("%d packages will be removed" % count)
+
+            rctalk.message("%s." % string.join(msg_list, " and "))
+
         if not options_dict.has_key("no-confirmation"):
             confirm = raw_input("Do you want to continue? [y/N] ")
             if not confirm or not (confirm[0] == "y" or confirm[0] == "Y"):
