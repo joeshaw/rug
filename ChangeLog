@@ -1,3 +1,8 @@
+2002-07-15  Joe Shaw  <joe@ximian.com>
+
+	* Makefile.am: add man page entry
+	* rc.1: add man page itself.
+
 2002-06-17  Joe Shaw  <joe@ximian.com>
 
 	* autoconfized the build

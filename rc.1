@@ -1,0 +1,358 @@
+.TH "rc" "1" "1.0" "Ximian, Inc." "System tools"
+.SH "NAME"
+.LP 
+rc \- rc is the command\-line interface to the Ximian Red Carpet daemon rcd.
+.SH "SYNTAX"
+.LP 
+rc [\-h <hostname>] [\-U <username>] [\-P <password>] ... <command> [<command options>] 
+.br 
+rc \-\-version
+.br 
+rc \fI\-\-help\fP 
+.SH "DESCRIPTION"
+.LP 
+rc is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors.
+.LP 
+Red Carpet services sort software by category into channels. Examples would be chnanel software from the operating system vendor, the Ximian Desktop, or a set of third party software. The channel system allows you to subscribe to, or unsubscribe from, individual channels to control the display of available packages and prevent the accidental installation of unwanted software. You can search for packages within or across channels, and query for dependency and conflict information in just your subscribed channels, or in all channels.
+
+.SH "COMMANDS"
+.LP 
+rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most important is \fBrc update\fR, which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need. The others are below:
+.TP 
+\fBrc channels (ch)\fR
+List available channels of software.
+
+.TP 
+\fBrc debug\fR \fR
+Get a core\-dump for debugging purposes.
+
+.TP 
+\fBrc get\-prefs (get, prefs)\fR 
+List the system preferences that may be set.
+
+.TP 
+\fBrc history\fR <\fIquerystring\fR>\fR
+Search log entries for the string <\fIquerystring\fR>.
+
+.TP 
+\fBrc info\fR <\fIpackagename\fR>\fR
+Display detailed information about the package.
+
+.TP 
+\fBrc install\fR <\fIpackagename\fR>\fR
+Install the package <\fIpackagename\fR>.
+
+.TP 
+\fBrc news\fR \fR
+List the Red Carpet news.
+
+.TP 
+\fBrc packages\fR <\fIchannelname\fR>
+List all packages in a given channel. Packages that are already installed are marked with the letter \fIi\fR.
+
+.TP 
+\fBrc ping\fR \fR
+Ping the Red Carpet mirror you are using.
+
+.TP 
+\fBrc refresh\fR \fR
+Reload all channel data.
+
+.TP 
+\fBrc remove\fR <\fIpackagename\fR>
+Remove the package <\fIpackagename\fR>
+
+.TP 
+\fBrc search\fR <\fIquerystring\fR>
+Search the list of available packages for the string <\fIquerystring\fR>.
+
+.TP 
+\fBrc set\-prefs (set)\fR <\fIkey\fR> [\fIvalue\fR]
+Set the preference variable <\fIkey\fR> to the value [\fIvalue\fR].
+
+.TP 
+\fBrc shutdown\fR
+Stop the server process.
+
+.TP 
+\fBrc subscribe (sub)\fR <\fIchannel>\fR
+Subscribe to a channel.
+
+.TP 
+\fBrc summary (sum)\fR
+Displays the number of updates to currently installed software available in each channel to which you are subscribed. For more detail, use updates or up.
+
+.TP 
+\fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
+Unsubscribe from channel.
+
+.TP 
+\fBrc update\-all\fR
+Download and install all updates to currently installed software in channels to which you are subscribed.
+
+.TP 
+\fBrc updates (up)\fR
+Describe available updates to currently installed software in the channels to which you are subscribed. For less detail, use summary or sum.
+
+.TP 
+\fBrc verify\fR
+Verify system dependencies. If the system's dependency tree is not in a consistent state, rc may be able to add or remove software as needed to restore a proper state.
+
+.TP 
+\fBrc what\-conflicts\fR <\fIpackagename\fR>
+List the packages that conflict with the package <\fIpackagename\fR>.
+
+.TP 
+\fBrc what\-provides\fR <\fIquerystring\fR>\fR 
+List the packages that provide with the command, library, package, or program <\fIquerystring\fR>.
+
+.TP 
+\fBrc what\-requires\fR <\fIquerystring\fR>\fR 
+List the packages that require the command, library, package, or program <\fIquerystring\fR>.
+.SH "GLOBAL OPTIONS"
+
+.LP 
+The following options can be applied to any rc transaction:
+.TP 
+\fB\-\-batch\fR
+Run in batch mode.
+
+.TP 
+\fB\-\-debug\fR
+Print extra debugging information while running. This is different from the debug command, which collects a coredump.
+
+
+.TP 
+\fB\-\-help\fR
+Used without a command, this flag displays a list of commands and exits. Used with a command, it displays a list of available options for the command.
+
+.TP 
+\fB\-\-ignore\-env\fR
+Ignore the RC_ARGS environment variable for this transaction.
+
+.TP 
+.TP 
+\fB\-\-ignore\-rc\-file\fR
+Ignore settings in the .rcrc file when running the transaction.
+
+.TP 
+\fB\-N, \-\-dry\-run\fR
+Do not perform the actual transaction, but print what would have been done.
+
+.TP 
+\fB\-\-normal\-output\fR
+Normal output (the default mode). This is somewhere between "verbose" and "terse."
+
+.TP 
+\fB\-P, \-\-password <<password>fR>
+Specify password to be used.
+
+.TP 
+\fB\-q, \-\-quiet\fR
+Quiet output: print only error messages. 
+
+.TP 
+\fB\-\-read\-from\-file <filename>\fR
+Get additional arguments from the file you specify.
+
+.TP 
+\fB\-\-read\-from\-stdin\fR
+Get arguments from stdin.
+
+.TP 
+\fB\-t, \-\-terse\fR
+Terse output.
+
+.TP 
+\fB\-U, \-\-user, <username>\fR
+Specify a user name for this transaction.
+
+.TP 
+\fB\-V, \-\-verbose\fR
+Verbose mode; displays extra information for the transaction, if any is available.
+
+.TP 
+\fB\-\-version\fR
+Displays the version number of the program and exits.
+
+
+.SH "COMMAND OPTIONS"
+.LP 
+Many rc commands have options which apply only to them:
+.TP 
+\fBrc channels (ch)\fR
+.B \fI\-s, \-\-subscribed\fR: List only channels to which you are subscribed.
+.br 
+.B \fI\-u, \-\-unsubscribed\fR: List only channels to which you are not subscribed.
+
+.TP 
+\fBrc history\fR <\fIquerystring\fR>\fR
+.B \fI\-n, \-\-search\-name\fR: Search logs by package name (default).
+.br 
+.B \fI\-a, \-\-search\-action\fR: Search logs by action performed.
+.br 
+.B \fI\-\-search\-host\fR: Search logs by host used.
+.br 
+.B \fI\-\-search\-user\fR: Search by user performing actions.
+.br 
+.B \fI\-\-match\-all\fR: Search only for a match for all search strings (default).
+.br 
+.B \fI\-\-match\-any\fR: Display results that match any search string.
+.br 
+.B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word.
+.br 
+.B \fI\-\-match\-words\fR: Search only for a match on a complete word.
+.br 
+.B \fI\-d, \-\-days\-back=<number_of_days>\fR: Maximum number of days to look back in the logs (default is 30).
+.br 
+
+.TP 
+\fBrc info\fR <\fIpackagename\fR>\fR
+.B \fI\-u, \-\-allow\-unsubscribed\fR: Search in channels to which you are not subscribed, as well as subscribed channels.
+
+.TP 
+\fBrc install\fR <\fIpackagename\fR>\fR
+.B \fI\-d, \-\-allow\-removals\fR: Permit rc to remove software without confirmation.
+.br 
+.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmation.
+.br 
+.B \fI\-u, \-\-allow\-unsubscribed\fR: Allow required software to be pulled in from channels to which you are not subscribed.
+.TP 
+\fBrc news\fR \fR
+.B  \fI\-c, \-\-channel=<channel>\fR: Show news only for the channel you specify.
+.br 
+.B  \fI\-s, \-\-subscribed\-only\fR: Only show news related to subscribed channels.
+.br 
+.B  \fI\-u, \-\-unsubscribed\-only\fR: Show news only for channels to which you are not subscribed.
+
+.TP 
+\fBrc packages\fR <\fIchannelname\fR>
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.br 
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
+\fBrc remove\fR <\fIpackagename\fR>
+.B \fI\-y, \-\-no\-confirmation\fR: Perform the actions with no confirmation.
+
+.TP 
+\fBrc search\fR <\fIquerystring\fR>
+
+.B \fI\-\-match\-all\fR: Search only for a match for all search strings (default).
+.br 
+.B \fI\-\-match\-any\fR: Display results that match any search string.
+.br 
+.B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word.
+.br 
+.B \fI\-\-match\-words\fR: Search only for a match on a complete word.
+.br 
+.B \fI\-\-search\-description\fR: Search only in the package description, not in the package names.
+.br 
+
+.B \fI\-i, installed\-only\fR: Search only in the installed packages.
+.br 
+.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
+.br 
+.B \fI\-c, \-\-channel=<channel>\fR: Search only in the channel you specify.
+.br 
+.B \fI\-show\-package\-ids\fR: Show package IDs.
+.br 
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.br 
+
+.TP 
+\fBrc subscribe (sub)\fR <\fIchannel>\fR
+.B \fI\-s, \-\-strict\fR: Fail if attempting to subscribe to a channel to which you already subscribe.
+
+.TP 
+\fBrc summary (sum)\fR
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel names or importance levels.
+
+.TP 
+\fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
+.B \fI\-s, \-\-strict\fR: Fail if attempting to unsubscribe from a channel to which you are not subscribed.
+
+.TP 
+\fBrc update\-all\fR
+.B \fI\-d, \-\-allow\-removals\fR: Permit rc to remove software without confirmation.
+.B \fI\-y, \-\-no\-confirmation\fR: Perform all actions with no confirmation.
+
+.TP 
+\fBrc updates (up)\fR
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
+\fBrc verify\fR
+.B \fI\-d, \-\-allow\-removals\fR: Permit rc to remove software without confirmation.
+.br 
+.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmation.
+
+.TP 
+\fBrc what\-conflicts\fR <\fIpackagename\fR>
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.B \fI\-i, installed\-only\fR: Search only in the installed packages.
+.br 
+.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
+\fBrc what\-provides\fR <\fIquerystring\fR>\fR 
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.B \fI\-i, installed\-only\fR: Search only in the installed packages.
+.br 
+.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
+\fBrc what\-requires\fR <\fIquerystring\fR>\fR 
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.B \fI\-i, installed\-only\fR: Search only in the installed packages.
+.br 
+.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.SH "FILES"
+.TP 
+ \fI.rcrc\fR
+
+  The \fI.rcrc\fR resource file is optional. If it exists, its contents are treated as additional arguments to the rc command being executed.  This is similar to the behavior of the RC_ARGS environment variable.  Note also that the .rcrc file used is in the home directory of the user running rc, and if you run rc through sudo instead of directly as root, you will not use the root user's .rcrc file.
+.SH "ENVIRONMENT VARIABLES"
+.TP 
+\fBRC_ARGS\fP
+This environment variable is prepended to any
+command line options that are passed to rc and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-eng\fR flag in the RC_ARGS variable; this is absurd.
+.SH "EXAMPLES"
+.LP 
+This program is normally run as root, but can be used with sudo. If you use sudo, rc will use the .rcrc file in your home directory (if any), and if you use su, rc will use the .rcrc file in root's home directory.
+.LP 
+Here are some standard ways in which the program might be used:
+.TP 
+\fBrc update\-all \-y\fR
+Download and install all updates to currently installed package in currently subscribed channels, removing any software that conflicts with those updates, and without asking for confirmation. This is a risky, but convenient, option.
+
+.TP 
+\fBrc \-V \-\-host=<hostname> install <packagename> \-u\fR
+This will operate in verbose mode and contact the rcd daemon on the specified host to install the specified package, regardless of whether it is in a channel to which the user is subscribed.
+.SH "AUTHORS"
+.LP 
+Copyright 2002 Ximian, Inc. 
+http://www.ximian.com/
+.SH "SEE ALSO"
+.LP 
+rcd(8), red\-carpet(1)
+.LP 
+Visit http://ximian.com for more information about rc, Ximian Red Carpet Enterprise, and other software from Ximian.
