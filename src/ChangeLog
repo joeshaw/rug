@@ -1,5 +1,9 @@
 2003-09-11  Joe Shaw  <joe@ximian.com>
 
+	* rctransactcmds.py (date_converter): strptime() returns invalid
+	date info if parsing only time of day.  In those cases, get the
+	local time and splice in our time info with the current date.
+
 	* rcmountcmds.py (MountCmd): Add a -r/--recurse flag.
 
 	* rcformat.py (package_to_row): If the package doesn't match any

@@ -673,6 +673,16 @@ def date_converter(date_str):
             # disco.
             break
 
+    # In the case of formats with only times (and no dates), strptime()
+    # returns invalid date fields.  We can check that by checking the
+    # day field (the third field) to see if it's 0, because 0 is not a
+    # valid day of the month.  If that's the case, get the date using
+    # localtime() and build a new tuple with our time settings.
+    if date[2] == 0:
+        new_date = list(time.localtime())
+        new_date[3:6] = list(date[3:6])
+        date = tuple(new_date)
+
     if date:
         return time.mktime(date)
         
