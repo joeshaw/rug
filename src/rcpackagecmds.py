@@ -1267,7 +1267,7 @@ class TransactCmd(rccommand.RCCommand):
 
         if verify and not dep_install and not dep_remove:
             rctalk.message("System dependency tree verified successfully.")
-            return
+            sys.exit(0)
         elif extra_reqs and not dep_install and not dep_remove:
             rctalk.message("Requirements are already met on the system.  No "
                            "packages need to be")
