@@ -128,9 +128,7 @@ class SubscribeCmd(rccommand.RCCommand):
 
         for c in to_do:
             if c:
-                success = options_dict.has_key("dry-run") or \
-                          server.rcd.packsys.subscribe(c["id"])
-                if success:
+                if server.rcd.packsys.subscribe(c["id"]):
                     rctalk.message("Subscribed to channel " + \
                                    rcchannelutils.channel_to_str(c))
                 else:
@@ -180,9 +178,7 @@ class UnsubscribeCmd(rccommand.RCCommand):
 
         for c in to_do:
             if c:
-                success = options_dict.has_key("dry-run") or \
-                          server.rcd.packsys.unsubscribe(c["id"])
-                if success:
+                if server.rcd.packsys.unsubscribe(c["id"]):
                     rctalk.message("Unsubscribed from channel " + \
                                    rcchannelutils.channel_to_str(c))
                 else:
@@ -209,17 +205,16 @@ class RefreshChannelCmd(rccommand.RCCommand):
         stuff_to_poll = []
 
         if not non_option_args:
-            if not options_dict.has_key("dry-run"):
-                try:
-                    stuff_to_poll = server.rcd.packsys.refresh_all_channels()
-                except ximian_xmlrpclib.Fault, f:
-                    if f.faultCode == rcfault.locked:
-                        rctalk.error("The daemon is busy processing another "
-                                     "request.")
-                        rctalk.error("Please try again shortly.")
-                        sys.exit(1)
-                    else:
-                        raise
+            try:
+                stuff_to_poll = server.rcd.packsys.refresh_all_channels()
+            except ximian_xmlrpclib.Fault, f:
+                if f.faultCode == rcfault.locked:
+                    rctalk.error("The daemon is busy processing another "
+                                 "request.")
+                    rctalk.error("Please try again shortly.")
+                    sys.exit(1)
+                else:
+                    raise
             rctalk.message("Refreshing all channels")
         else:
             failed = 0
@@ -237,8 +232,7 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
             for c in to_do:
                 if c:
-                    if not options_dict.has_key("dry-run"):
-                        stuff_to_poll.append(server.rcd.packsys.refresh_channel(int(c["id"])))
+                    stuff_to_poll.append(server.rcd.packsys.refresh_channel(int(c["id"])))
                     rctalk.message("Refreshing channel "+rcchannelutils.channel_to_str(c))
 
         if stuff_to_poll:

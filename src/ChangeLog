@@ -1,3 +1,35 @@
+2002-07-31  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageInfoProvidesCmd.aliases): Added 'ip' as
+	an alias for 'info-provides'.
+	(PackageInfoRequirementsCmd.aliases): Added 'ir' as an alias for
+	'info-requirements'.
+	(PackageInfoConflictsCmd.aliases): Added 'ic' as an alias for
+	'info-conflicts'.
+	(TransactCmd.local_opt_table): Made 'dry-run' a local option for
+	our transacting commands.
+	(PackageDumpCmd): Renamed the "debug" command to "dump", which
+	just makes more sense.  The command is now also visible.
+
+	* rcwhatcmds.py (WhatProvidesCmd.aliases): Added 'wp' as an alias
+	for 'what-provides'.
+	(WhatRequiresCmd.aliases): Added 'wr' as an alias for
+	'what-requires'.
+	(WhatConflictsCmd.aliases): Added 'wc' as an alias for
+	'what-conflicts'.
+
+	* rcchannelcmds.py (UnsubscribeCmd.execute): Removed dry-run
+	logic... it just seems like overkill to have that option for basic
+	channel operations that are inherently totally safe.
+	(SubscribeCmd.execute): Ditto. 
+	(RefreshChannelCmd.execute): Ditto.
+
+	* rcmain.py (main): Set rctalk.show_debug only if the RC_DEBUG
+	environment variable is set.
+
+	* rccommand.py (default_opt_table): Removed debug, batch and
+	dry-run as global options.
+
 2002-07-30  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoConflictsCmd,

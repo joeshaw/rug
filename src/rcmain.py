@@ -129,7 +129,7 @@ def main(rc_version):
     if opt_dict.has_key("terse"):
         rctalk.be_terse = 1
 
-    if opt_dict.has_key("debug"):
+    if os.environ.has_key("RC_DEBUG"):
         rctalk.show_debug = 1
 
     if opt_dict.has_key("quiet"):

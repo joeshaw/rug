@@ -779,6 +779,9 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
     def name(self):
         return "info-provides"
 
+    def aliases(self):
+        return ["ip"]
+
     def arguments(self):
         return "<package>"
 
@@ -814,6 +817,9 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
 
     def name(self):
         return "info-requirements"
+
+    def aliases(self):
+        return ["ir"]
 
     def arguments(self):
         return "<package>"
@@ -915,6 +921,9 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
     
     def name(self):
         return "info-conflicts"
+
+    def aliases(self):
+        return ["ic"]
 
     def arguments(self):
         return "<package>"
@@ -1071,7 +1080,8 @@ class TransactCmd(rccommand.RCCommand):
         return 0
     
     def local_opt_table(self):
-        opts = [["y", "no-confirmation", "", "Permit all actions without confirmations"]]
+        opts = [["N", "dry-run", "", "Don't actually perform requested actions."],
+                ["y", "no-confirmation", "", "Permit all actions without confirmations"]]
 
         if not self.unattended_removals():
             opts.append(["d", "allow-removals", "", "Permit removal of software without confirmation"])
@@ -1354,22 +1364,19 @@ class PackageSolveCmd(TransactCmd):
         self.transact(server, options_dict, [], [], dlist)
 
 ###
-### "debug" command
+### "dump" command
 ###
 
-class PackageDebugCmd(rccommand.RCCommand):
+class PackageDumpCmd(rccommand.RCCommand):
 
     def name(self):
-        return "debug"
+        return "dump"
 
     def arguments(self):
         return "<file>"
 
-    def is_hidden(self):
-        return 1
-
     def description_short(self):
-        return "Get a dump of the system for debugging"
+        return "Get an XML dump of system information"
 
     def execute(self, server, options_dict, non_option_args):
         if non_option_args:
@@ -1409,5 +1416,5 @@ rccommand.register(PackageInstallCmd)
 rccommand.register(PackageRemoveCmd)
 rccommand.register(PackageUpdateAllCmd)
 rccommand.register(PackageVerifyCmd)
-rccommand.register(PackageDebugCmd)
+rccommand.register(PackageDumpCmd)
 rccommand.register(PackageSolveCmd)
