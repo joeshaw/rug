@@ -308,9 +308,6 @@ def pkg_to_key(p):
     return "%d:%s:%d:%s:%s" % \
            (ch, p["name"], p["epoch"], p["version"], p["release"])
 
-def pkg_to_full_key(p):
-    return "%s:%s" % (p["channel"] or p["channel_guess"], pkg_to_key(p))
-
 class PackageSearchCmd(rccommand.RCCommand):
 
     def name(self):
