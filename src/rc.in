@@ -18,6 +18,7 @@
 ###
 
 import sys
+import os
 import string
 import ximian_xmlrpclib
 import getopt
@@ -28,6 +29,7 @@ import cgiwrap
 
 import rctalk
 import rccommand
+import rcsystemcmds
 import rcchannelcmds
 import rcpackagecmds
 
@@ -87,12 +89,40 @@ if "-?" in argv or "--help" in argv:
     command.usage()
     sys.exit(0)
 
+###
+### Handle RC_ARGS, --read-from-file and --read-from-stdin
+###
+
+def add_args(arglist):
+    global argv
+    argv = map(string.strip, arglist) + argv
+
+if os.environ.has_key("RC_ARGS"):
+    args = string.split(os.environ["RC_ARGS"])
+    add_args(args)
+
+# FIXME: Should support --read-from-file=foo.txt syntax!
+if "--read-from-file" in argv:
+    i = argv.index("--read-from-file") + 1
+    if i < len(argv):
+        filename = argv[i]
+        f = open(filename, "r")
+        # FIXME: error checking!
+        lines = f.readlines()
+        add_args(lines)
+    else:
+        rctalk.error("No filename provided for --read-from-file option")
+        sys.exit(1)
+
+if "--read-from-stdin" in argv:
+    lines = sys.stdin.readlines()
+    add_args(lines)
 
 ###
 ### Find the list of command line options associated with the command.
-### Then compile our list of arguments into something that getopt can understand,
-### call getopt on argv, and then assemble the stuff returned by getopt into a
-### nice dictionary of option-value pairs.
+### Then compile our list of arguments into something that getopt can
+### understand, call getopt on argv, and then assemble the stuff returned
+### by getopt into a nice dictionary of option-value pairs.
 ###
 
 opt_table = command.opt_table()
@@ -184,6 +214,9 @@ except:
 ###
 ### Control verbosity
 ###
+
+if opt_dict.has_key("terse"):
+    rctalk.be_terse = 1
 
 if opt_dict.has_key("debug"):
     rctalk.show_debug = 1

@@ -15,8 +15,8 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ###
 
-
 import string
+import rctalk
 
 ###
 ### Utility functions.  Not really public.
@@ -105,11 +105,14 @@ def opt_table(table):
 def tabular(headers, table):
 
     def row_to_string(row, col_sizes):
-        return string.join(pad_row(row, col_sizes), " | ")
+        if rctalk.be_terse:
+            return string.join(row, "|")
+        else:
+            return string.join(pad_row(row, col_sizes), " | ")
 
     col_sizes = max_col_widths(table);
 
-    if headers:
+    if headers and not rctalk.be_terse:
         col_sizes = map(max, map(len,headers), col_sizes)
 
         # print headers

@@ -22,6 +22,7 @@ show_verbose  = 0
 show_warnings = 1
 show_errors   = 1
 show_debug    = 0
+be_terse      = 0
 
 def message(str):
     if show_messages:

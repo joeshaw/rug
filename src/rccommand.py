@@ -76,6 +76,8 @@ default_opt_table = [
     ["",  "quiet",    "",         "Quiet output, print only error messages"],
     ["",  "debug",    "",         "Debugging output"],
     ["",  "batch",    "",         "Run in batch mode"],
+    ["",  "read-from-file", "filename",   "Get args from file"],
+    ["",  "read-from-stdin", "",  "Get args from stdin"],
     ["?", "help",     "",         "Get help on a specific command"]
 ]
 

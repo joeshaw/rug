@@ -116,7 +116,10 @@ class ListChannelsCmd(rccommand.RCCommand):
             show = 1
 
             if c["subscribed"]:
-                subflag = " Yes "
+                if rctalk.be_terse:
+                    subflag = "Yes"
+                else:
+                    subflag = " Yes "
                 if options_dict.has_key("unsubscribed"):
                     show = 0
             else:

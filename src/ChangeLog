@@ -1,3 +1,20 @@
+2002-06-10  Jon Trowbridge  <trow@ximian.com>
+
+	* rcsystemcmds.py:  Added.  Currenly only contains the "ping"
+	command.
+
+	* rc: Added arg-processing magic to support for --terse,
+	--read-from-file, --read-from-stdin and the RC_ARGS environment
+	variable.
+
+	* rccommand.py (default_opt_table): Added --read-from-file and
+	--read-from-stdin.
+
+	* rcformat.py: Format our tables without headers or excess
+	whitespace if the be_terse flag is set.
+
+	* rctalk.py: Added the be_terse flag.
+
 2002-06-10  Joe Shaw  <joe@ximian.com>
 
 	* rcformat.py (display_version): Added.  Outputs a correctly
