@@ -22,6 +22,9 @@ import time
 
 import rcformat
 import rctalk
+import rcfault
+
+import ximian_xmlrpclib
 
 ###
 ### Useful channel-related subroutines

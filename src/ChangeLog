@@ -1,3 +1,8 @@
+2002-10-21  Ian Peters  <itp@ximian.com>
+
+	* rcchannelutils.py: import rcfault and ximian_xmlrpclib to avoid
+	a NameError in refresh_channels
+
 2002-10-18  Ian Peters  <itp@ximian.com>
 
 	* Makefile.am (rcsupport_DATA): moved rclockcmds.py to follow the
