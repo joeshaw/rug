@@ -1,10 +1,15 @@
+2004-09-01  Tambet Ingo  <tambet@ximian.com>
+
+	* rcyoucmds.py (InstallYouPatchCmd.poll_transaction): Don't trace when
+	trying to cancel download fails. Fixes #61383.
+
 2004-08-30  Tambet Ingo  <tambet@ximian.com>
 
 	* rcyoucmds.py (server_has_patch_support): Implement.
 	(ListYouPatchesCmd.execute): Make sure server has patch support.
 	(InfoYouPatchCmd.execute): Ditto.
 	(InstallYouPatchCmd.execute): Ditto.
-
+g
 2004-08-27  Tambet Ingo  <tambet@ximian.com>
 
 	* rcyoucmds.py (ListYouPatchesCmd.execute): Add patch product to output.

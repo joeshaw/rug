@@ -423,13 +423,14 @@ class InstallYouPatchCmd(rccommand.RCCommand):
                 if download_id != -1 and not download_complete:
                     rctalk.message("")
                     rctalk.message("Cancelling download...")
-                    v = server.rcd.you.abort_download(download_id)
-                    if v:
-                        sys.exit(1)
-                    else:
-                        rctalk.warning("Transaction cannot be cancelled")
-                else:
-                    rctalk.warning("Transaction cannot be cancelled")
+                    try:
+                        v = server.rcd.you.abort_download(download_id)
+                        if v:
+                            sys.exit(1)
+                    except ximian_xmlrpclib.Fault:
+                            pass
+
+                rctalk.warning("Transaction cannot be cancelled")
 
 
     def execute(self, server, options_dict, non_option_args):
