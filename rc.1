@@ -34,8 +34,20 @@ info \fI<packagename>\fR
 Show detailed information about a package. Multiple packages may be listed, separated by spaces.
 
 .TP 
-install \fI<packagename>\fR\fR
+install \fI<packagename>\fR
 Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed.
+
+.TP 
+lock\-add (la) \fI<options>\fR <packagename>  \fI[<relation> <version>]\fR
+Add a package lock rule. This prevents changes to the installation state of the package which are not specifically requested.  The package name can be specified individually, with wildcard patterns, or even with version number relations. For example, the command \fIrc lock\-add gnome*<2.0\fR would keep all GNOME packages below 2.0.
+
+.TP 
+lock\-delete (ld) \fI<options>\fR <lock\-number>
+Delete the lock you specify by its number. You can find the numbers for each lock with the lock\-list (ll) command.
+
+.TP 
+lock\-list (ll) \fI<options>\fR [<relation> <version>]
+List the locks that have been put in place. Locks are sorted by ID number.
 
 .TP 
 packages \fI<"channelname">\fR\fR
@@ -201,7 +213,6 @@ Used without a command, this flag displays a list of commands and exits. Used wi
 Ignore the RC_ARGS environment variable for this transaction.
 
 .TP 
-.TP 
 \fB\-\-ignore\-rc\-file\fR
 Ignore settings in the .rcrc file when running the transaction.
 
@@ -295,6 +306,22 @@ Many rc commands have options which apply only to them.  They are listed here al
 .br 
 .B \fI\-r, \-\-allow\-removals\fR: Allow software to be removed as necessary to complete the installation..br 
 .B \fI\-u, \-\-allow\-unsubscribed\fR: Allow required software to be pulled in from channels to which you are not subscribed.
+
+.TP 
+\fBrc lock\-add\fR 
+.B \fI\-c, \-\-channel=\fI<channel>\fR: Specify a channel to match.
+
+.B \fI\-i, \-\-importance=\fI<importance>\fR: Set the minimum importance level for the lock. Packages less important than the importance level you specify will be blocked, and those that are at least as important will be updated without the need to override. Possible importance levels, from least to most important, are: minor, feature, suggested, urgent, necessary.
+
+.TP 
+\fBrc lock\-delete\fR 
+.B \fI\-\-\-no\-confirmation: Permit removals without confirmation
+
+.TP 
+\fBrc lock\-list\fR 
+.B \fI\-\-no\-abbrev: Do not abbreviate channel information.
+.B \fI\-m \-\-matches: Show information about matching packages.
+
 .TP 
 \fBrc news\fR \fR
 .B  \fI\-c, \-\-channel=<channel>\fR: Show news only for the channel you specify.
@@ -338,6 +365,7 @@ Seach String Options:
 .B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word (default).
 .br 
 .B \fI\-\-match\-words\fR: Search only for a match on a complete word.
+
 .br 
 .TP 
 Search Data Options:
