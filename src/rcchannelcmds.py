@@ -42,6 +42,10 @@ def get_channel_by_id(server, id):
         if str(c["id"]) == str(id):
             return c
 
+def check_subscription_by_id(server, id):
+    c = get_channel_by_id(server, id)
+    return c and c["subscribed"]
+
 def get_channels_by_name(server, in_str):
     channels = get_channels(server)
     matches = []
@@ -55,10 +59,14 @@ def get_channels_by_name(server, in_str):
         chan_initials = reduce(lambda x,y:x+y,
                                map(lambda x:x[0],
                                    string.split(string.replace(chan_name, ".", " "))))
+        chan_initials_alt = reduce(lambda x,y:x+y,
+                                   map(lambda x:x[0],
+                                       string.split(chan_name)))
 
         if str(c["id"]) == s \
            or string.find(chan_name, s) == 0 \
            or chan_initials == s \
+           or chan_initials_alt == s \
            or s in string.split(chan_name):
             matches.append(c)
 
@@ -91,22 +99,6 @@ def channel_id_to_name(server, id):
     for c in channels:
         if str(c["id"]) == str(id):
             return c["name"]
-
-
-def abbrev_channel_name(name):
-
-    def abbrev(x):
-
-        if string.find(x, "Snapshot") == 0:
-            x = "Snaps"
-        elif string.find(x, "Dev") == 0:
-             x = "Dev"
-        elif string.lower(x) == "linux":
-            x = ""
-
-        return x
-
-    return string.join(filter(lambda x:x, map(abbrev, string.split(name))))
 
 
 ###

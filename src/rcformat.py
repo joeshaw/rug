@@ -16,6 +16,7 @@
 ###
 
 import string
+import re
 import rctalk
 
 ###
@@ -65,6 +66,48 @@ def linebreak(in_str, width):
         lines = lines + linebreak(str[n+1:], width)
 
     return lines
+
+
+## Assemble EVRs into strings
+
+def evr_to_str(epoch, version, release):
+    return str(epoch) + ":" + version + "-" + release
+
+
+## Assemble EVRs into abbreviated strings
+
+def evr_to_abbrev_str(epoch, version, release):
+
+    if string.find(release, "snap") != -1:
+        r = re.compile(".*(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)")
+        m = r.match(version) or r.match(release)
+        if m:
+            return "%s-%s-%s, %s:%s" % \
+                   (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5))
+        
+    return evr_to_str(epoch, version, release)
+
+
+## Shorten channel names in a semi-coherent way
+
+def abbrev_channel_name(name):
+
+    def abbrev(x):
+
+        if string.find(x, "Snapshot") == 0:
+            x = "Snaps"
+        elif string.find(x, "Dev") == 0:
+             x = "Dev"
+
+        return x
+
+    return string.join(filter(lambda x:x, map(abbrev, string.split(name))))
+
+
+## Shorten importance strings
+
+def abbrev_importance(str):
+    return str[0:3]
 
 
 ###

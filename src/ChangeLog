@@ -1,3 +1,19 @@
+2002-06-12  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageUpdatesCmd): General hacking.
+
+	* rcchannelcmds.py (check_subscription_by_id): Added.
+	(get_channels_by_name): Check channel initials both with and
+	without the "."=>" " substitution.  That way "Red Hat Linux 7.2"
+	matches "rhl72" but "Gnome 2.0 Development Snapshots" matches the
+	more natural "g2ds".
+
+	* rcformat.py (evr_to_str): Added.  Convert EVR to a string.
+	(evr_to_abbrev_str): Added.  Convert EVR to a string, converting those big
+	snapshot versions into a timestamp.
+	(abbrev_channel_name): Moved from rcchannelcmds.py.
+	(abbrev_importance): Added.
+
 2002-06-12  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageRemoveCmd): Added.
