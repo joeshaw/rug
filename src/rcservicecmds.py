@@ -383,14 +383,14 @@ class ServiceRefreshCmd(rccommand.RCCommand):
             self.usage()
             sys.exit(1)
 
-        services = get_services(server)
-        s = find_service(services, non_option_args[0])
-
-        if not s:
-            rctalk.error("No service matches '%s'" % non_option_args[0])
-            sys.exit(1)
-
         if non_option_args:
+            services = get_services(server)
+            s = find_service(services, non_option_args[0])
+
+            if not s:
+                rctalk.error("No service matches '%s'" % non_option_args[0])
+                sys.exit(1)
+                
             rcchannelutils.refresh_channels(server, s["id"])
         else:
             rcchannelutils.refresh_channels(server)
