@@ -44,7 +44,7 @@ def channel_to_str(c):
 def get_channel_by_id(server, id):
     channels = get_channels(server)
     for c in channels:
-        if str(c["id"]) == str(id):
+        if c["id"] == id:
             return c
 
 def check_subscription_by_id(server, id):
@@ -90,7 +90,7 @@ def get_channels_by_name(server, in_str):
                                    map(lambda x:x[0],
                                        string.split(chan_name)))
 
-        if str(c["id"]) == s \
+        if c["id"] == s \
            or (chan_alias and chan_alias == s) \
            or string.find(chan_name, s) == 0 \
            or chan_initials == s \
@@ -127,7 +127,7 @@ def validate_channel_list(name, chan_list):
 
     cname = chan_list[0]["name"]
     if string.lower(name) != string.lower(cname) \
-       and name != str(chan_list[0]["id"]):
+       and name != chan_list[0]["id"]:
         if not rctalk.be_terse:
             rctalk.message("'" + name + "' matches '" + cname + "'")
 
@@ -137,7 +137,7 @@ def validate_channel_list(name, chan_list):
 def channel_id_to_name(server, id):
     channels = get_channels(server)
     for c in channels:
-        if str(c["id"]) == str(id):
+        if c["id"] == id:
             return c["name"]
     return ""
 
@@ -173,7 +173,7 @@ def refresh_channels(server, channels):
     else:
         for c in channels:
             if c:
-                stuff_to_poll.append(server.rcd.packsys.refresh_channel(int(c["id"])))
+                stuff_to_poll.append(server.rcd.packsys.refresh_channel(c["id"]))
                 rctalk.message("Refreshing channel %s" % channel_to_str(c))
 
     if stuff_to_poll:

@@ -340,7 +340,7 @@ class PackagesCmd(rccommand.RCCommand):
                     if rcchannelutils.validate_channel_list(a, cl):
                         clist = clist + cl
 
-            query = map(lambda c:["channel", "=", str(c["id"])], clist)
+            query = map(lambda c:["channel", "=", c["id"]], clist)
 
             if len(clist) > 1:
                 query.insert(0, ["", "begin-or", ""])
@@ -400,8 +400,8 @@ class PackagesCmd(rccommand.RCCommand):
 ###
 
 def pkg_to_key(p):
-    ch = p["channel"] or p.get("channel_guess", 0);
-    return "%d:%s:%d:%s:%s" % \
+    ch = p["channel"] or p.get("channel_guess", "");
+    return "%s:%s:%d:%s:%s" % \
            (ch, p["name"], p["epoch"], p["version"], p["release"])
 
 class PackageSearchCmd(rccommand.RCCommand):
@@ -478,7 +478,7 @@ class PackageSearchCmd(rccommand.RCCommand):
                 sys.exit(1)
             c = clist[0]
 
-            query.append(["channel", "=", str(c["id"])])
+            query.append(["channel", "=", c["id"]])
 
         packages = server.rcd.packsys.search(query)
 
@@ -1613,7 +1613,7 @@ class PackageInstallCmd(TransactCmd):
 
             contributors = 0
             for c in channel_list:
-                query = [["channel", "=", str(c["id"])],
+                query = [["channel", "=", c["id"]],
                          ["name-installed", "=", "false"]]
                 packages = server.rcd.packsys.search(query)
                 packages_to_install.extend(packages)

@@ -84,7 +84,7 @@ class ListChannelsCmd(rccommand.RCCommand):
             if show:
                 row = [subflag, rcchannelutils.get_channel_alias(c), c["name"]]
                 if options_dict.has_key("show-ids"):
-                    row.insert(2, str(c["id"]))
+                    row.insert(2, c["id"])
                 channel_table.append(row)
 
         if channel_table:

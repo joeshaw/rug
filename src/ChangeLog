@@ -1,3 +1,9 @@
+2003-04-17  Jon Trowbridge  <trow@ximian.com>
+
+	* Made a number of small changes to deal with the fact that
+	channel IDs are now strings, not integers.  This breaks
+	compatibility with old daemons.
+
 2003-04-16  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (TransactCmd.check_licenses): Added.  Spew out
