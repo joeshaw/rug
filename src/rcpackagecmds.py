@@ -787,7 +787,7 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
 class PackageInfoRequirementsCmd(rccommand.RCCommand):
 
     def name(self):
-        return "info-requires"
+        return "info-requirements"
 
     def description_short(self):
         return "List a packages requirements"
