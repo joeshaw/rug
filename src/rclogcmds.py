@@ -135,6 +135,9 @@ class LogQueryCmd(rccommand.RCCommand):
     def name(self):
         return "history"
 
+    def aliases(self):
+        return ["hi"]
+
     def arguments(self):
         return "<search-string> <search-string> ..."
 

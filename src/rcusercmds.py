@@ -122,6 +122,9 @@ class UserListCmd(rccommand.RCCommand):
     def name(self):
         return "user-list"
 
+    def aliases(self):
+        return ["ul"]
+
     def description_short(self):
         return "List users"
 
@@ -144,6 +147,9 @@ class UserAddCmd(rccommand.RCCommand):
 
     def name(self):
         return "user-add"
+
+    def aliases(self):
+        return ["ua"]
 
     def arguments(self):
         return "<UserName> <Privilege> <Privilege> ..."
@@ -211,6 +217,9 @@ class UserDeleteCmd(rccommand.RCCommand):
 
     def name(self):
         return "user-delete"
+
+    def aliases(self):
+        return ["ud"]
 
     def arguments(self):
         return "<username> <username> ..."

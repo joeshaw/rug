@@ -198,6 +198,9 @@ class PackagesCmd(rccommand.RCCommand):
     def name(self):
         return "packages"
 
+    def aliases(self):
+        return ["pa"]
+
     def category(self):
         return "basic"
 
@@ -291,6 +294,9 @@ class PackageSearchCmd(rccommand.RCCommand):
 
     def name(self):
         return "search"
+
+    def aliases(self):
+        return ["se"]
 
     def is_basic(self):
         return 1
@@ -394,7 +400,7 @@ class PackageSearchCmd(rccommand.RCCommand):
 
 
 ###
-### "updates" command
+### "list-updates" command
 ###
 
 def terse_updates_table(server, update_list):
@@ -507,16 +513,16 @@ def verbose_updates_list(server, update_list):
         rctalk.message("")
         
 
-class PackageUpdatesCmd(rccommand.RCCommand):
+class PackageListUpdatesCmd(rccommand.RCCommand):
 
     def name(self):
-        return "updates"
+        return "list-updates"
 
     def is_basic(self):
         return 1
 
     def aliases(self):
-        return ["up"]
+        return ["lu"]
 
     def arguments(self):
         return "<channel> <channel> ..."
@@ -567,7 +573,7 @@ class SummaryCmd(rccommand.RCCommand):
         return 1
 
     def aliases(self):
-        return ["sum"]
+        return ["su", "sum"]
 
     def arguments(self):
         return ""
@@ -704,6 +710,9 @@ class PackageInfoCmd(rccommand.RCCommand):
 
     def name(self):
         return "info"
+
+    def aliases(self):
+        return ["if"]
 
     def category(self):
         return "package"
@@ -1196,6 +1205,9 @@ class PackageInstallCmd(TransactCmd):
     def name(self):
         return "install"
 
+    def aliases(self):
+        return ["in"]
+
     def category(self):
         return "package"
 
@@ -1280,7 +1292,7 @@ class PackageRemoveCmd(TransactCmd):
         return "package"
 
     def aliases(self):
-        return ["rm", "erase"]
+        return ["re", "rm", "erase"]
 
     def arguments(self):
         return "<package-name> <package-name> ..."
@@ -1316,19 +1328,19 @@ class PackageRemoveCmd(TransactCmd):
         self.transact(server, options_dict, [], packages_to_remove, [])
 
 ###
-### "update-all" command
+### "update" command
 ###
 
-class PackageUpdateAllCmd(TransactCmd):
+class PackageUpdateCmd(TransactCmd):
 
     def name(self):
-        return "update-all"
+        return "update"
 
     def category(self):
         return "package"
 
     def aliases(self):
-        return ["ua"]
+        return ["up"]
 
     def arguments(self):
         return "<channel> <channel> ..."
@@ -1358,6 +1370,9 @@ class PackageVerifyCmd(TransactCmd):
     def name(self):
         return "verify"
 
+    def aliases(self):
+        return ["ve"]
+
     def category(self):
         return "package"
 
@@ -1380,7 +1395,7 @@ class PackageSolveCmd(TransactCmd):
         return "solvedeps"
 
     def aliases(self):
-        return ["solve"]
+        return ["sd", "solve"]
 
     def arguments(self):
         return "<package-dep>"
@@ -1492,7 +1507,7 @@ class PackageDumpCmd(rccommand.RCCommand):
 
 rccommand.register(PackagesCmd)
 rccommand.register(PackageSearchCmd)
-rccommand.register(PackageUpdatesCmd)
+rccommand.register(PackageListUpdatesCmd)
 rccommand.register(SummaryCmd)
 rccommand.register(PackageInfoCmd)
 rccommand.register(PackageInfoProvidesCmd)
@@ -1500,7 +1515,7 @@ rccommand.register(PackageInfoRequirementsCmd)
 rccommand.register(PackageInfoConflictsCmd)
 rccommand.register(PackageInstallCmd)
 rccommand.register(PackageRemoveCmd)
-rccommand.register(PackageUpdateAllCmd)
+rccommand.register(PackageUpdateCmd)
 rccommand.register(PackageVerifyCmd)
 rccommand.register(PackageDumpCmd)
 rccommand.register(PackageSolveCmd)
