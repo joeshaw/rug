@@ -23,7 +23,6 @@ import getpass
 
 # For exception handling.
 import socket
-import cgiwrap
 
 import ximian_xmlrpclib
 import rcutil
@@ -142,8 +141,8 @@ def main(rc_version):
 
     try:
         command.execute(server, opt_dict, args)
-    except socket.error:
-        rctalk.error("Unable to connect to the daemon.")
+    except socket.error, e:
+        rctalk.error("Unable to connect to the daemon: " + str(e))
         rctalk.error("Please ensure that the service is running.")
         sys.exit(1)
     except ximian_xmlrpclib.ProtocolError, e:
