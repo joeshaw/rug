@@ -202,30 +202,30 @@ def main(ver, rug_dir):
     if not rctalk.be_terse:
         rctalk.message("")
 
-    ### If this isn't a local command, first check to make sure the
-    ### server is the right protocol version.
-    if not command.is_local():
-
-        try:
-            version = server.rcd.system.protocol_version()
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.undefined_method:
-                version = 1 # Assume protocol v1 if method not present.
-            else:
-                raise
-
-        if version != xmlrpc_protocol_version:
-            rctalk.error("This version of rug (version %d) is incompatible "
-                         "with this" % xmlrpc_protocol_version)
-            rctalk.error("daemon (version %d)." % version)
-            sys.exit(1)
-                
-
-    ###
-    ### Execute the command
-    ###
-
     try:
+        ### If this isn't a local command, first check to make sure the
+        ### server is the right protocol version.
+        if not command.is_local():
+
+            try:
+                version = server.rcd.system.protocol_version()
+            except ximian_xmlrpclib.Fault, f:
+                if f.faultCode == rcfault.undefined_method:
+                    version = 1 # Assume protocol v1 if method not present.
+                else:
+                    raise
+
+            if version != xmlrpc_protocol_version:
+                rctalk.error("This version of rug (version %d) is "
+                             "incompatible with this" %
+                             xmlrpc_protocol_version)
+                rctalk.error("daemon (version %d)." % version)
+                sys.exit(1)
+
+        ###
+        ### Execute the command
+        ###
+        
         command.execute(server, opt_dict, args)
     except IOError:
         # Just quietly exit in this case, too.  It is probably a

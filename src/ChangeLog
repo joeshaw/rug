@@ -1,3 +1,11 @@
+2003-09-08  Joe Shaw  <joe@ximian.com>
+ 
+        * rcmain.py (main): Move the protocol version check into the try
+        block which catches exceptions relating to the daemon being down.
+
+	* rcservicecmds.py (ServiceActivateCmd): Don't try to iterate over
+	an integer.
+
 2003-09-05  Joe Shaw  <joe@ximian.com>
 
 	* rcsystemcmds.py (ShutdownCmd, RestartCmd): Set is_local to 1
