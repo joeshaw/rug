@@ -937,7 +937,10 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
             elif count > 1:
                 table.append(["", "", "", "", ""])
 
-        rcformat.tabular(["!", "Conflict", "Conflicts With", "S", "Channel"], table)
+        if not table:
+            rctalk.message("--- No conflicts ---")
+        else:
+            rcformat.tabular(["!", "Conflict", "Conflicts With", "S", "Channel"], table)
 
                 
 
