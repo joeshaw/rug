@@ -1041,6 +1041,8 @@ def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
                 download_completed = 1
                 rctalk.message("")
                 rctalk.message_finished("Download complete")
+            elif tid_info["status"] == "failed":
+                rctalk.message_finished("")
 
             message_len = len(tid_info["messages"])
 
@@ -1389,6 +1391,12 @@ class PackageSolveCmd(TransactCmd):
             package = string.split(d)
 
             if len(package) > 1:
+                valid_relations = ["=", "<", "<=", ">", ">=", "!="]
+
+                if not package[1] in valid_relations:
+                    rctalk.error("Invalid relation.")
+                    sys.exit(1)
+
                 dep["name"] = package[0]
                 dep["relation"] = package[1]
 
@@ -1401,14 +1409,13 @@ class PackageSolveCmd(TransactCmd):
                 else:
                     dep["has_epoch"] = 0
                     dep["epoch"] = 0
-
+                    
                 dep["version"] = match.group(2)
 
                 if match.group(3):
                     dep["release"] = match.group(3)
                 else:
                     dep["release"] = ""
-
             else:
                 dep["name"] = d
                 dep["relation"] = "(any)"

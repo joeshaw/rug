@@ -1,3 +1,11 @@
+2002-08-06  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (transact_and_poll): Call
+	rctalk.message_finished() if the transfer fails, so we have a
+	newline to show the failure on.
+	(PackageSolveCmd.execute): Keep a list of valid relations and
+	abort if it isn't valid.
+
 2002-08-05  Joe Shaw  <joe@ximian.com>
 
 	* rc.in: Remove extraneous imports.
