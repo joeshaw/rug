@@ -1,3 +1,8 @@
+2003-10-21  Joe Shaw  <joe@ximian.com>
+
+	* rcservicecmds.py (ServiceDeleteCmd.execute): If no args are
+	provided, print out the usage and exit.
+
 2003-10-09  Tambet Ingo  <tambet@ximian.com>
 
 	* rctransactcmds.py (TransactCmd.poll_transaction): Force output

@@ -168,6 +168,9 @@ class ServiceDeleteCmd(rccommand.RCCommand):
         return "service"
 
     def execute(self, server, options_dict, non_option_args):
+        if len(non_option_args) < 1:
+            self.usage()
+            sys.exit(1)
 
         services = rcserviceutils.get_services(server)
 
