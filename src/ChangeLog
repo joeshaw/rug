@@ -1,3 +1,8 @@
+2002-07-05  Jon Trowbridge  <trow@ximian.com>
+
+	* rcchannelcmds.py (ListChannelsCmd.local_orthogonal_opts): Mark
+	subscribed and unsubscribed opts as orthogonal.
+
 2002-07-03  Jon Trowbridge  <trow@ximian.com>
 
 	* rcformat.py (pending_to_str): Added code to show the

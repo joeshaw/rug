@@ -40,6 +40,9 @@ class ListChannelsCmd(rccommand.RCCommand):
         return [["s", "subscribed", "", "Only list subscribed channels"],
                 ["u", "unsubscribed", "", "Only list unsubscribed channels"]]
 
+    def local_orthogonal_opts(self):
+        return [["subscribed", "unsubscribed"]]
+
     def execute(self, server, options_dict, non_option_args):
 
         channels = rcchannelutils.get_channels(server)
