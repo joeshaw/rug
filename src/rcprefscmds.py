@@ -71,6 +71,8 @@ class PrefsSetCmd(rccommand.RCCommand):
             else:
                 raise
 
+        rctalk.message("Preference '" + non_option_args[0] + "' changed from '" + str(pref) + "' to '" + str(value) + "'")
+
 class PrefsListCmd(rccommand.RCCommand):
 
     def name(self):

@@ -1029,14 +1029,14 @@ def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
         except KeyboardInterrupt:
             if tid_info and tid_info["status"] == "running":
                 rctalk.message("")
-                rctalk.message("Aborting download...")
+                rctalk.message("Cancelling download...")
                 v = server.rcd.packsys.abort_download(tid)
                 if v:
                     sys.exit(0)
                 else:
-                    rctalk.warning("Transaction cannot be aborted")
+                    rctalk.warning("Transaction cannot be cancelled")
             elif tid_info:
-                rctalk.warning("Transaction cannot be aborted")
+                rctalk.warning("Transaction cannot be cancelled")
 
 def extract_package(dep_or_package):
     # Check to see if we're dealing with package op structures or real
@@ -1138,7 +1138,7 @@ class TransactCmd(rccommand.RCCommand):
         if not options_dict.has_key("no-confirmation"):
             confirm = raw_input("Do you want to continue? [Y/n] ")
             if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
-                rctalk.message("Aborted.")
+                rctalk.message("Cancelled.")
                 sys.exit(0)
 
         allow_remove = self.unattended_removals() or options_dict.has_key("allow-removals")
