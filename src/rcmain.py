@@ -80,7 +80,10 @@ def main(rc_version):
 
     # If the hostname has a / in it, we assume that it is actually
     # an explicitly-specified to a socket.
-    if opt_dict.has_key("host") and string.find(opt_dict["host"], "/") == 0:
+    if command.name() == "help":
+        local = 1 # A hack so that you don't need to type your password
+                  # when asking for help
+    elif opt_dict.has_key("host") and string.find(opt_dict["host"], "/") == 0:
         local = 1
     elif opt_dict.has_key("host") or opt_dict.has_key("user"):
         local = 0
