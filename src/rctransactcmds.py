@@ -640,6 +640,47 @@ class PackageVerifyCmd(TransactCmd):
                       [], install_deps,
                       [], remove_deps)
 
+
+def get_date(date_str, formats_to_try):
+    date = None
+    for format in formats_to_try:
+        try:
+            date = time.strptime(date_str, format)
+        except ValueError:
+            # no dice.
+            continue
+        else:
+            # disco.
+            break
+
+    return date
+
+day_of_week_formats = (
+    "%A",  # Thursday
+    "%a",  # Thu
+)
+
+def is_day_of_the_week(date_str):
+    date = get_date(date_str, day_of_week_formats)
+
+    return date is not None
+
+def day_of_the_week_offset(date_str):
+    date = get_date(date_str, day_of_week_formats)
+
+    if not date:
+        raise ValueError
+
+    now = time.localtime(time.time())
+
+    # sixth element of the date tuple is the day of the week
+    day_diff = now[6]-date[6]
+
+    if day_diff <= 0:
+        day_diff = day_diff + 6
+
+    return day_diff
+
 def date_converter(date_str):
     try:
         time.gmtime(int(date_str))
@@ -670,16 +711,7 @@ def date_converter(date_str):
         "%I:%M %p",                # 1:28 PM
     )
 
-    date = None
-    for format in formats_to_try:
-        try:
-            date = time.strptime(date_str, format)
-        except ValueError:
-            # no dice.
-            continue
-        else:
-            # disco.
-            break
+    date = get_date(date_str, formats_to_try)
 
     # In the case of formats with only times (and no dates), strptime()
     # returns invalid date fields.  We can check that by checking the
@@ -737,6 +769,9 @@ def date_converter(date_str):
         return time.time() - time_dict[time_spec]
     elif string.find(date_str, "yesterday") != -1:
         return time.time() - time_dict["day"]
+    elif is_day_of_the_week(date_str):
+        return time.time() - \
+               time_dict["day"] * day_of_the_week_offset(date_str)
     else:
         raise ValueError, "Unknown date '%s'" % date_str
 
