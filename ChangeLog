@@ -1,3 +1,7 @@
+2004-08-26  James Willcox  <james@ximian.com>
+
+	* configure.in: Bump to 2.3.9
+
 2004-06-10  Tambet Ingo  <tambet@ximian.com>
 
 	* configure.in: Add optional argument "--enable-patches".
