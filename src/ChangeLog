@@ -1,3 +1,8 @@
+2002-11-06  Joe Shaw  <joe@ximian.com>
+
+	* rclockcmds.py (LockAddCmd.execute): Show the command usage if no
+	arguments are specified.
+	
 2002-11-05  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (find_package*): Clean these up a lot and make
