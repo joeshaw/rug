@@ -75,7 +75,7 @@ def linebreak(in_str, width):
 def evr_to_str(package):
     version = ""
     
-    if package["epoch"]:
+    if package["has_epoch"]:
         version = version + str(package["epoch"]) + ":"
 
     version = version + package["version"]

@@ -30,6 +30,7 @@ import rccommand
 import rcsystemcmds
 import rcchannelcmds
 import rcpackagecmds
+import rcwhatcmds
 import rclogcmds
 import rcnewscmds
 import rcprefscmds

@@ -97,4 +97,15 @@ def channel_id_to_name(server, id):
     for c in channels:
         if str(c["id"]) == str(id):
             return c["name"]
+    return ""
+
+
+def add_channel_name(server, pkg):
+    if pkg.has_key("channel_guess"):
+        id = pkg["channel_guess"]
+    else:
+        id = pkg["channel"]
+    pkg["channel_name"] = channel_id_to_name(server, id)
+
+    
 

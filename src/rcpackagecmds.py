@@ -101,11 +101,6 @@ def find_local_package(server, package):
 def get_updates(server, non_option_args):
     up = server.rcd.packsys.get_updates()
 
-    # Filter out unsubscribed channels
-    up = filter(lambda x,s=server:\
-                rcchannelutils.check_subscription_by_id(s, x[1]["channel"]),
-                up)
-    
     # If channels are specified by the command line, filter out all except
     # for updates from those channels.
     if non_option_args:
@@ -179,8 +174,11 @@ class PackagesCmd(rccommand.RCCommand):
         packages = server.rcd.packsys.search(query)
 
         if options_dict.has_key("sort-by-channel"):
-            packages.sort(lambda x,y:cmp(string.lower(x["channel"]),string.lower(y["channel"])) or \
-                          cmp(string.lower(x["name"]), string.lower(y["name"])))
+            for p in packages:
+                rcchannelutils.add_channel_name(server, p)
+
+            packages.sort(lambda x,y:cmp(string.lower(x["channel_name"]), string.lower(y["channel_name"])) \
+                          or cmp(string.lower(x["name"]), string.lower(y["name"])))
         else:
             packages.sort(lambda x,y:cmp(string.lower(x["name"]),string.lower(y["name"])))
 
@@ -350,8 +348,6 @@ def exploded_updates_table(server, update_list, no_abbrev):
         ch = update_item[1]["channel"]
         if not channel_name_dict.has_key(ch):
             channel_name_dict[ch] = rcchannelutils.channel_id_to_name(server, ch)
-
-    print channel_name_dict
 
     update_list.sort(lambda x,y,cnd=channel_name_dict:\
                      cmp(string.lower(cnd[x[1]["channel"]]),

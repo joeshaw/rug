@@ -4,6 +4,7 @@ rcexec_DATA = rc
 rcsupportdir = $(datadir)/rc
 rcsupport_DATA = 		\
 	rcchannelcmds.py	\
+	rcchannelutils.py	\
 	rccommand.py		\
 	rcformat.py		\
 	rclogcmds.py		\
@@ -13,6 +14,7 @@ rcsupport_DATA = 		\
 	rcprefscmds.py		\
 	rcsystemcmds.py		\
 	rctalk.py		\
+	rcwhatcmds.py		\
 	ximian_xmlrpclib.py
 
 install-exec-hook:

@@ -1,3 +1,19 @@
+2002-07-11  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (get_updates): We don't need to filter out
+	unsubscribed channels anymore -- this is now done server-side.
+	(PackagesCmd.execute): Fix sort-by-channel.
+
+	* rcmain.py: Import rcwhatcmds.
+
+	* rcformat.py (evr_to_str): Properly handle the has_epoch flag.
+
+	* rcchannelutils.py (add_channel_name): Add a channel's name to
+	a package struct.
+
+	* rcwhatcmds.py: Added.  Implements what-requires, what-provides
+	and what-conflicts commands.
+
 2002-07-10  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageDebugCmd.execute): Decompress the
