@@ -31,53 +31,77 @@ import rcchannelutils
 import rcmain
 import ximian_xmlrpclib
 
-def find_package_in_channel(server, channel, package, allow_unsub):
-    if channel != -1:
-        plist = server.rcd.packsys.search([["name",      "is", package],
-                                           ["installed", "is", "false"],
-                                           ["channel",   "is", str(channel)]])
+# This isn't the most efficient way of doing things, but we need to do it
+# because rcd.packsys.find_latest_version() doesn't do globbing.  So we
+# need to get the list of all of the packages that match our glob and
+# then check to see if it's valid and newer than what we already have.
+def find_latest_package(server, package, allow_unsub, quiet):
+    plist = server.rcd.packsys.search([["name", "is", package],
+                                       ["installed", "is", "false"]])
 
-        if not plist:
-            rctalk.error("Unable to find package '" + package + "'")
-            return (None, 0)
+    pkeys = {}
+    pl = []
+
+    for p in plist:
+        if not pkeys.has_key(p["name"]):
+            latest_p = get_latest_version(server, p["name"],
+                                          allow_unsub, quiet)
+            if latest_p:
+                pl.append(latest_p)
+
+            pkeys[p["name"]] = p
+
+    return pl
+
+def get_latest_version(server, package, allow_unsub, quiet):
+    try:
+        if allow_unsub:
+            b = ximian_xmlrpclib.False
         else:
-            p = plist[0]
-            
-        inform = 0
-    else:
-        try:
-            if allow_unsub:
-                b = ximian_xmlrpclib.False
-            else:
-                b = ximian_xmlrpclib.True
-            
-            p = server.rcd.packsys.find_latest_version(package, b)
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.package_not_found:
+            b = ximian_xmlrpclib.True
+
+        p = server.rcd.packsys.find_latest_version(package, b)
+    except ximian_xmlrpclib.Fault, f:
+        if f.faultCode == rcfault.package_not_found:
+            if not quiet:
                 if allow_unsub:
                     rctalk.error("Unable to find package '" + package + "'")
                 else:
-                    rctalk.error("Unable to find package '" + package +"' in any subscribed channel")
-                p = None
-            elif f.faultCode == rcfault.package_is_newest:
+                    rctalk.error("Unable to find package '" + package +
+                                 "' in any subscribed channel")
+            p = None
+        elif f.faultCode == rcfault.package_is_newest:
+            if not quiet:
                 if allow_unsub:
                     rctalk.error("There is no newer version of '" + package + "'")
                 else:
-                    rctalk.error("There is no newer version of '" + package + "' in any subscribed channel")
-                p = None
-            else:
-                raise
-
-        if p:
-            inform = 1
+                    rctalk.error("There is no newer version of '" + package +
+                                 "' in any subscribed channel")
+            p = None
         else:
-            inform = 0
+            raise
 
-    return p, inform
+    return p
+
+def find_package_in_channel(server, channel, package, allow_unsub):
+    plist = server.rcd.packsys.search([["name",      "is", package],
+                                       ["installed", "is", "false"],
+                                       ["channel",   "is", str(channel)]])
+
+    if not plist:
+        rctalk.error("Unable to find package '" + package + "'")
+        return []
+
+    return plist
 
 def find_package_on_system(server, package):
     plist = server.rcd.packsys.search([["name",      "is", package],
                                        ["installed", "is", "true"]])
+
+    return plist
+
+def find_package_on_system_exactly(server, package):
+    plist = find_package_on_system(server, package)
 
     # We need exactly one match
     if not plist or len(plist) > 1:
@@ -166,41 +190,66 @@ def find_package(server, str, allow_unsub, allow_system=1):
     channel = None
     package = None
 
+    # Check if the string is a file on the local filesystem.
     p = find_local_package(server, str)
+    if p:
+        return [p]
 
-    if not p:
-        p = find_remote_package(server, str)
+    # Check if the string is a supported URL
+    p = find_remote_package(server, str)
+    if p:
+        return [p]
 
-    if not p:
-        off = string.find(str, ":")
-        if off != -1:
-            channel = str[:off]
-            package = str[off+1:]
-        else:
-            package = str
+    # Okay, try to split the string into "channel:package"
+    off = string.find(str, ":")
+    if off != -1:
+        channel = str[:off]
+        package = str[off+1:]
+    else:
+        package = str
 
-        if not channel:
-            if allow_system:
-                p = find_package_on_system(server, package)
+    # Channel is set, so just get the package(s) from the channel.
+    if channel:
+        clist = rcchannelutils.get_channels_by_name(server, channel)
+        if not rcchannelutils.validate_channel_list(channel, clist):
+            sys.exit(1)
 
-            if not p:
-                p, inform = find_package_in_channel(server, -1, package, allow_unsub)
+        c = clist[0]
+        plist = find_package_in_channel(server, c["id"], package, allow_unsub)
 
-                if inform:
-                    rctalk.message("Using " + p["name"] + " " +
-                                   rcformat.evr_to_str(p) + " from the '" +
-                                   rcchannelutils.channel_id_to_name(server, p["channel"]) +
-                                   "' channel")
-                    
-        else:
-            clist = rcchannelutils.get_channels_by_name(server, channel)
-            if not rcchannelutils.validate_channel_list(channel, clist):
-                sys.exit(1)
+        return plist
 
-            c = clist[0]
-            p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
+    # Okay, that didn't work.  First try to get the package from the list
+    # of system packages.  After that, try to get the latest available
+    # package.
+    plist = []
 
-    return p
+    if allow_system:
+        plist = find_package_on_system(server, package)
+
+    if plist:
+        quiet = 1
+    else:
+        quiet = 0
+
+    new_plist = find_latest_package(server,
+                                    package,
+                                    allow_unsub,
+                                    quiet)
+
+    # Filter out packages already on the system, so we don't get both
+    # the installed version of a package and the newest available
+    # version.
+    for p in new_plist:
+        if not filter(lambda x, my_p=p:x["name"] == my_p["name"],
+                      plist):
+            rctalk.message("Using " + p["name"] + " " +
+                           rcformat.evr_to_str(p) + " from the '" +
+                           rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                           "' channel")
+            plist.append(p)
+
+    return plist
 
 
 update_importances = {"minor"     : 4,
@@ -635,16 +684,6 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
         else:
             up = update_list
         
-        # remove exclusions from the list
-        up_len = len(up)
-        up = filter(lambda x, exl=exclude_list():not x[1]["name"] in exl, up)
-        if not rctalk.be_terse and len(up) < up_len:
-            diff = up_len - len(up)
-            if diff == 1:
-                rctalk.message("1 update is excluded from the update list")
-            else:
-                rctalk.message(str(diff) + " updates are excluded from the update list")
-
         if not up:
             if non_option_args:
                 rctalk.message("No updates are available in the specified channels.")
@@ -696,16 +735,6 @@ class SummaryCmd(rccommand.RCCommand):
         no_abbrev = options_dict.has_key("no-abbrev")
 
         update_list = get_updates(server, [])
-
-        # remove exclusions from the list
-        up_len = len(update_list)
-        update_list = filter(lambda x, exl=exclude_list():not x[1]["name"] in exl, update_list)
-        if not rctalk.be_terse and len(update_list) < up_len:
-            diff = up_len - len(update_list)
-            if diff == 1:
-                rctalk.message("1 update is excluded from the summary.")
-            else:
-                rctalk.message(str(diff) + " updates are excluded from the summary.")
 
         if not update_list:
             rctalk.message("There are no available updates at this time.")
@@ -850,15 +879,20 @@ class PackageInfoCmd(rccommand.RCCommand):
         else:
             allow_unsub = 0
 
+        plist = []
+
         for a in non_option_args:
             inform = 0
             channel = None
             package = None
 
-            p = find_package(server, a, allow_unsub)
-            if not p:
-                sys.exit(1)
+            plist = plist + find_package(server, a, allow_unsub)
 
+        if not plist:
+            rctalk.message("--- No packages found ---")
+            sys.exit(1)
+
+        for p in plist:
             pinfo = server.rcd.packsys.package_info(p)
 
             rctalk.message("")
@@ -928,7 +962,7 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
         return ["ip"]
 
     def arguments(self):
-        return "<package>"
+        return "<package> ..."
 
     def category(self):
         return "dependency"
@@ -938,23 +972,32 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        if len(non_option_args) != 1:
+        if len(non_option_args) < 1:
             self.usage()
             sys.exit(1)
-        
-        pkg_specifier = non_option_args[0]
-        pkg = find_package(server, pkg_specifier, 1)
 
-        if not pkg:
+        plist = []
+
+        for a in non_option_args:
+            plist = plist + find_package(server, a, 1)
+
+        if not plist:
+            rctalk.message("--- No packages found ---")
             sys.exit(1)
 
-        dep_info = server.rcd.packsys.package_dependency_info(pkg)
+        for pkg in plist:
+            dep_info = server.rcd.packsys.package_dependency_info(pkg)
 
-        if not dep_info.has_key("provides"):
-            sys.exit(1)
+            if not dep_info.has_key("provides"):
+                continue
 
-        for dep in dep_info["provides"]:
-            rctalk.message(rcformat.dep_to_str(dep))
+            rctalk.message("--- %s %s ---" %
+                           (pkg["name"], rcformat.evr_to_str(pkg)))
+
+            for dep in dep_info["provides"]:
+                rctalk.message(rcformat.dep_to_str(dep))
+
+            rctalk.message("")
             
 
 ###
@@ -970,7 +1013,7 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
         return ["ir"]
 
     def arguments(self):
-        return "<package>"
+        return "<package> ..."
 
     def description_short(self):
         return "List a package's requirements"
@@ -989,71 +1032,82 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        if len(non_option_args) != 1:
+        if len(non_option_args) < 1:
             self.usage()
             sys.exit(1)
 
         no_abbrev = options_dict.has_key("no-abbrev")
 
-        pkg_specifier = non_option_args[0]
-        pkg = find_package(server, pkg_specifier, 1)
+        plist = []
 
-        if not pkg:
+        for a in non_option_args:
+            plist = plist + find_package(server, a, 1)
+
+        if not plist:
+            rctalk.message("--- No packages found ---")
             sys.exit(1)
 
-        dep_info = server.rcd.packsys.package_dependency_info(pkg)
+        for pkg in plist:
+            dep_info = server.rcd.packsys.package_dependency_info(pkg)
 
-        if not dep_info.has_key("requires"):
-            sys.exit(1)
+            if not dep_info.has_key("requires"):
+                continue
 
-        table = []
+            table = []
 
-        row_spec = ["name", "channel"]
-        row_headers = ["Provided By", "Channel"]
-        pad = []
+            row_spec = ["name", "channel"]
+            row_headers = ["Provided By", "Channel"]
+            pad = []
 
-        if options_dict.has_key("show-versions"):
-            row_spec.insert(1, "version")
-            row_headers.insert(1, "Version")
-            pad = pad + [""]
-            
-        if options_dict.has_key("all-providers"):
-            row_spec.insert(2, "installed")
-            row_headers.insert(2, "S")
-            pad = pad + [""]
+            if options_dict.has_key("show-versions"):
+                row_spec.insert(1, "version")
+                row_headers.insert(1, "Version")
+                pad = pad + [""]
 
-        for dep in dep_info["requires"]:
-            providers = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
-            prov_dict = {}
+            if options_dict.has_key("all-providers"):
+                row_spec.insert(2, "installed")
+                row_headers.insert(2, "S")
+                pad = pad + [""]
 
-            name = rcformat.dep_to_str(dep)
-            status = "*"
-            for prov in providers:
-                if prov["installed"]:
-                    status = ""
+            for dep in dep_info["requires"]:
+                providers = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+                prov_dict = {}
 
-            if status == "" \
-                   and not options_dict.has_key("all-providers"):
-                providers = filter(lambda x:x["installed"], providers)
-                
+                name = rcformat.dep_to_str(dep)
+                status = "*"
+                for prov in providers:
+                    if prov["installed"]:
+                        status = ""
 
-            count = 0
-            for prov in providers:
-                row = rcformat.package_to_row(server, prov, no_abbrev, row_spec)
-                key = string.join(row)
-                if not prov_dict.has_key(key):
-                    table.append([status, name] + row)
-                    prov_dict[key] = 1
-                    status = ""
-                    name = ""
-                    count = count + 1
+                if status == "" \
+                       and not options_dict.has_key("all-providers"):
+                    providers = filter(lambda x:x["installed"], providers)
 
-            if count == 0:
-                table.append(["*", name, "** Unknown **", ""] + pad)
-            elif count > 1 and not rctalk.be_terse:
-                table.append(["", "", "", ""] + pad)
 
-        rcformat.tabular(["!", "Requirement"] + row_headers, table)
+                count = 0
+                for prov in providers:
+                    row = rcformat.package_to_row(server, prov, no_abbrev, row_spec)
+                    key = string.join(row)
+                    if not prov_dict.has_key(key):
+                        table.append([status, name] + row)
+                        prov_dict[key] = 1
+                        status = ""
+                        name = ""
+                        count = count + 1
+
+                if count == 0:
+                    table.append(["*", name, "** Unknown **", ""] + pad)
+                elif count > 1 and not rctalk.be_terse:
+                    table.append(["", "", "", ""] + pad)
+
+            if len(plist) > 1:
+                rctalk.message("--- %s %s ---" %
+                               (pkg["name"], rcformat.evr_to_str(pkg)))
+
+            rcformat.tabular(["!", "Requirement"] + row_headers, table)
+
+            if len(plist) > 1:
+                rctalk.message("")
 
         
 ###
@@ -1087,56 +1141,66 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        if len(non_option_args) != 1:
+        if len(non_option_args) < 1:
             self.usage()
             sys.exit(1)
 
-        pkg_specifier = non_option_args[0]
-        pkg = find_package(server, pkg_specifier, 1)
+        plist = []
 
-        if not pkg:
+        for a in non_option_args:
+            plist = plist + find_package(server, a, 1)
+
+        if not plist:
+            rctalk.message("--- No packages found ---")
             sys.exit(1)
 
-        dep_info = server.rcd.packsys.package_dependency_info(pkg)
+        for pkg in plist:
+            dep_info = server.rcd.packsys.package_dependency_info(pkg)
 
-        if not dep_info.has_key("conflicts"):
-            sys.exit(1)
+            if not dep_info.has_key("conflicts"):
+                continue
 
-        table = []
+            table = []
 
-        for dep in dep_info["conflicts"]:
-            conflictors = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
-            conf_dict = {}
+            for dep in dep_info["conflicts"]:
+                conflictors = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+                conf_dict = {}
 
-            name = rcformat.dep_to_str(dep)
-            status = ""
-            for conf in conflictors:
-                if conf["installed"] \
-                       and not evr_eq(conf, pkg): # skip self-conflicts
-                    status = "*"
+                name = rcformat.dep_to_str(dep)
+                status = ""
+                for conf in conflictors:
+                    if conf["installed"] \
+                           and not evr_eq(conf, pkg): # skip self-conflicts
+                        status = "*"
 
-            count = 0
-            for conf in conflictors:
-                if not evr_eq(conf, pkg): # skip self-conflicts
-                    row = rcformat.package_to_row(server, conf, 0, ["name", "installed", "channel"])
-                    key = string.join(row)
-                    if not conf_dict.has_key(key):
-                        table.append([status, name] + row)
-                        conf_dict[key] = 1
-                        status = ""
-                        name = ""
-                        count = count + 1
+                count = 0
+                for conf in conflictors:
+                    if not evr_eq(conf, pkg): # skip self-conflicts
+                        row = rcformat.package_to_row(server, conf, 0, ["name", "installed", "channel"])
+                        key = string.join(row)
+                        if not conf_dict.has_key(key):
+                            table.append([status, name] + row)
+                            conf_dict[key] = 1
+                            status = ""
+                            name = ""
+                            count = count + 1
 
-            if count == 0:
-                table.append(["", name, "", "", ""])
-            elif count > 1:
-                table.append(["", "", "", "", ""])
+                if count == 0:
+                    table.append(["", name, "", "", ""])
+                elif count > 1:
+                    table.append(["", "", "", "", ""])
 
-        if not table:
-            rctalk.message("--- No conflicts ---")
-        else:
-            rcformat.tabular(["!", "Conflict", "Conflicts With", "S", "Channel"], table)
+            if len(plist) > 1:
+                rctalk.message("--- %s %s ---" %
+                               (pkg["name"], rcformat.evr_to_str(pkg)))
 
+            if not table:
+                rctalk.message("--- No conflicts ---")
+            else:
+                rcformat.tabular(["!", "Conflict", "Conflicts With", "S", "Channel"], table)
+
+            if len(plist) > 1:
+                rctalk.message("")
                 
 
 
@@ -1251,35 +1315,6 @@ def format_dependencies(server, dep_list):
             map(lambda x:rctalk.message("    " + x), d["details"])
 
     rctalk.message("")
-
-def exclude_list():
-    exclude = []
-
-    try:
-        rcexclude = open(os.path.expanduser("~/.rcexclude"), "r")
-        while 1:
-            line = rcexclude.readline()
-
-            # remove the trailing newline
-            line = string.strip(line)
-
-            # skip empty lines
-            if not line:
-                break
-
-            # strip out comments
-            hash_pos = string.find(line, "#")
-            if hash_pos >= 0:
-                line = line[0:hash_pos]
-
-            if line:
-                exclude.append(line)
-        rcexclude.close()
-    except IOError:
-        # Can't open the file, just continue.
-        pass
-
-    return exclude
 
 def filter_dups(list):
     for l in list:
@@ -1485,32 +1520,30 @@ class PackageInstallCmd(TransactCmd):
 
             if a[0] == "!" or a[0] == "~":
                 pn = a[1:]
-                p = find_package_on_system(server, pn)
+                plist = find_package_on_system(server, pn)
 
-                if not p:
+                if not plist:
                     rctalk.error("Unable to find package '" + pn + "'")
                     sys.exit(1)
 
-                packages_to_remove.append(p)
+                for p in plist:
+                    packages_to_remove.append(p)
             else:
-                p = find_package(server, a, allow_unsub, allow_system=0)
+                plist = find_package(server, a, allow_unsub, allow_system=0)
 
-                if not p:
+                if not plist:
                     sys.exit(1)
 
-                if p["name"] in exclude_list():
-                    rctalk.warning("Requesting excluded package '" +
-                                   p["name"] + "'!")
+                for p in plist:
+                    dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                                  packages_to_install)
 
+                    if dups:
+                        rctalk.error("Duplicate entry found: " +
+                                     dups[0]["name"])
+                        sys.exit(1)
 
-                dups = filter(lambda x, pn=p:x["name"] == pn["name"],
-                              packages_to_install)
-
-                if dups:
-                    rctalk.error("Duplicate entry found: " + dups[0]["name"])
-                    sys.exit(1)
-
-                packages_to_install.append(p)
+                    packages_to_install.append(p)
 
         if not packages_to_install and not packages_to_remove:
             rctalk.message("--- No packages to install ---")
@@ -1548,19 +1581,20 @@ class PackageRemoveCmd(TransactCmd):
         packages_to_remove = []
         
         for a in non_option_args:
-            p = find_package_on_system(server, a)
+            plist = find_package_on_system(server, a)
 
-            if not p:
+            if not plist:
                 rctalk.error("Unable to find package '" + a + "'")
                 sys.exit(1)
 
-            dups = filter(lambda x, pn=p:x["name"] == pn["name"],
-                          packages_to_remove)
+            for p in plist:
+                dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                              packages_to_remove)
 
-            if dups:
-                rctalk.warning("Duplicate entry found: " + dups[0]["name"])
-            else:
-                packages_to_remove.append(p)
+                if dups:
+                    rctalk.warning("Duplicate entry found: " + dups[0]["name"])
+                else:
+                    packages_to_remove.append(p)
 
         if not packages_to_remove:
             rctalk.message("--- No packages to remove ---")
@@ -1622,7 +1656,7 @@ class PackageUpdateCmd(TransactCmd):
             up = update_list
 
         # x[1] is the package to be updated
-        packages_to_install = filter(lambda x, exl=exclude_list():not x["name"] in exl, map(lambda x:x[1], up))
+        packages_to_install = map(lambda x:x[1], up)
 
         if not packages_to_install:
             rctalk.message("--- No packages to update ---")
@@ -1691,7 +1725,7 @@ class PackageRollbackCmd(TransactCmd):
             for p in packages:
                 row = rcformat.package_to_row(server, p, no_abbrev,
                                               ["name", "version"])
-                newp = find_package_on_system(server, p["name"])
+                newp = find_package_on_system_exactly(server, p["name"])
 
                 if newp:
                     if no_abbrev:
