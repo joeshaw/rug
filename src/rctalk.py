@@ -28,6 +28,17 @@ def message(str):
     if show_messages:
         print str
 
+esc = "" 
+
+def message_status(str):
+    if show_messages and not be_terse:
+        print esc + "[1G" + str + esc + "[0K",
+        sys.stdout.flush()
+
+def message_finished(str):
+    if show_messages and not be_terse:
+        print esc + "[1G" + str + esc + "[0K"
+
 def verbose(str):
     if show_verbose:
         print str

@@ -1,3 +1,21 @@
+2002-06-19  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd.local_opt_table): Added
+	"installed-only" and "uninstalled-only" options.
+	(PackageSearchCmd.execute): Filter our list of packages
+	appropriately if the --installed-only or --uninstalled-only
+	options are set.
+	(transact_and_poll): Present the user with nicer status messages
+	during downloads.
+
+	* rctalk.py (message_status): Added.  Uses some escape-code magic
+	to do status messages that don't advance to the next line.
+	(message_finished): Added.  Use this to print a final status message
+	and advance the line as usual.
+
+	* rcformat.py (pending_to_str): Added.  Converts a 'pending
+	status' item into a human-readable string.
+
 2002-06-18  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageUpdateCmd): Added.  Gets a list of

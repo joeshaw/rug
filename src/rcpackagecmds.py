@@ -193,6 +193,8 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["v", "search-version", "", "Search version"],
                 ["p", "show-package-ids", "", "Show package IDs for each package"],
                 ["c", "channel", "channel id", "Search in a specific channel"],
+                ["i",  "installed-only", "", "List installed packages only"],
+                ["u",  "uninstalled-only", "", "List uninstalled packages only"],
                 ["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
 
 
@@ -226,6 +228,12 @@ class PackageSearchCmd(rccommand.RCCommand):
             channel = 0
 
         packages = server.rcd.packsys.search([[search_type, "contains", non_option_args[0]]])
+
+        if options_dict.has_key("installed-only"):
+            packages = filter(lambda x:x["installed"], packages)
+
+        if options_dict.has_key("uninstalled-only"):
+            packages = filter(lambda x:not x["installed"], packages)
         
         # FIXME: Check for -p
         for p in packages:
@@ -348,9 +356,13 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
     while 1:
         tid_info = server.rcd.system.poll_pending(tid)
 
-        if rctalk.show_verbose and tid_info["percent_complete"] > download_percent:
+        if tid_info["percent_complete"] > download_percent:
             download_percent = tid_info["percent_complete"]
-            rctalk.message("Download " + str(int(download_percent)) + "% complete")
+            progress_msg = "Download " + rcformat.pending_to_str(tid_info)
+            rctalk.message_status(progress_msg)
+
+        if tid_info["status"] != "running":
+            rctalk.message_finished("Download complete")
             
         message_len = len(tid_info["messages"])
             
@@ -363,6 +375,7 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
             break
 
         time.sleep(1)
+
 
 def format_dependencies(dep_list):
     dep_list.sort(lambda x,y:cmp(string.lower(x["name"]),

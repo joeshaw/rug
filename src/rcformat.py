@@ -120,6 +120,22 @@ def abbrev_importance(str):
     return str[0:3]
 
 
+## Format pending strings
+
+def pending_to_str(p):
+    pc = p["percent_complete"]
+    elap = p["elapsed_sec"]
+    rem = p["remaining_sec"]
+
+    msg = str(int(pc)) + "% complete"
+    if elap >= 0:
+        msg = msg + ", " + str(elap) + "s elapsed"
+    if rem >= 0:
+        msg = msg + ", " + str(rem) + "s remaining"
+
+    return msg
+                                  
+
 ###
 ### Code that actually does something.
 ###
