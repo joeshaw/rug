@@ -1,3 +1,7 @@
+2003-05-20  Tambet Ingo  <tambet@ximian.com>
+
+	* rug.in: s/rc_dir/rug_dir/g
+
 2003-05-19  Joe Shaw  <joe@ximian.com>
 	
 	* Rename to "rug".
