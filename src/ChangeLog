@@ -1,3 +1,8 @@
+2002-10-18  Ian Peters  <itp@ximian.com>
+
+	* Makefile.am (rcsupport_DATA): moved rclockcmds.py to follow the
+	ordering
+
 2002-10-18  Jon Trowbridge  <trow@ximian.com>
 
 	* Makefile.am (rcsupport_DATA): Added rclockcmds.py.
