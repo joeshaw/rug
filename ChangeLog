@@ -2,6 +2,9 @@
 
 	* configure.in: 1.1.91
 
+	* unmarshaller/Makefile.am: Don't dist the unmarshaller
+	shared object.
+
 2002-12-11  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.1.90
