@@ -1,3 +1,7 @@
+2002-07-17 Aaron Weber <aaron@ximian.com>
+
+	* rc.1: Expand somewhat, esp. for the --host flag.
+
 2002-07-06  Frank Belew  <frb@ximian.com>
 
 	* Makefile.am: added manpage to EXTRA_DIST

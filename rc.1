@@ -11,7 +11,7 @@ rc \-\-version
 rc \fI\-\-help\fP 
 .SH "DESCRIPTION"
 .LP 
-rc is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors.
+rc is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rc. 
 .LP 
 Red Carpet services sort software by category into channels. Examples would be chnanel software from the operating system vendor, the Ximian Desktop, or a set of third party software. The channel system allows you to subscribe to, or unsubscribe from, individual channels to control the display of available packages and prevent the accidental installation of unwanted software. You can search for packages within or across channels, and query for dependency and conflict information in just your subscribed channels, or in all channels.
 
@@ -120,6 +120,10 @@ Run in batch mode.
 \fB\-\-debug\fR
 Print extra debugging information while running. This is different from the debug command, which collects a coredump.
 
+
+.TP 
+\fB\-h, \-\-host=<\fIhostname\fB>\fR
+Specify the host system where the transaction will be performed. The host system must be running the rcd daemon.
 
 .TP 
 \fB\-\-help\fR
