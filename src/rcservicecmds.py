@@ -136,8 +136,7 @@ class ServiceAddCmd(rccommand.RCCommand):
         for o in non_option_args:
             for s in services:
                 if string.lower(s["url"]) == o:
-                    rctalk.error("A service named '%s' already exists" %
-                                 s["name"])
+                    rctalk.error("Service '%s' already exists" % s["name"])
                     sys.exit(1)
             
             try:

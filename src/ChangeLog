@@ -1,3 +1,9 @@
+2003-09-29  Joe Shaw  <joe@ximian.com>
+
+	* rcservicecmds.py (ServiceAddCmd.execute): Change the wording of
+	the error message to remove ambiguity over the uniqueness of the
+	service name.
+
 2003-09-27  Tambet Ingo  <tambet@ximian.com>
 
 	* rcsystemcmds.py (RecurringCmd.execute): Don't be confused with
