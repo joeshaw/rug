@@ -49,12 +49,12 @@ summary (sum)
 Display a summary of available updates.
 
 .TP 
-update\-all (ua)
-Download and install available updates
+list\-updates (la)
+List all available updates.
 
 .TP 
-updates (up)
-List available updates. To perform all updates, use rc update\-all. To perform a single update, use rc install.
+update (up)
+Download and install updates.  With no arguments, this will get all updates for subscribed channels. With the \-\-channel flag, you can choose one channel at a time.  For single packages, use rc install.
 
 .TP 
 verify
@@ -136,7 +136,7 @@ Shut down the server.
 \fBUser management commands:\fR 
 .TP 
 user\-add
-Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly.
+Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly. This command can also be used to grant administration access to non\-root local users.
 
 .TP 
 user\-delete  \fI<username>\fR
@@ -408,11 +408,14 @@ This environment variable is prepended to any
 command line options that are passed to rc and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-env\fR flag in the RC_ARGS variable; this is absurd.
 .SH "EXAMPLES"
 .LP 
-When run by normal users, this program can be used to query software lists and package databases, but cannot be used to install, update, or remove software.  Those operations require root privileges and should be performed as root or with sudo. Note that rc will use the .rcrc file in the home directory of the user running the program, whether that is root, a normal user, or a normal user with sudo privileges.
+In most cases, non\-root users will be able to query the system but not alter it. However, system administrators may use the user\-add (ua) command to create rcd accounts for non\-root users if they wish.
+ 
+Note that rc will use the .rcrc file in the home directory of the user running the program, and that putting the file just in root's home directory will not ensure that it is used every time.
+
 .LP 
 Here are some standard ways in which the program might be used:
 .TP 
-\fBrc update\-all \-y\fR
+\fBrc update \-y\fR
 Download and install all updates to currently installed package in currently subscribed channels, removing any software that conflicts with those updates, and without asking for confirmation. This is convenient option but should be used only with servers which you trust absolutely.
 
 .TP 
