@@ -93,6 +93,22 @@ def channel_id_to_name(server, id):
             return c["name"]
 
 
+def abbrev_channel_name(name):
+
+    def abbrev(x):
+
+        if string.find(x, "Snapshot") == 0:
+            x = "Snaps"
+        elif string.find(x, "Dev") == 0:
+             x = "Dev"
+        elif string.lower(x) == "linux":
+            x = ""
+
+        return x
+
+    return string.join(filter(lambda x:x, map(abbrev, string.split(name))))
+
+
 ###
 ### Channel-related commands
 ###

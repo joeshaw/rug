@@ -188,6 +188,77 @@ class PackageInstallCmd(rccommand.RCCommand):
 
         server.rcd.packsys.transact(packages_to_install, [])
 
+
+class PackageUpdatesCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "updates"
+
+    def local_opt_table(self):
+        return [["", "sort-by-name", "", "Sort updates by name"],
+                ["", "sort-by-channel", "", "Sort updates by channel"]]
+
+    def execute(self, server, options_dict, non_option_args):
+
+        up = server.rcd.packsys.get_updates()
+
+        if non_option_args:
+            channel_id_list = []
+            failed = 0
+            for a in non_option_args:
+                clist = rcchannelcmds.get_channels_by_name(server, a)
+                if not rcchannelcmds.validate_channel_list(a, clist):
+                    failed = 1
+                else:
+                    channel_id_list.append(clist[0]["id"])
+                    
+            if failed:
+                sys.exit(1)
+
+            up = filter(lambda x, cidl=channel_id_list:x[1]["channel"] in cidl, up)
+
+
+        table = []
+
+        if options_dict.has_key("sort-by-name"):
+            up.sort(lambda x,y:cmp(string.lower(x[1]["name"]),
+                                   string.lower(y[1]["name"])))
+        elif options_dict.has_key("sort-by-channel"):
+            up.sort(lambda x,y:cmp(x[1]["channel"], y[1]["channel"]) \
+                    or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
+        else:
+            up.sort(lambda x,y:cmp(x[1]["importance_num"], y[1]["importance_num"]) \
+                    or cmp(x[1]["channel"], y[1]["channel"]) \
+                    or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
+            
+        for pair in up:
+            old_pkg, new_pkg = pair
+
+            urgency = "?"
+            if new_pkg.has_key("importance_str"):
+                urgency = new_pkg["importance_str"]
+            
+            old_ver = str(old_pkg["epoch"]) + "-" + old_pkg["version"] + "-" + old_pkg["release"]
+            new_ver = str(new_pkg["epoch"]) + "-" + new_pkg["version"] + "-" + new_pkg["release"]
+
+            chan = rcchannelcmds.get_channel_by_id(server, new_pkg["channel"])
+
+            table.append([urgency,
+                          rcchannelcmds.abbrev_channel_name(chan["name"]),
+                          new_pkg["name"],
+                          old_ver,
+                          new_ver])
+
+        if table:
+            rcformat.tabular(["Urgency", "Channel", "Name", "Installed Version", "New Version"], table)
+        else:
+            if non_option_args:
+                rctalk.message("No updates are available in the specified channels.")
+            else:
+                rctalk.message("No updates are available.")
+        
+
 rccommand.register(PackageListCmd, "List the packages in a channel")
 rccommand.register(PackageSearchCmd, "Search for packages matching criteria")
 rccommand.register(PackageInstallCmd, "Install a package")
+rccommand.register(PackageUpdatesCmd, "List pending updates")
