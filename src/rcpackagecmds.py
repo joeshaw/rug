@@ -1208,6 +1208,51 @@ class PackageFileListCmd(rccommand.RCCommand):
 
         for f in file_list:
             print f
+
+class PackageForFileCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "package-file"
+
+    def is_basic(self):
+        return 1
+
+    def aliases(self):
+        return ["pf"]
+
+    def category(self):
+        return "package"
+
+    def arguments(self):
+        return "<file>"
+
+    def description_short(self):
+        return "Get package which contains file"
+
+    def local_opt_table(self):
+        return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
+
+    def execute(self, server, options_dict, non_option_args):
+        if len(non_option_args) != 1:
+            self.usage()
+            sys.exit(1)
+
+        try:
+            p = server.rcd.packsys.find_package_for_file(non_option_args[0])
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                rctalk.error("Daemon does not support this command")
+                sys.exit(1)
+            elif f.faultCode == rcfault.package_not_found:
+                rctalk.error("No package owns file '%s'" % non_option_args[0])
+                sys.exit(1)
+            else:
+                raise
+
+        if options_dict.has_key("no-abbrev"):
+            rctalk.message("%s %s" % (p["name"], rcformat.evr_to_str(p)))
+        else:
+            rctalk.message("%s %s" % (p["name"], rcformat.evr_to_abbrev_str(p)))
         
 ###
 ### Don't forget to register!
@@ -1225,3 +1270,4 @@ rccommand.register(PackageInfoConflictsCmd)
 rccommand.register(PackageDumpCmd)
 rccommand.register(PackageDanglingRequiresCmd)
 rccommand.register(PackageFileListCmd)
+rccommand.register(PackageForFileCmd)
