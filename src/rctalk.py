@@ -51,10 +51,9 @@ def error(str):
     if show_errors:
         print "ERROR: " + str
 
-def fatal_error(str):
-	if show_errors:
-		print "ERRPR: " + str
-		sys.exit(1)
+def fatal(str):
+    error(str)
+    sys.exit(1)
 
 def debug(str):
     if show_debug:

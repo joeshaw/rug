@@ -1,5 +1,8 @@
 2002-07-11  Jon Trowbridge  <trow@ximian.com>
 
+	* rctalk.py (fatal): Added (via Jose).  A convenience function
+	that prints an error message and then fails.
+
 	* rcwhatcmds.py: Add aliases for the what-foo commands.
 
 	* rcformat.py (opt_table): If a description of an option is too
