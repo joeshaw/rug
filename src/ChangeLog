@@ -1,5 +1,9 @@
 2002-09-13  Joe Shaw  <joe@ximian.com>
 
+	* rcprefscmds.py (PrefsListCmd.execute): Add the description field.
+
+2002-09-13  Joe Shaw  <joe@ximian.com>
+
 	* rcformat.py (transaction_status): Add a "verify-nosig" entry
 	into the table.
 
