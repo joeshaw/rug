@@ -75,6 +75,9 @@ def linebreak(in_str, width):
 def evr_to_str(package):
     version = ""
 
+    if package.has_key("version_str"):
+        return package["version_str"]
+
     if package["has_epoch"]:
         version = version + str(package["epoch"]) + ":"
 
@@ -90,7 +93,8 @@ def evr_to_str(package):
 
 def evr_to_abbrev_str(package):
 
-    if string.find(package["release"], "snap") != -1:
+    if package.has_key("release") \
+           and string.find(package["release"], "snap") != -1:
         r = re.compile(".*(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)")
         m = r.match(package["version"]) or r.match(package["release"])
         if m:

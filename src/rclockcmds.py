@@ -192,7 +192,7 @@ class LockAddCmd(rccommand.RCCommand):
         return ["la"]
 
     def arguments(self):
-        return "<lock #> <lock #> ..."
+        return "<name or pattern> [<relation> <version>]"
 
     def description_short(self):
         return "Add a package lock rule"
@@ -203,8 +203,6 @@ class LockAddCmd(rccommand.RCCommand):
     def local_opt_table(self):
         return [["c", "channel", "channel",
                  "Channel to match in lock"],
-                ["n", "name", "name pattern",
-                 "Package name to match in lock"],
                 ["i", "importance", "importance",
                  "Lock against updates that are less important than "
                  "'importance' (valid are %s)" % rcformat.importance_str_summary()],
@@ -213,6 +211,41 @@ class LockAddCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
 
         match = {}
+
+        # Split non-option args on whitespace, reassembling the
+        # pieces into a new list.
+        non_option_args = reduce(lambda x,y: x+y,
+                                 map(string.split, non_option_args))
+
+        if len(non_option_args) == 3:
+            name, relation, version = non_option_args
+
+            if "?" in name or "*" in name:
+                rctalk.warning("Wildcards are not allowed when specifying versioned locks.")
+                sys.exit(1)
+
+            valid_relations = ("=", "<", ">", "<=", ">=")
+            if relation not in valid_relations:
+                valid_str = string.join(map(lambda x: "'%s'" % x, valid_relations), ", ")
+                rctalk.warning("'%s' is not a valid relation." % relation)
+                rctalk.warning("Valid relations are: %s" % valid_str)
+                sys.exit(1)
+
+            match["dep"] = {"name": name,
+                            "relation":relation,
+                            "version_str":version }
+            
+        elif len(non_option_args) == 1:
+            glob = non_option_args[0]
+            # FIXME: It would be nice to verify that the incoming glob
+            # is valid.  (It probably shouldn't contain whitespace, shouldn't
+            # be the empty string, etc.)
+            match["glob"] = glob
+        elif len(non_option_args) != 0:
+            rctalk.error("Unrecognized input \"%s\"",
+                         string.join(non_option_args, " "))
+            sys.exit(1)
+            
         if options_dict.has_key("channel"):
             cname = options_dict["channel"]
             clist = rcchannelutils.get_channels_by_name(server, cname)
@@ -300,7 +333,11 @@ class LockDeleteCmd(rccommand.RCCommand):
 
         if not options_dict.has_key("no-confirmation"):
             rctalk.message("")
-            confirm = raw_input("Delete these locks? [y/N] ")
+            if len(to_delete) == 1:
+                msg = "this lock"
+            else:
+                msg = "these locks"
+            confirm = raw_input("Delete %s? [y/N] " % msg)
             if not confirm or not string.lower(confirm[0]) == "y":
                 rctalk.message("Cancelled.")
                 sys.exit(0)

@@ -1,3 +1,15 @@
+2002-10-22  Jon Trowbridge  <trow@ximian.com>
+
+	* rclockcmds.py (LockAddCmd.arguments): Updated.
+	(LockAddCmd.local_opt_table): Removed --name option.
+	(LockAddCmd.execute): Added code to try to parse a glob or
+	versioned dependency out of the non-option args.
+
+	* rcformat.py (evr_to_str): Handle packages where the version is
+	specified by a "version_str" field instead of a broken-out EVR.
+	(evr_to_abbrev_str): Check to make sure that the release key
+	exists.
+
 2002-10-21  Ian Peters  <itp@ximian.com>
 
 	* rcchannelutils.py: import rcfault and ximian_xmlrpclib to avoid
