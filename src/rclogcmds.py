@@ -123,7 +123,7 @@ def log_entries_list(entries):
                 pkg = item["pkg_final"]
 
             if pkg:
-                rctalk.message("Package: " + pkg["name"] + \
+                rctalk.message("Package: " + pkg["name"] + " " + \
                                rcformat.evr_to_str(pkg))
 
 
