@@ -1,5 +1,12 @@
 2003-06-12  Joe Shaw  <joe@ximian.com>
 
+	* rctransactcmds.py (TransactCmd.display): If the package has
+	either the package_filename or package_data keys, we know we're
+	getting it locally and we shouldn't add its size to the download
+	size.  Fixes #44408.
+
+2003-06-12  Joe Shaw  <joe@ximian.com>
+
 	* rcfault.py: Add license_not_found and cant_set_preference
 	faults.
 

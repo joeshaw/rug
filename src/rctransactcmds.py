@@ -179,13 +179,19 @@ class TransactCmd(rccommand.RCCommand):
             total_size = 0
             approximate = 0
             for p in install_packages:
-                p = extract_package(p)
+                if p.has_key("package_filename") or p.has_key("package_data"):
+                    continue
+                
                 sz = p.get("file_size", 0)
                 total_size = total_size + sz
                 if sz == 0:
                     approximate = 1
             for p in install_deps:
                 p = extract_package(p)
+
+                if p.has_key("package_filename") or p.has_key("package_data"):
+                    continue
+                
                 sz = p.get("file_size", 0)
                 total_size = total_size + sz
                 if sz == 0:
