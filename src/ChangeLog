@@ -1,5 +1,11 @@
 2002-08-12  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackagesCmd): If --uninstalled-only is passed
+	in without a channel, show all of the uninstalled packages across
+	all channels.
+
+2002-08-12  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackagesCmd): Change --not-installed to
 	--uninstalled-only for consistency.
 	(TransactCmd): Move the generation of the exclude list here.

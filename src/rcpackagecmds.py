@@ -254,7 +254,10 @@ class PackagesCmd(rccommand.RCCommand):
                         multiple_channels = 0
 
         else:
-            query = [["installed", "=", "true"]]
+            if options_dict.has_key("uninstalled-only"):
+                query = [["name-installed", "=", "false"]]
+            else:
+                query = [["installed", "=", "true"]]
 
         if not query:
             rctalk.error("No valid channels specified")
