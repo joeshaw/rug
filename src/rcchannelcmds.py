@@ -139,23 +139,28 @@ class SubscribeCmd(rccommand.RCCommand):
         return "Subscribe to a channel"
 
     def local_opt_table(self):
-        return [["s", "strict", "", "Fail if attempting to subscribe to an already-subscribed channel"]]
+        return [["s", "strict", "", "Fail if attempting to subscribe to an already-subscribed channel"],
+                ["a", "all", "", "Subscribe to all channels"]]
 
     def execute(self, server, options_dict, non_option_args):
 
         failed = 0
         to_do = []
-        for a in non_option_args:
-            clist = rcchannelutils.get_channels_by_name(server, a)
-            if not rcchannelutils.validate_channel_list(a, clist):
-                failed = 1
-            else:
-                c = clist[0]
-                to_do.append(c)
-                if options_dict.has_key("strict") and c["subscribed"]:
-                    rctalk.error("Already subscribed to channel " + \
-                                 rcchannelutils.channel_to_str(c))
+        if options_dict.has_key("all"):
+            to_do = filter(lambda c:not c["hidden"],
+                           rcchannelutils.get_channels(server))
+        else:
+            for a in non_option_args:
+                clist = rcchannelutils.get_channels_by_name(server, a)
+                if not rcchannelutils.validate_channel_list(a, clist):
                     failed = 1
+                else:
+                    c = clist[0]
+                    to_do.append(c)
+                    if options_dict.has_key("strict") and c["subscribed"]:
+                        rctalk.error("Already subscribed to channel " + \
+                                     rcchannelutils.channel_to_str(c))
+                        failed = 1
 
         if failed:
             sys.exit(1)
@@ -191,24 +196,29 @@ class UnsubscribeCmd(rccommand.RCCommand):
         return "Unsubscribe from a channel"
 
     def local_opt_table(self):
-        return [["s", "strict", "", "Fail if attempting to unsubscribe from a non-subscribed channel"]]
+        return [["s", "strict", "", "Fail if attempting to unsubscribe from a non-subscribed channel"],
+                ["a", "all", "", "Subscribe to all channels"]]
 
 
     def execute(self, server, options_dict, non_option_args):
 
         failed = 0
         to_do = []
-        for a in non_option_args:
-            clist = rcchannelutils.get_channels_by_name(server, a)
-            if not rcchannelutils.validate_channel_list(a, clist):
-                failed = 1
-            else:
-                c = clist[0]
-                to_do.append(c)
-                if options_dict.has_key("strict") and not c["subscribed"]:
-                    rctalk.error("Not subscribed to channel " + \
-                                 rcchannelutils.channel_to_str(c))
+        if options_dict.has_key("all"):
+            to_do = filter(lambda c:not c["hidden"],
+                           rcchannelutils.get_channels(server))
+        else:
+            for a in non_option_args:
+                clist = rcchannelutils.get_channels_by_name(server, a)
+                if not rcchannelutils.validate_channel_list(a, clist):
                     failed = 1
+                else:
+                    c = clist[0]
+                    to_do.append(c)
+                    if options_dict.has_key("strict") and not c["subscribed"]:
+                        rctalk.error("Not subscribed to channel " + \
+                                     rcchannelutils.channel_to_str(c))
+                        failed = 1
 
         if failed:
             sys.exit(1)
