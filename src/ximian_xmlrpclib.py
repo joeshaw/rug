@@ -804,7 +804,7 @@ class RawTransport(Transport):
         file = sock.makefile("rb")
         sock.close()
 
-        return self.parse_response()
+        return self.parse_response(file)
     
     def make_connection(self, host):
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
