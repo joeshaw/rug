@@ -1118,7 +1118,7 @@ def transact_and_poll(server,
                     download_complete = 1
                 elif pending["status"] == "failed":
                     rctalk.message_finished("Download failed: %s" % pending["error_msg"])
-                    break
+                    sys.exit(1)
             elif transact_id == -1:
                 # We're in "download only" mode.
                 if download_complete:
@@ -1148,7 +1148,7 @@ def transact_and_poll(server,
                     break
                 elif pending["status"] == "failed":
                     rctalk.message_finished("Transaction failed: %s" % pending["error_msg"])
-                    break
+                    sys.exit(1)
 
             time.sleep(0.4)
         except KeyboardInterrupt:
@@ -1157,7 +1157,7 @@ def transact_and_poll(server,
                 rctalk.message("Cancelling download...")
                 v = server.rcd.packsys.abort_download(download_id)
                 if v:
-                    sys.exit(0)
+                    sys.exit(1)
                 else:
                     rctalk.warning("Transaction cannot be cancelled")
             else:
