@@ -181,7 +181,7 @@ Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are no
 .br 
 .TP 
 activate (act) \fI<activation code> <email address>\fR
-Activates the machine for a premium server, allowing it access to private channels hosted there. If you use multiple servers, you must specify the server with the \fI\-s <URL>\fR flag. See the COMMAND OPTIONS section for more details.
+Activates the machine for a premium server, allowing it access to private channels hosted there. If you use multiple servers, you must specify the server with the \fI\-s <service>\fR flag. You may specify the service by name, URL, or by number. Use \fBrug sl\fR to see a list of all available services.
 
 .TP 
 dump
@@ -192,8 +192,8 @@ mount <path>
 Mount a directory as a channel, adding all packages within the directory to the channel. The platform for the channel is assumed to be the same as the platform of the server.
 
 .TP 
-mirrors
-Choose a mirror from a list of available mirrors.
+mirrors \fI<service> <mirror\-number>
+Choose a mirror from a list of available mirrors. If you use multiple services, you must specify the service. Not all servers have mirrors; use the \-l option to check.
 
 .TP 
 ping \fI<servername>\fR 
@@ -213,11 +213,11 @@ Add a server to those that the daemon will check for updates. You may add multip
 
 .TP 
 service\-list (sl)
-List the servers which rcd will contact.
+List the servers which rcd knows about and can contact.
 
 .TP 
-service\-delete (sd) \fI<url\-of\-server>\fR
-Delete a server from the list of those that the daemon will check for updates. 
+service\-delete (sd) \fI<server>\fR
+Delete a server from the list of those that the daemon will check for updates. You may specify the server by name, URL, or its number as displayed in \fBrug sl\fR.
 
 .TP 
 shutdown
@@ -335,7 +335,9 @@ Many rug commands have options which apply only to them.  They are listed here a
 .TP 
 \fBrug activate (act)\fR
 .B \fI\-n, \-\-no\-refresh\fR: Do not refresh the channel data after activation.
+.br 
 .B \fI\-s, \-\-service\fR: If you are using multiple servers, use this flag to specify which one. Follow the flag with a space and the full URL of the server.
+.br 
 .B \fI\-a, \-\-alias\fR: Specify the alias for this machine; the alias is displayed to the server administrator. This option is useful only with Red Carpet Enterprise servers.
 
 .TP 
@@ -354,9 +356,9 @@ Many rug commands have options which apply only to them.  They are listed here a
 .br 
 .B \fI\-\-search\-user\fR: Search by user performing actions.
 .br 
-.B \fI\-\-match\-all\fR: Search only for a match for all search strings (default).
+.B \fI\-\-match\-all\fR: Results must match all search strings (default).
 .br 
-.B \fI\-\-match\-any\fR: Display results that match any search string.
+.B \fI\-\-match\-any\fR: Results may match any search string.
 .br 
 .B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word.
 .br 
@@ -370,7 +372,7 @@ Many rug commands have options which apply only to them.  They are listed here a
 .B \fI\-u, \-\-allow\-unsubscribed\fR: Search in channels to which you are not subscribed, as well as subscribed channels.
 
 .TP 
-\fBrug install\fR <\fIpackagename\fR>\fR
+\fBrug install\fR <\fIpackagename\fR>
 .B \fI\-d, \-\-download\-only\fR: Downloads the packages, but does not install them. See also the \-N or \-\-dry\-run flag, which is available for all commands.
 .br 
 .B \fI\-r, \-\-allow\-removals\fR: Permit rug to remove software without confirmation.
@@ -385,9 +387,9 @@ Many rug commands have options which apply only to them.  They are listed here a
 
 .TP 
 \fBrug lock\-add\fR 
-.B \fI\-c, \-\-channel=\fI<channel>\fR: Specify a channel to match.
+.B \fI\-c, \-\-channel=<channel>\fR: Specify a channel to match.
 .br 
-.B \fI\-i, \-\-importance=\fI<importance>\fR: Set the minimum importance level for the lock. Packages less important than the importance level you specify will be blocked, and those that are at least as important will be updated without the need to override. Possible importance levels, from least to most important, are: minor, feature, suggested, urgent, necessary.
+.B \fI\-i, \-\-importance=<importance>\fR: Set the minimum importance level for the lock. Packages less important than the importance level you specify will be blocked, and those that are at least as important will be updated without the need to override. Possible importance levels, from least to most important, are: minor, feature, suggested, urgent, necessary.
 
 .TP 
 \fBrug lock\-delete\fR 
@@ -414,6 +416,10 @@ Many rug commands have options which apply only to them.  They are listed here a
 .B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
 .br 
 .B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
+\fBrug mirrors\fR
+.B \fI\-l, \-\-list\-only\fR  List the available mirrors.
 
 .TP 
 \fBrug mount\fR
@@ -575,6 +581,10 @@ Download and install all updates to currently installed package in currently sub
 .TP 
 \fBrug \-Vu \-\-host=\fI<hostname>\fB install \fI<packagename>\fR
 This will operate in verbose mode and contact the rcd daemon on the specified host to install the specified package, regardless of whether it is in a channel to which the user is subscribed.
+
+.TP 
+\fBrug act \-\-service https://my.rc.server/data \-\-alias my\-alias activation\-code myaddress@email.com
+Activates this machine against the Red Carpet Enterprise server hosted at my.rc.server, using the alias "my\-alias." The activation code will be supplied by your RCE administrator; see the Red Carpet Enterprise administrator's guide for details about activation mechanisms.
 
 .TP 
 \fBrug solvedeps \fI"library.so.1" "application < 1.2"\fR
