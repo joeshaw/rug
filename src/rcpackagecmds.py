@@ -23,61 +23,9 @@ import time
 import rctalk
 import rcformat
 import rccommand
-import rcchannelcmds
+import rcchannelutils
 import rcmain
 import ximian_xmlrpclib
-
-def get_packages(server, channel):
-    return server.rcd.packsys.search([["channel","is",str(channel["id"])]])
-
-def get_system_packages(server):
-    return server.rcd.packsys.search([["installed","is","true"]])
-
-def get_non_system_packages(server):
-    return server.rcd.packsys.search([["installed","is","false"]])
-
-def install_indicator(server, package):
-    if package["installed"]:
-        return "i"
-    else:
-        return ""
-
-def append_to_table(server, package_table, p, multi, no_abbrev):
-    if p.has_key("channel_guess"):
-        channel_name = rcchannelcmds.channel_id_to_name(server, p["channel_guess"])
-    elif p["channel"]:
-        channel_name = rcchannelcmds.channel_id_to_name(server, p["channel"])
-    else:
-        channel_name = "(unknown)"
-
-    if no_abbrev:
-        evr_fn = rcformat.evr_to_str
-    else:
-        evr_fn = rcformat.evr_to_abbrev_str
-        channel_name = rcformat.abbrev_channel_name(channel_name)
-        
-    row = [install_indicator(server, p),
-           channel_name,
-           p["name"],
-           evr_fn(p)]
-
-    if multi or rctalk.be_terse:
-        package_table.append(row)
-    else:
-        package_table.append(row[:1]+row[2:])
-
-def sort_and_format_table(package_table, multi):
-    header = ["S", "Channel", "Name", "Version"]
-
-    if multi or rctalk.be_terse:
-        package_table.sort(lambda x, y:cmp(string.lower(x[2]),
-                                           string.lower(y[2])) or
-                           cmp(string.lower(x[1]),string.lower(y[1])))
-        rcformat.tabular(header, package_table)
-    else:
-        package_table.sort(lambda x, y:cmp(string.lower(x[1]),
-                                           string.lower(y[1])))
-        rcformat.tabular(header[:1]+header[2:], package_table)
 
 def find_package_in_channel(server, channel, package, allow_unsub):
     if channel != -1:
@@ -94,9 +42,9 @@ def find_package_in_channel(server, channel, package, allow_unsub):
     else:
         try:
             if allow_unsub:
-                b = ximian_xmlrpclib.False;
+                b = ximian_xmlrpclib.False
             else:
-                b = ximian_xmlrpclib.True;
+                b = ximian_xmlrpclib.True
             
             p = server.rcd.packsys.find_latest_version(package, b)
         except ximian_xmlrpclib.Fault, f:
@@ -149,7 +97,7 @@ def get_updates(server, non_option_args):
 
     # Filter out unsubscribed channels
     up = filter(lambda x,s=server:\
-                rcchannelcmds.check_subscription_by_id(s, x[1]["channel"]),
+                rcchannelutils.check_subscription_by_id(s, x[1]["channel"]),
                 up)
     
     # If channels are specified by the command line, filter out all except
@@ -158,8 +106,8 @@ def get_updates(server, non_option_args):
         channel_id_list = []
         failed = 0
         for a in non_option_args:
-            clist = rcchannelcmds.get_channels_by_name(server, a)
-            if not rcchannelcmds.validate_channel_list(a, clist):
+            clist = rcchannelutils.get_channels_by_name(server, a)
+            if not rcchannelutils.validate_channel_list(a, clist):
                 failed = 1
             else:
                 c = clist[0]
@@ -167,7 +115,7 @@ def get_updates(server, non_option_args):
                     channel_id_list.append(c["id"])
                 else:
                     rctalk.warning("You are not subscribed to "
-                                   + rcchannelcmds.channel_to_str(c)
+                                   + rcchannelutils.channel_to_str(c)
                                    + ", so no updates are available.")
                     
         if failed:
@@ -177,50 +125,84 @@ def get_updates(server, non_option_args):
 
     return up
 
-class PackageListCmd(rccommand.RCCommand):
+###
+### "packages" command
+###
+
+class PackagesCmd(rccommand.RCCommand):
 
     def name(self):
         return "packages"
 
+    def arguments(self):
+        return "<channel> <channel> ..."
+
+    def description_short(self):
+        return "List the packages in a channel"
+
     def local_opt_table(self):
-        return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
+        return [["", "no-abbrev", "", "Do not abbreviate channel or version information"],
+                ["", "sort-by-name", "", "Sort packages by name (default)"],
+                ["", "sort-by-channel", "", "Sort packages by channel"]]
 
     def execute(self, server, options_dict, non_option_args):
 
-        packages = [];
-        package_table = [];
+        packages = []
+        package_table = []
 
-        no_abbrev = options_dict.has_key("no-abbrev")
+        multiple_channels = 1
 
-        if len(non_option_args) > 1:
-            multi = 1
-        else:
-            multi = 0
-
+        query = []
         if non_option_args:
-            if "all" in non_option_args:
-                multi = 1
-                packages = get_non_system_packages(server)
-                for p in packages:
-                    append_to_table(server, package_table, p, multi, no_abbrev)
-            else:
-                for a in non_option_args:
+            for a in non_option_args:
 
-                    clist = rcchannelcmds.get_channels_by_name(server, a)
+                    clist = rcchannelutils.get_channels_by_name(server, a)
 
-                    if rcchannelcmds.validate_channel_list(a, clist):
-                        packages = get_packages(server, clist[0])
-                        for p in packages:
-                            append_to_table(server, package_table, p, multi, no_abbrev)
+                    if rcchannelutils.validate_channel_list(a, clist):
+                        query = map(lambda c:["channel", "=", str(c["id"])], clist)
+                        if len(query) > 1:
+                            query.insert(0, ["", "begin-or", ""])
+                            query.append(["", "end-or", ""])
+
+                    if len(clist) == 1:
+                        multiple_channels = 0
+
         else:
-            packages = get_system_packages(server)
-            for p in packages:
-                append_to_table(server, package_table, p, 0, no_abbrev)
+            query = [["installed", "=", "true"]]
+
+        packages = server.rcd.packsys.search(query)
+
+        if options_dict.has_key("sort-by-channel"):
+            packages.sort(lambda x,y:cmp(string.lower(x["channel"]),string.lower(y["channel"])) or \
+                          cmp(string.lower(x["name"]), string.lower(y["name"])))
+        else:
+            packages.sort(lambda x,y:cmp(string.lower(x["name"]),string.lower(y["name"])))
+
+        if multiple_channels:
+            keys = ["installed", "channel", "name", "version"]
+            headers = ["S", "Channel", "Name", "Version"]
+        else:
+            keys = ["installed", "name", "version"]
+            headers = ["S", "Name", "Version"]
+
+        
+        for p in packages:
+            row = rcformat.package_to_row(server, p, options_dict.has_key("no-abbrev"), keys)
+            package_table.append(row)
+
             
         if package_table:
-            sort_and_format_table(package_table, multi)
+            rcformat.tabular(headers, package_table)
         else:
             rctalk.message("--- No packages found ---")
+
+
+
+
+
+###
+### "search" command
+###
 
 def pkg_to_key(p):
     return p["name"]+":"+str(p["epoch"])+":"+p["version"]+":"+p["release"]
@@ -230,16 +212,24 @@ class PackageSearchCmd(rccommand.RCCommand):
     def name(self):
         return "search"
 
+    def arguments(self):
+        return "<search-string> <search-string>..."
+
+    def description_short(self):
+        return "Search for a package"
+
     def local_opt_table(self):
         return [["", "match-all", "",              "Require packages to match all search strings (default)"],
                 ["", "match-any", "",              "Allow packages to match any search string"],
                 ["", "match-substrings", "",       "Match search strings against any part of the text"],
                 ["", "match-words",      "",       "Require search strings to match entire words"],
                 ["", "search-description", "",     "Look for search strings in package descriptions"],
-                ["i", "installed-only",   "",       "Only show installed packages"],
-                ["u", "uninstalled-only", "",       "Only show uninstalled packages"],
+                ["i", "installed-only",   "",      "Only show installed packages"],
+                ["u", "uninstalled-only", "",      "Only show uninstalled packages"],
                 ["c", "channel",        "channel", "Show packages from one specific channel"],
                 ["", "show-package-ids",   "",     "Show package IDs"],
+                ["", "sort-by-name",     "",       "Sort packages by name (default)"],
+                ["", "sort-by-channel",  "",       "Sort packages by channel"],
                 ["", "no-abbrev", "",              "Don't abbreviate channel or version information"]]
 
     def local_orthogonal_opts(self):
@@ -274,8 +264,8 @@ class PackageSearchCmd(rccommand.RCCommand):
 
         if options_dict.has_key("channel"):
             cname = options_dict["channel"]
-            clist = rcchannelcmds.get_channels_by_name(server,cname)
-            if not rcchannelcmds.validate_channel_list(cname, clist):
+            clist = rcchannelutils.get_channels_by_name(server,cname)
+            if not rcchannelutils.validate_channel_list(cname, clist):
                 sys.exit(1)
             c = clist[0]
 
@@ -298,20 +288,117 @@ class PackageSearchCmd(rccommand.RCCommand):
 
         for p in packages:
             if p["channel"] != 0 or not in_channel.has_key(pkg_to_key(p)):
-                # FIXME: skip dups produced by the installed packages
-                # when we have the same package in a channel.
-                append_to_table(server, package_table, p, 1, no_abbrev)
+                row = rcformat.package_to_row(server, p, no_abbrev,
+                                              ["installed", "channel", "name", "version"])
+                package_table.append(row)
 
         if package_table:
-            sort_and_format_table(package_table, 1)
+            
+            if options_dict.has_key("sort-by-channel"):
+                package_table.sort(lambda x,y:cmp(string.lower(x[1]), string.lower(y[1])) or\
+                                   cmp(string.lower(x[2]), string.lower(y[2])))
+            else:
+                package_table.sort(lambda x,y:cmp(string.lower(x[2]), string.lower(y[2])))
+                
+            rcformat.tabular(["S", "Channel", "Name", "Version"], package_table)
         else:
             rctalk.message("--- No packages found ---")
+
+
+
+
+###
+### "updates" command
+### 
+
+def exploded_updates_table(server, update_list, no_abbrev):
+
+    update_list.sort(lambda x,y:cmp(x[1]["channel"], y[1]["channel"]) \
+                     or cmp(x[1]["importance_num"], y[1]["importance_num"]) \
+                     or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
+
+    if no_abbrev:
+        evr_fn = rcformat.evr_to_str
+    else:
+        evr_fn = rcformat.evr_to_abbrev_str
+
+    this_channel_table = []
+    this_channel_id = -1
+
+    # An ugly hack
+    update_list.append(("", {"channel":"last"}, ""))
+
+    for update_item in update_list:
+
+        old_pkg, new_pkg, descriptions = update_item
+
+        chan_id = new_pkg["channel"]
+        if chan_id != this_channel_id or chan_id == "last":
+            if this_channel_table:
+                rctalk.message("")
+                
+                ch = rcchannelutils.get_channel_by_id(server, this_channel_id)
+                rctalk.message("Updates for channel '" + ch["name"] + "'")
+                
+                rcformat.tabular(["Urg", "Name", "Current Version", "Update Version"],
+                                 this_channel_table)
+
+            if chan_id == "last":
+                break
+
+            this_channel_table = []
+            this_channel_id = chan_id
+
+        urgency = "?"
+        if new_pkg.has_key("importance_str"):
+            urgency = new_pkg["importance_str"]
+            if not no_abbrev:
+                urgency = rcformat.abbrev_importance(urgency)
+
+        old_ver = evr_fn(old_pkg)
+        new_ver = evr_fn(new_pkg)
+
+        this_channel_table.append([urgency, new_pkg["name"], old_ver, new_ver])
+
+
+def verbose_updates_list(server, update_list):
+
+    update_list.sort(lambda x, y:cmp(x[1]["importance_num"], y[1]["importance_num"]) \
+                     or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
+
+    for update_item in update_list:
+
+        old_pkg, new_pkg, descriptions = update_item
+
+        ch = rcchannelutils.get_channel_by_id(server, new_pkg["channel"])
+        
+        rctalk.message("        Name: " + new_pkg["name"])
+        rctalk.message("     Channel: " + ch["name"])
+        rctalk.message("     Urgency: " + new_pkg["importance_str"])
+        rctalk.message("Current Vers: " + rcformat.evr_to_str(old_pkg))
+        rctalk.message(" Update Vers: " + rcformat.evr_to_str(new_pkg))
+
+        header = "Enhancements: "
+        for d in descriptions:
+            rctalk.message(header + d)
+            header = "              "
+
+        rctalk.message("")
         
 
 class PackageUpdatesCmd(rccommand.RCCommand):
 
     def name(self):
         return "updates"
+
+    def aliases(self):
+        return ["up"]
+
+    def arguments(self):
+        return "<channel> <channel> ..."
+
+    def description_short(self):
+        return "List available updates"
 
     def local_opt_table(self):
         return [["", "sort-by-name", "", "Sort updates by name"],
@@ -325,57 +412,35 @@ class PackageUpdatesCmd(rccommand.RCCommand):
 
         up = get_updates(server, non_option_args)
 
-        table = []
-
-        # Sort our list of updates into some sort of coherent order
-        if options_dict.has_key("sort-by-name"):
-            up.sort(lambda x,y:cmp(string.lower(x[1]["name"]),
-                                   string.lower(y[1]["name"])))
-        elif options_dict.has_key("sort-by-channel"):
-            up.sort(lambda x,y:cmp(x[1]["channel"], y[1]["channel"]) \
-                    or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
-        else:
-            up.sort(lambda x,y:cmp(x[1]["importance_num"], y[1]["importance_num"]) \
-                    or cmp(x[1]["channel"], y[1]["channel"]) \
-                    or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
-            
-        for pair in up:
-            old_pkg, new_pkg, descriptions = pair
-
-            urgency = "?"
-            if new_pkg.has_key("importance_str"):
-                urgency = new_pkg["importance_str"]
-
-            if not no_abbrev:
-                urgency = rcformat.abbrev_importance(urgency)
-
-            if no_abbrev:
-                evr_fn = rcformat.evr_to_str
-            else:
-                evr_fn = rcformat.evr_to_abbrev_str
-
-            old_ver = evr_fn(old_pkg)
-            new_ver = evr_fn(new_pkg)
-
-            chan = rcchannelcmds.get_channel_by_id(server, new_pkg["channel"])
-            chan_name = chan["name"]
-            if not no_abbrev:
-                chan_name = rcformat.abbrev_channel_name(chan_name)
-
-            table.append([urgency, chan_name, new_pkg["name"], old_ver, new_ver])
-
-        if table:
-            rcformat.tabular(["Urg", "Channel", "Name", "Installed", "Update"], table)
-        else:
+        if not up:
             if non_option_args:
                 rctalk.message("No updates are available in the specified channels.")
             else:
                 rctalk.message("No updates are available.")
+            sys.exit(0)
+
+        if rctalk.show_verbose:
+            verbose_updates_list(server, up)
+        elif rctalk.be_terse:
+            rctalk.error("Terse form not defined.") # FIXME!!!
+        else:
+            exploded_updates_table(server, up, no_abbrev)
+
+
+###
+### "info" command
+###
 
 class PackageInfoCmd(rccommand.RCCommand):
 
     def name(self):
         return "info"
+
+    def arguments(self):
+        return "<package-name>"
+
+    def description_short(self):
+        return "Show detailed information about a package"
 
     def local_opt_table(self):
         return [["u", "allow-unsubscribed", "", "Search in unsubscribed channels as well"]]
@@ -510,10 +575,22 @@ def format_dependencies(dep_list):
         plist = plist + " " + p["name"]
     map(lambda x:rctalk.message("  " + x), rcformat.linebreak(plist, 72))
 
+
+
+###
+### "install" command
+###
+
 class PackageInstallCmd(rccommand.RCCommand):
 
     def name(self):
         return "install"
+
+    def arguments(self):
+        return "<package-name> <package-name> ..."
+
+    def description_short(self):
+        return "Install packages"
 
     def local_opt_table(self):
         return [["d", "allow-removals", "", "Allow removals with no confirmation"],
@@ -553,7 +630,8 @@ class PackageInstallCmd(rccommand.RCCommand):
                     p = package
 
             if inform:
-                rctalk.message("Using " + p["name"] + " " + rcformat.evr_to_str(p) + " from the '" + rcchannelcmds.channel_id_to_name(server, p["channel"]) + "' channel")
+                rctalk.message("Using " + p["name"] + " " + rcformat.evr_to_str(p) + " from the '" + \
+                               rcchannelutils.channel_id_to_name(server, p["channel"]) + "' channel")
                 
             packages_to_install.append(p)
 
@@ -587,10 +665,21 @@ class PackageInstallCmd(rccommand.RCCommand):
 
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
+
+###
+### "remove" command
+###
+
 class PackageRemoveCmd(rccommand.RCCommand):
 
     def name(self):
         return "remove"
+
+    def arguments(self):
+        return "<package-name> <package-name> ..."
+
+    def description_short(self):
+        return "Removed packages"
 
     def local_opt_table(self):
         return [["y", "no-confirmation", "", "Perform the actions without confirmation"]]
@@ -633,10 +722,21 @@ class PackageRemoveCmd(rccommand.RCCommand):
 
         transact_and_poll(server, dep_install, packages_to_remove + dep_remove)
 
+
+###
+### "update-all" command
+###
+
 class PackageUpdateAllCmd(rccommand.RCCommand):
 
     def name(self):
         return "update-all"
+
+    def arguments(self):
+        return "<channel> <channel> ..."
+
+    def description_short(self):
+        return "Download and install available updates"
 
     def local_opt_table(self):
         return [["d", "allow-removals", "", "Allow removals with no confirmation"],
@@ -677,10 +777,21 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
 
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
+
+###
+### "verify" command
+###
+
 class PackageVerifyCmd(rccommand.RCCommand):
 
     def name(self):
         return "verify"
+
+    def arguments(self):
+        return ""
+
+    def description_short(self):
+        return "Verify system dependencies"
 
     def local_opt_table(self):
         return [["d", "allow-removals", "", "Allow removals with no confirmation"],
@@ -709,11 +820,17 @@ class PackageVerifyCmd(rccommand.RCCommand):
 
         transact_and_poll(server, dep_install, dep_remove)
 
-rccommand.register(PackageListCmd,    "List the packages in a channel")
-rccommand.register(PackageSearchCmd,  "Search for a package")
-rccommand.register(PackageUpdatesCmd, "List pending updates")
-rccommand.register(PackageInfoCmd,    "Show info on a package")
-rccommand.register(PackageInstallCmd, "Install a package")
-rccommand.register(PackageRemoveCmd,  "Remove a package")
-rccommand.register(PackageUpdateAllCmd, "Update all available packages")
-rccommand.register(PackageVerifyCmd,  "Verify system dependencies")
+
+
+###
+### Don't forget to register!
+###
+
+rccommand.register(PackagesCmd)
+rccommand.register(PackageSearchCmd)
+rccommand.register(PackageUpdatesCmd)
+rccommand.register(PackageInfoCmd)
+rccommand.register(PackageInstallCmd)
+rccommand.register(PackageRemoveCmd)
+rccommand.register(PackageUpdateAllCmd)
+rccommand.register(PackageVerifyCmd)

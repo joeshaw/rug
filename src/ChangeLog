@@ -1,3 +1,44 @@
+2002-07-02  Jon Trowbridge  <trow@ximian.com>
+
+	* rcchannelcmds.py: Added argument and description methods.
+
+	* rcpackagecmds.py: Added argument and description methods.  Major
+	decrufting of the output of our various query functions.
+
+	* rcsystemcmds.py: Added argument and description methods.
+
+	* rcnewscmds.py: Added argument and description methods.
+
+	* rclogcmds.py: Added argument and description methods.
+
+	* rccommand.py (register): Just take the constructor function as
+	an arg, since we can now get the description directly from the
+	object.  Register aliases in a separate dictionary.
+	(construct): I've disabled matching unambiguous substrings based
+	on a conversation with Karl Fogel.  Now we only match against the
+	full command name or against a pre-defined set of aliases.
+	(usage): Include aliases in our usage output.
+	(RCCommand.aliases): Added.  A method for getting a list of
+	aliases for the command.
+	(RCCommand.arguments): Added.  A method returning a description of
+	our non-option args which we display as part of our usage
+	information.
+	(RCCommand.description_short): Added.  A short description which
+	is used when listing all commands.
+	(RCCommand.description_long): A more detailed description that we
+	use when giving --help on a specific command. 
+	(RCCommand.usage): Use arguments() and description_long() to
+	generate more complete --help.  If no long description has been
+	provided, fall back to using description_short().
+
+	* rcformat.py (package_to_row): Added.  Maps a package object
+	into a list of columns.
+
+	* rcchannelcmds.py: Cut all of our channel utility commands
+	(get_channel_by_name, etc.) out of the top of here...
+
+	* rcchannelutils.py: ...and moved them all here.
+
 2002-07-02  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (hexstr): Function to convert the 16-byte md5 string

@@ -48,13 +48,19 @@ class NewsCmd(rccommand.RCCommand):
     def name(self):
         return "news"
 
+    def arguments(self):
+        return ""
+
+    def description_short(self):
+        return "Show Red Carpet news"
+
     def local_opt_table(self):
         return [["c", "channel", "channel",    "Show news related to a specific channel"],
                 ["s", "subscribed-only", "",   "Only show news related to subscribed channels"],
                 ["u", "unsubscribed-only", "", "Only show news related to unsubscribed channels."]]
 
     def local_orthogonal_opts(self):
-        return [["channel", "subscribed-only", "unsubscribed-only"]];
+        return [["channel", "subscribed-only", "unsubscribed-only"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -82,5 +88,5 @@ class NewsCmd(rccommand.RCCommand):
             rctalk.message("")
 
 
-rccommand.register(NewsCmd, "Show Red Carpet news")
+rccommand.register(NewsCmd)
 

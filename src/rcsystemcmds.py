@@ -25,6 +25,9 @@ class PingCmd(rccommand.RCCommand):
     def name(self):
         return "ping"
 
+    def description_short(self):
+        return "Ping the server"
+
     def execute(self, server, options_dict, non_option_args):
 
         results = server.rcd.system.ping ()
@@ -48,5 +51,5 @@ class PingCmd(rccommand.RCCommand):
         # And exit abnormally if we couldn't.
         sys.exit(1)
 
-rccommand.register(PingCmd, "Ping the server")
+rccommand.register(PingCmd)
 

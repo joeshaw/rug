@@ -135,6 +135,12 @@ class LogQueryCmd(rccommand.RCCommand):
     def name(self):
         return "history"
 
+    def arguments(self):
+        return "<search-string> <search-string> ..."
+
+    def description_short(self):
+        return "Search log entries"
+
     def local_opt_table(self):
         return [["n", "search-name",   "", "Search by package name (default)"],
                 ["a", "search-action", "", "Search by action"],
@@ -190,5 +196,5 @@ class LogQueryCmd(rccommand.RCCommand):
             log_entries_to_quick_table(entries)
 
 
-rccommand.register(LogQueryCmd, "Search Log Entries")
+rccommand.register(LogQueryCmd)
                 

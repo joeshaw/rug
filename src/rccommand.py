@@ -21,37 +21,41 @@ import rcformat
 import rctalk
 
 command_dict = {}
+alias_dict = {}
 
-def register(constructor, description):
+def register(constructor):
     obj = constructor()
     name = obj.name()
+    aliases = obj.aliases()
+    description = obj.description_short() or "<No Description Available>"
+
     if command_dict.has_key(name):
         rctalk.error("Command name collision: '"+name+"'")
     else:
-        command_dict[name] = (description, constructor)
+        command_dict[name] = (description, constructor, aliases)
+
+    for a in aliases:
+        al = string.lower(a)
+        if command_dict.has_key(al):
+            rctalk.error("Command/alias collision: '"+a+"'")
+        elif alias_dict.has_key(al):
+            rctalk.error("Alias collision: '"+a+"'")
+        else:
+            alias_dict[al] = name
 
 
 def construct(name):
-    valid_names = command_dict.keys()
+    nl = string.lower(name)
 
-    ### Allow partial command names when it is unamiguous
-    ### (i.e. "sub" matches "subscribe")
-    matches = []
-    for n in valid_names:
-        if string.find(n, name) == 0:
-            matches.append(n)
+    if alias_dict.has_key(nl):
+        nl = alias_dict[nl]
 
-    if len(matches) == 0:
-        rctalk.warning("Unknown command.")
+    if not command_dict.has_key(nl):
+        rctalk.warning("Unknown command '"+name+"'")
         return None
 
-    if len(matches) > 1:
-        rctalk.warning("Ambiguous command")
-        rctalk.warning("'"+name+"' matches "+ string.join(matches, ", "))
-        sys.exit(1)
-        return None
-        
-    cons = (command_dict[matches[0]])[1]
+    cons = command_dict[nl][1]
+
     return cons()
 
 
@@ -62,9 +66,20 @@ def usage():
     keys = command_dict.keys()
     if keys:
         keys.sort()
+        cmd_list = []
         max_len = apply(max,map(len, keys))
         for k in keys:
-            rctalk.message("  " + string.ljust(k, max_len) + "  " + command_dict[k][0])
+            name = k
+            description = command_dict[k][0]
+            aliases = command_dict[k][2]
+            if aliases:
+                name = name + " (" + string.join(aliases, ", ") + ")"
+            cmd_list.append([name, description])
+
+        max_len = apply(max, map(lambda c:len(c[0]), cmd_list))
+        for c in cmd_list:
+            rctalk.message("  " + string.ljust(c[0], max_len) + "  " + c[1])
+            
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")
 
@@ -94,12 +109,23 @@ class RCCommand:
     def name(self):
         return "Unknown!"
 
+    def aliases(self):
+        return []
+
+    def arguments(self):
+        return "..."
+
+    def description_short(self):
+        return ""
+
+    def description_long(self):
+        return ""
 
     def default_opt_table(self):
-        return default_opt_table;
+        return default_opt_table
 
     def local_opt_table(self):
-        return [];
+        return []
 
     def opt_table(self):
         return self.default_opt_table() + self.local_opt_table()
@@ -116,6 +142,18 @@ class RCCommand:
 
 
     def usage(self):
+
+        rctalk.message("Usage: rc " + self.name() + " <options> " + \
+                       self.arguments())
+        rctalk.message("")
+
+        description = self.description_long() or self.description_short()
+        if description:
+            description = "'" + self.name() + "': " + description
+            for l in rcformat.linebreak(description, 72):
+                rctalk.message(l)
+            rctalk.message("")
+        
         opts = self.default_opt_table()
         if opts:
             rctalk.message("General Options:")

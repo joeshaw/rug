@@ -19,6 +19,7 @@ import string
 import re
 import time
 import rctalk
+import rcchannelutils
 
 ###
 ### Utility functions.  Not really public.
@@ -121,6 +122,61 @@ def abbrev_importance(str):
     return str[0:3]
 
 
+## Extract data from a package
+
+def package_to_row(server, pkg, no_abbrev, key_list):
+
+    row = []
+
+    for key in key_list:
+
+        val = "?"
+
+        if key == "installed":
+
+            if pkg["installed"]:
+                val = "i"
+            else:
+                val = ""
+
+        elif key == "channel":
+
+            if pkg.has_key("channel_guess"):
+                id = pkg["channel_guess"]
+            else:
+                id = pkg["channel"]
+
+            if id:
+                val = rcchannelutils.channel_id_to_name(server, id)
+            else:
+                val = "unknown"
+
+            if not no_abbrev:
+                val = abbrev_channel_name(val)
+
+        elif key == "version":
+
+            if no_abbrev:
+                val = evr_to_str(pkg)
+            else:
+                val = evr_to_abbrev_str(pkg)
+
+        elif key == "name":
+
+            # Trim long names
+            val = pkg["name"]
+            if not no_abbrev and len(val) > 25:
+                val = val[0:22] + "..."
+
+        elif pkg.has_key(key):
+            val = pkg[key]
+
+        row.append(val)
+
+    return row
+            
+
+
 ## Format quantities of seconds
 
 def seconds_to_str(t):
@@ -190,7 +246,7 @@ def pending_to_str(p):
                         
 
     return msg
-                                  
+
 
 ###
 ### Code that actually does something.
@@ -235,7 +291,7 @@ def tabular(headers, table):
         else:
             return string.join(pad_row(row, col_sizes), " | ")
 
-    col_sizes = max_col_widths(table);
+    col_sizes = max_col_widths(table)
 
     if headers and not rctalk.be_terse:
         col_sizes = map(max, map(len,headers), col_sizes)
