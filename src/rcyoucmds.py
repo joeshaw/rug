@@ -29,6 +29,7 @@ import rcmain
 import ximian_xmlrpclib
 import rcfault
 import rcchannelutils
+import rcpackageutils
 
 class ListYouPatchesCmd(rccommand.RCCommand):
 
@@ -45,33 +46,194 @@ class ListYouPatchesCmd(rccommand.RCCommand):
         return "YOU patches"
 
     def execute(self, server, options_dict, non_option_args):
-        list = server.rcd.you.list ()
 
-        if not list:
-            rctalk.message("--- No Patches found ---")
+        patches = []
+        patch_table = []
+
+        multiple_channels = 1
+
+        query = []
+        clist = []
+
+        for a in non_option_args:
+            cl = rcchannelutils.get_channels_by_name(server, a)
+            if rcchannelutils.validate_channel_list(a, cl):
+                clist = clist + cl
+
+        if non_option_args and not clist:
             sys.exit(1)
 
-        table = []
-        for patch in list:
-            installed = ""
-            if patch['installed']:
-                installed = "i"
+        query = map(lambda c:["channel", "=", c["id"]], clist)
 
-            c = rcchannelutils.get_channel_by_id(server, patch['channel'])
-            if c:
-                channel = rcchannelutils.get_channel_alias(c)
-            else:
-                channel = "(None)"
+        if len(clist) > 1:
+            query.insert(0, ["", "begin-or", ""])
+            query.append(["", "end-or", ""])
 
-            table.append((installed,
-                          channel,
-                          patch['name'],
-                          rcformat.evr_to_str(patch)))
+        if options_dict.has_key("installed-only"):
+            query.append(["installed", "=", "true"])
+        elif options_dict.has_key("uninstalled-only"):
+            query.append(["installed", "=", "false"])
 
-        table.sort(lambda x,y:cmp(x[1], y[1]))
-        rcformat.tabular(["S", "Channel", "Name", "Version"], table)
+        if len(clist) == 1:
+            multiple_channels = 0
+
+        patches = server.rcd.you.search (query)
+
+        if options_dict.has_key("sort-by-channel"):
+            for p in patches:
+                rcchannelutils.add_channel_name(server, p)
+
+            patches.sort(lambda x,y:cmp(string.lower(x["channel_name"]), string.lower(y["channel_name"])) \
+                         or cmp(string.lower(x["name"]), string.lower(y["name"])))
+        else:
+            patches.sort(lambda x,y:cmp(string.lower(x["name"]),string.lower(y["name"])))
+
+        if multiple_channels:
+            keys = ["installed", "channel", "name", "version"]
+            headers = ["S", "Channel", "Name", "Version"]
+        else:
+            keys = ["installed", "name", "version"]
+            headers = ["S", "Name", "Version"]
+
+        # If we're getting all of the packages available to us, filter out
+        # ones in the "hidden" channels, like the system packages channel.
+        patches = rcpackageutils.filter_visible_channels(server, patches)
+
+        for p in patches:
+            row = rcformat.package_to_row(server, p, options_dict.has_key("no-abbrev"), keys)
+            patch_table.append(row)
+
+        if patch_table:
+            rcformat.tabular(headers, patch_table)
+        else:
+            rctalk.message("--- No Patches found ---")
+
 
 rccommand.register(ListYouPatchesCmd)
+
+
+def find_latest_patch(server, patch, allow_unsub, quiet):
+    plist = server.rcd.you.search([["name", "is", patch],
+                                   ["installed", "is", "false"]])
+
+    if not plist:
+        if not quiet:
+            if allow_unsub:
+                rctalk.error("Unable to find patch '%s'" % patch)
+            else:
+                rctalk.error("Unable to find patch '%s' in any " \
+                             "subscribed channel" % patch)
+        return []
+
+    pkeys = {}
+    pl = []
+
+    for p in plist:
+        if not pkeys.has_key(p["name"]):
+            latest_p = get_latest_version(server, p["name"],
+                                          allow_unsub, quiet)
+            if latest_p:
+                pl.append(latest_p)
+
+            pkeys[p["name"]] = p
+
+    return pl
+
+def get_latest_version(server, patch, allow_unsub, quiet):
+    try:
+        if allow_unsub:
+            b = ximian_xmlrpclib.False
+        else:
+            b = ximian_xmlrpclib.True
+
+        p = server.rcd.you.find_latest_version(patch, b)
+    except ximian_xmlrpclib.Fault, f:
+        if f.faultCode == rcfault.package_not_found:
+            if not quiet:
+                if allow_unsub:
+                    rctalk.error("Unable to find patch '%s'" % patch)
+                else:
+                    rctalk.error("Unable to find patch '%s' in any " \
+                                 "subscribed channel" % patch)
+            p = None
+        elif f.faultCode == rcfault.package_is_newest:
+            if not quiet:
+                if allow_unsub:
+                    rctalk.error("There is no newer version of '%s'" % patch)
+                else:
+                    rctalk.error("There is no newer version of '%s'" \
+                                 "in any subscribed channel" % patch)
+            p = None
+        else:
+            raise
+
+    return p
+
+def find_patch_in_channel(server, channel, patch, allow_unsub):
+    plist = server.rcd.you.search([["name",      "is", patch],
+                                   ["installed", "is", "false"],
+                                   ["channel",   "is", str(channel)]])
+
+    if not plist:
+        rctalk.error("Unable to find patch '" + patch + "'")
+        return []
+
+    return plist
+
+def find_patch_on_system(server, patch):
+    plist = server.rcd.you.search([["name",      "is", patch],
+                                   ["installed", "is", "true"]])
+
+    return plist
+
+
+def find_patch(server, str, allow_unsub, allow_system=1):
+
+    channel = None
+    patch = None
+
+    # Try to split the string into "channel:package"
+    channel_id, patch = rcpackageutils.split_channel_and_name(server, str)
+
+    # Channel is set, so just get the patch(es) from the channel.
+    if channel_id:
+        plist = find_patch_in_channel(server, channel_id,
+                                      patch, allow_unsub)
+
+        return plist
+
+    # Okay, that didn't work.  First try to get the patch from the list
+    # of system patches.
+    plist = []
+
+    if allow_system:
+        plist = find_patch_on_system(server, patch)
+
+    if plist:
+        quiet = 1
+    else:
+        quiet = 0
+
+    new_plist = find_latest_patch(server,
+                                  patch,
+                                  allow_unsub,
+                                  quiet)
+
+
+    # Filter out patches already on the system, so we don't get both
+    # the installed version of a patch and the newest available
+    # version.
+    for p in new_plist:
+        if not filter(lambda x, my_p=p:x["name"] == my_p["name"],
+                      plist):
+            rctalk.message("Using " + p["name"] + " " +
+                           rcformat.evr_to_str(p) + " from the '" +
+                           rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                           "' channel")
+            plist.append(p)
+
+    return plist
+    
 
 class InfoYouPatchCmd(rccommand.RCCommand):
 
@@ -90,26 +252,36 @@ class InfoYouPatchCmd(rccommand.RCCommand):
     def arguments(self):
         return "<patch-name>"
 
+    def local_opt_table(self):
+        return [["u", "allow-unsubscribed", "", "Search in unsubscribed channels as well"]]
+
     def execute(self, server, options_dict, non_option_args):
         if not non_option_args:
             self.usage()
             sys.exit(1)
 
-        list = server.rcd.you.list ()
-        patches = {}
+        if options_dict.has_key("allow-unsubscribed"):
+            allow_unsub = 1
+        else:
+            allow_unsub = 0
+
+        plist = []
 
         for a in non_option_args:
-            for p in list:
-                if p['name'] == a:
-                    patches[a] = p
-                    break
+            inform = 0
+            channel = None
+            package = None
 
-        for a in non_option_args:
-            if not patches.has_key(a):
-                rctalk.warning("Patch '%s' not found" % a)
-                continue
+            plist = plist + find_patch(server, a, allow_unsub)
 
-            p = patches[a]
+        if not plist:
+            rctalk.message("--- No patches found ---")
+            sys.exit(1)
+
+        for p in plist:
+            pinfo = server.rcd.you.patch_info(p)
+
+            rctalk.message("")
             rctalk.message("Name: %s" % p['name'])
             rctalk.message("Version: %s" % p['version'])
 
@@ -118,11 +290,12 @@ class InfoYouPatchCmd(rccommand.RCCommand):
                 installed = "yes"
 
             rctalk.message("Installed: %s" % installed)
-            rctalk.message("Summary: %s" % p['summary'])
-            rctalk.message("Description:\n%s" % p['description'])
+            rctalk.message("Summary: %s" % pinfo['summary'])
+            rctalk.message("Description:\n%s" % pinfo['description'])
             rctalk.message("")
 
 rccommand.register(InfoYouPatchCmd)
+
 
 class InstallYouPatchCmd(rccommand.RCCommand):
 
@@ -142,19 +315,20 @@ class InstallYouPatchCmd(rccommand.RCCommand):
         return "<patch-name>"
 
     def local_opt_table(self):
-        opts = [["N", "dry-run", "", "Do not actually perform requested actions"],
-                ["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"],
+        opts = [["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"],
                 ["d", "download-only", "", "Only download packages, don't install them"],
                 ["", "entire-channel", "", "Install all of the packages in the channels specified on the command line"]]
 
         return opts
 
-    def check_licenses(self, patches):
-        licenses = []
-        for p in patches:
-            if p.has_key("license") and len(p["license"]) > 0:
-                licenses.append(p["license"])
-
+    def check_licenses(self, server, patches):
+        try:
+            licenses = server.rcd.you.licenses(patches)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                return
+            else:
+                raise
         if licenses:
             if len(licenses) > 1:
                 lstr = "licenses"
@@ -175,9 +349,8 @@ class InstallYouPatchCmd(rccommand.RCCommand):
                 rctalk.message("Cancelled.")
                 sys.exit(0)
 
-    def poll_transaction(self, server, download_id, step_id):
+    def poll_transaction(self, server, download_id, transact_id, step_id):
 
-        transact_id = -1
         message_offset = 0
         download_complete = 0
 
@@ -241,45 +414,53 @@ class InstallYouPatchCmd(rccommand.RCCommand):
 
 
     def execute(self, server, options_dict, non_option_args):
-        if not non_option_args:
-            self.usage()
-            sys.exit(1)
+        install_list = []
 
-        if options_dict.has_key("dry-run"):
-            flags = rcmain.DRY_RUN
-        elif options_dict.has_key("download_only"):
+        if options_dict.has_key("download_only"):
             flags = rcmain.DOWNLOAD_ONLY
         else:
             flags = 0
 
-        install_list = []
+        if options_dict.has_key("allow-unsubscribed"):
+            allow_unsub = 1
+        else:
+            allow_unsub = 0
 
-        for inst in non_option_args:
-            try:
-                patch = server.rcd.you.search ({"name" : inst})
-            except ximian_xmlrpclib.Fault, e:
-                if e.faultCode == rcfault.package_not_found:
-                    rctalk.warning ("Patch '%s' not found" % inst)
-                    continue
-                else:
-                    rctalk.error ("Unknown error: %s" % e.faultString)
+        if options_dict.has_key("entire-channel"):
+            pass
+        else:
+            for a in non_option_args:
+                plist = find_patch(server, a,
+                                   allow_unsub,
+                                   allow_system=0)
+
+                if not plist:
                     sys.exit(1)
 
-            if patch["installed"]:
-                rctalk.warning ("Patch '%s' already installed, ignoring" % \
-                                patch["name"])
-            else:
-                install_list.append (patch)
+                for p in plist:
+                    dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                                  install_list)
+                    
+                    if dups:
+                        rctalk.error("Duplicate entry found: " +
+                                     dups[0]["name"])
+                        sys.exit(1)
 
-        if install_list:
-            self.check_licenses (install_list)
-            download_id, step_id = server.rcd.you.install (install_list,
-                                                           flags,
-                                                           "",
-                                                           rcmain.rc_name,
-                                                           rcmain.rc_version)
+                    install_list.append(p)
 
-            self.poll_transaction(server, download_id, step_id)
+        if not install_list:
+            rctalk.message("--- No patches to install ---")
+            sys.exit(0)
+        
+        self.check_licenses (server, install_list)
+        download_id, transact_id, step_id = \
+                     server.rcd.you.transact (install_list,
+                                              flags,
+                                              "",
+                                              rcmain.rc_name,
+                                              rcmain.rc_version)
+
+        self.poll_transaction(server, download_id, transact_id, step_id)
 
 
 rccommand.register(InstallYouPatchCmd)
