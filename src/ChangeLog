@@ -1,3 +1,10 @@
+2002-06-25  Joe Shaw  <joe@ximian.com>
+
+	* rc.in: Remove "--rc-profile" from the argv, not "--profile"
+
+	* rcpackagecmds.py (transact_and_poll): Catch KeyboardInterrupt
+	and abort the download if we can.
+
 2002-06-24  Jon Trowbridge  <trow@ximian.com>
 
 	* rcformat.py (pending_to_str): Better pending->string conversion.

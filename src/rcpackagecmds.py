@@ -361,28 +361,39 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
     download_percent = 0.0
 
     while 1:
-        tid_info = server.rcd.system.poll_pending(tid)
+        tid_info = None
 
-        if tid_info["percent_complete"] > download_percent:
-            download_percent = tid_info["percent_complete"]
-            progress_msg = "Download " + rcformat.pending_to_str(tid_info)
-            rctalk.message_status(progress_msg)
-
-        if tid_info["status"] != "running":
-            rctalk.message_finished("Download complete")
+        try:
+            tid_info = server.rcd.system.poll_pending(tid)
             
-        message_len = len(tid_info["messages"])
-            
-        if message_len > message_offset:
-            for e in tid_info["messages"][message_offset:]:
-                rctalk.message(rcformat.transaction_status(e))
-            message_offset = message_len
-                    
-        if tid_info["status"] == "finished" or tid_info["status"] == "failed":
-            break
+            if tid_info["percent_complete"] > download_percent:
+                download_percent = tid_info["percent_complete"]
+                progress_msg = "Download " + rcformat.pending_to_str(tid_info)
+                rctalk.message_status(progress_msg)
 
-        time.sleep(1)
+            if tid_info["status"] != "running":
+                rctalk.message_finished("Download complete")
 
+            message_len = len(tid_info["messages"])
+
+            if message_len > message_offset:
+                for e in tid_info["messages"][message_offset:]:
+                    rctalk.message(rcformat.transaction_status(e))
+                message_offset = message_len
+
+            if tid_info["status"] == "finished" or tid_info["status"] == "failed":
+                break
+
+            time.sleep(1)
+        except KeyboardInterrupt:
+            if tid_info and tid_info["status"] == "running":
+                rctalk.message("Aborting download...")
+                v = server.rcd.packsys.abort_download(tid)
+                print "Abort: " + str(v)
+                if v:
+                    sys.exit(0)
+            elif tid_info:
+                rctalk.warning("Transaction cannot be aborted")
 
 def format_dependencies(dep_list):
     dep_list.sort(lambda x,y:cmp(string.lower(x["name"]),

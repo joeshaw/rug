@@ -40,7 +40,7 @@ rc_version = "@VERSION@"
 if "--rc-profile" in sys.argv:
     import profile
     sys.stderr.write("*** Profiling Enabled ***\n")
-    sys.argv = filter(lambda x:x != "--profile", sys.argv)
+    sys.argv = filter(lambda x:x != "--rc-profile", sys.argv)
     profile.run("rcmain.main(rc_version)")
 else:
     rcmain.main(rc_version)
