@@ -1,3 +1,7 @@
+2003-02-07  Frank Belew  <frb@ximian.com>
+
+	* unmarshaller/setup.py: link glib statically
+
 2003-01-29  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.2.0
