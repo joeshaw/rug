@@ -1,3 +1,8 @@
+2002-10-24  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmain.py (main): A hack -- if running the 'dump' command,
+	turn on terse mode to avoid any stray whitespace.
+
 2002-10-22  Jon Trowbridge  <trow@ximian.com>
 
 	* rclockcmds.py (LockAddCmd.arguments): Updated.

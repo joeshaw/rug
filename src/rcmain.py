@@ -78,6 +78,10 @@ def main(ver):
         command.usage()
         sys.exit(0)
 
+    # A hack to suppress extra whitespace when dumping.
+    if command.name() == "dump":
+        rctalk.be_terse = 1
+
     argv = rccommand.get_user_default_args(argv, command)
 
     opt_dict, args = command.process_argv(argv)
