@@ -46,6 +46,7 @@ struct _PyUnmarshaller {
     int        value;
     PyObject  *binary_cb;
     PyObject  *boolean_cb;
+    PyObject  *fault_cb;
 };
 
 static void      unmarshaller_dealloc (PyObject *);
@@ -83,6 +84,13 @@ unmarshaller_close (PyObject *self, PyObject *args)
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
     PyObject *tuple;
     int i;
+
+    if (unm->flavor == PY_UNMARSHALLER_FLAVOR_FAULT
+        && unm->fault_cb
+        && unm->stack->len > 0) {
+        args = Py_BuildValue ("(O)", g_ptr_array_index (unm->stack, 0));
+        PyEval_CallObject (unm->fault_cb, args);
+    }
 
     /* tuple-ify the stack */
     tuple = PyTuple_New (unm->stack->len);
@@ -389,10 +397,10 @@ static PyObject *
 unmarshaller_new (PyObject *self, PyObject *args)
 {
     PyUnmarshaller *unm;
-    PyObject *binary_cb, *boolean_cb;
+    PyObject *binary_cb, *boolean_cb, *fault_cb;
 
-    if (!PyArg_ParseTuple (args, "OO:new_unmarshaller",
-                           &binary_cb, &boolean_cb))
+    if (!PyArg_ParseTuple (args, "OOO:new_unmarshaller",
+                           &binary_cb, &boolean_cb, &fault_cb))
         return NULL;
     
 #if PY_MAJOR_VERSION == 2
@@ -409,9 +417,11 @@ unmarshaller_new (PyObject *self, PyObject *args)
     unm->encoding = g_strdup ("utf-8");
     unm->binary_cb = binary_cb;
     unm->boolean_cb = boolean_cb;
+    unm->fault_cb = fault_cb;
 
     Py_INCREF (unm->binary_cb);
     Py_INCREF (unm->boolean_cb);
+    Py_INCREF (unm->fault_cb);
 
     return (PyObject *) unm;
 }

@@ -1,3 +1,10 @@
+2002-12-03  Jon Trowbridge  <trow@ximian.com>
+
+	* unmarshaller.c: Added a fault_cb to the PyUnmarshaller struct.
+	(unmarshaller_close): If the fault flag is set, execute our fault
+	callback.
+	(unmarshaller_new): Take a fault callback as an argument.
+
 2002-11-27  Jon Trowbridge  <trow@ximian.com>
 
 	* Makefile.am: Added setup.py and unmarshaller.c to EXTRA_DIST.

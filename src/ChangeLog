@@ -1,3 +1,8 @@
+2002-12-03  Jon Trowbridge  <trow@ximian.com>
+
+	* ximian_xmlrpclib.py (getparser): When we construct a fast
+	unmarshaller, pass in a fault-handling callback.
+
 2002-11-21  Jon Trowbridge  <trow@ximian.com>
 
 	* rc.in: Defined rc_lib_dir as a path for finding binary

@@ -800,7 +800,9 @@ def getparser():
                     return True
                 else:
                     raise TypeError, "bad boolean value"
-            target = ximian_unmarshaller.new(binary_cb, boolean_cb)
+            def fault_cb(arg):
+                raise apply(Fault, (), arg)
+            target = ximian_unmarshaller.new(binary_cb, boolean_cb, fault_cb)
         else:
             target = Unmarshaller()
             
