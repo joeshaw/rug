@@ -1,5 +1,11 @@
 2002-07-02  Joe Shaw  <joe@ximian.com>
 
+	* ximian_xmlrpclib.py: Replace this with the version included in
+	Python 2.2.  Forward-ported my HTTP Basic auth and unix domain
+	socket patches.
+
+2002-07-02  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (transact_and_poll): Change the output
 	slightly.
 	(PackageVerifyCmd): Added, allows the user to verify the
