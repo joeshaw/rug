@@ -52,7 +52,11 @@ def find_package_in_channel(server, channel, package, allow_unsub):
                 p = None
             else:
                 raise
-        inform = 1
+
+        if p:
+            inform = 1
+        else:
+            inform = 0
 
     return p, inform
 
@@ -637,6 +641,16 @@ class PackageInfoCmd(rccommand.RCCommand):
 
             if not channel:
                 p = find_package_on_system(server, package)
+
+                if not p:
+                    p, inform = find_package_in_channel(server, -1, package, allow_unsub)
+
+                    if inform:
+                        rctalk.message("Using " + p["name"] + " " +
+                                       rcformat.evr_to_str(p) + " from the '" +
+                                       rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                                       "' channel")
+
             else:
                 clist = rcchannelutils.get_channels_by_name(server, channel)
                 if not rcchannelutils.validate_channel_list(channel, clist):
@@ -654,6 +668,7 @@ class PackageInfoCmd(rccommand.RCCommand):
 
             pinfo = server.rcd.packsys.package_info(p)
 
+            rctalk.message("")
             rctalk.message("Name: " + p["name"])
             rctalk.message("Version: " + p["version"])
             rctalk.message("Release: " + p["release"])
@@ -663,7 +678,7 @@ class PackageInfoCmd(rccommand.RCCommand):
                 rctalk.message("Installed size: " + str(pinfo["installed_size"]))
             rctalk.message("Summary: " + pinfo["summary"])
             rctalk.message("Description: ")
-            rctalk.message("  " + pinfo["description"])
+            rctalk.message(pinfo["description"])
 
             log_entries = server.rcd.log.query_log([["name", "=", p["name"]]])
             if log_entries:
@@ -703,8 +718,6 @@ class PackageInfoCmd(rccommand.RCCommand):
 
                     if pkg_str:
                         rctalk.message(time_str + " " + action_str + " " + pkg_str)
-            
-            
 
 def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
     tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove, ximian_xmlrpclib.Boolean(dry_run))

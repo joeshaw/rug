@@ -1,5 +1,12 @@
 2002-07-09  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (find_package_in_channel): If we don't find a
+	package, set the inform variable to 0.
+	(PackageInfoCmd.execute): If we don't find a package that matches
+	on the system, look in a channel for it.  Improve the output slightly.
+
+2002-07-09  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageDebugCmd): Added.  Dumps the debug info
 	out to stdout or to a file specified by the user.
 
