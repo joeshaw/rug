@@ -1,0 +1,34 @@
+rc is a command-line interface to the Red Carpet Daemon (rcd), and
+complement to Ximian Red Carpet.
+
+ABOUT RC
+--------
+To use rc, you will also need the Red Carpet Daemon (rcd), available
+in the "rcd" module in GNOME CVS (and probably from wherever you got
+this package).
+
+rc uses XML-RPC, either over unix domain sockets (for local connections)
+or secure HTTP (for remote connections).  Yes, rc can be used to manage
+systems remotely.  That's part of the reason why it's so cool.
+
+Security is handled by the Red Carpet Daemon.  Remote connections
+will require a username and password, whereas local connections are
+authorized by the kernel.  By default all local users have only viewing
+privileges (except root, which has superuser privileges); remote users
+have no privileges.
+
+DOCUMENTATION
+-------------
+A man page is included with the package, and should provide pretty
+complete information on how to use rc.  In addition, there is usage
+help by running "rc" and more detailed info by running "rc --help".
+
+BUILDING AND DEVELOPING
+-----------------------
+rc is written in Python, so there isn't any building involved.
+However, it does use the GNU autotools and make to make distribution
+and installation easier.  You will need to run configure (or autogen.sh
+if from CVS) before you can run rc.
+
+We welcome contributors to rc and rcd.  Please see the HACKING file for
+more info on contributing.
