@@ -1,3 +1,8 @@
+2003-03-20  Joe Shaw  <joe@ximian.com>
+
+	* rcprefscmds.py (PrefsSetCmd.execute): Accept yes/no and on/off
+	for boolean settings.
+
 2003-03-13  Joe Shaw  <joe@ximian.com>
 
 	* rcfault.py: Add not_supported

@@ -55,9 +55,13 @@ class PrefsSetCmd(rccommand.RCCommand):
             else:
                 raise
 
-        if string.lower(non_option_args[1]) == "true":
+        if string.lower(non_option_args[1]) == "true" or \
+           string.lower(non_option_args[1]) == "on" or \
+           string.lower(non_option_args[1]) == "yes":
             value = ximian_xmlrpclib.True
-        elif string.lower(non_option_args[1]) == "false":
+        elif string.lower(non_option_args[1]) == "false" or \
+             string.lower(non_option_args[1]) == "off" or \
+             string.lower(non_option_args[1]) == "no":
             value = ximian_xmlrpclib.False
         else:
             try:
