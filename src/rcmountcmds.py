@@ -51,14 +51,16 @@ class MountCmd(rccommand.RCCommand):
             cmd.execute(server, {"mounted": 1}, [])
             return
 
-        path = os.path.abspath(non_option_args[0])
-        path_base = os.path.basename(path)
+        url = non_option_args[0]
+        if not ":" in url: # FIXME!!!
+            url = "file://" + os.path.abspath(url)
+        url_base = os.path.basename(url)
 
         aliases = map(rcchannelutils.get_channel_alias,
                       rcchannelutils.get_channels(server))
 
         complain_about_collision = 0
-        alias = string.lower(path_base)
+        alias = string.lower(url_base)
         if options_dict.has_key("alias"):
             alias = options_dict["alias"]
             complain_about_collision = 1
@@ -74,9 +76,9 @@ class MountCmd(rccommand.RCCommand):
             rctalk.warning("Alias '%s' already in use.  Using '%s' instead." %
                            (old_alias, alias))
 
-        name = options_dict.get("name", path)
+        name = options_dict.get("name", url)
         try:
-            success = server.rcd.packsys.mount_directory(path, name, alias)
+            success = server.rcd.packsys.mount_directory(url, name, alias)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.undefined_method:
                 rctalk.error("Server does not support mount.")
@@ -85,9 +87,9 @@ class MountCmd(rccommand.RCCommand):
                 raise
         else:
             if success:
-                rctalk.message("Mounted '%s' as a channel." % path)
+                rctalk.message("Mounted '%s' as a channel." % url)
             else:
-                rctalk.error("Could not mount '%s' as a channel." % path)
+                rctalk.error("Could not mount '%s' as a channel." % url)
 
 class UnmountCmd(rccommand.RCCommand):
 
