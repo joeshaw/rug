@@ -306,14 +306,50 @@ class PackageSearchCmd(rccommand.RCCommand):
 
 
 
-
 ###
 ### "updates" command
-### 
+###
+
+def terse_updates_table(server, update_list):
+
+    update_table = []
+
+    for update_item in update_list:
+
+        old_pkg, new_pkg, descriptions = update_item
+
+        urgency = "?"
+        if new_pkg.has_key("importance_str"):
+            urgency = new_pkg["importance_str"]
+
+        channel_name = rcchannelutils.channel_id_to_name(server, new_pkg["channel"])
+
+        old_ver = rcformat.evr_to_str(old_pkg)
+        new_ver = rcformat.evr_to_str(new_pkg)
+
+        update_table.append([urgency, channel_name, new_pkg["name"], old_ver, new_ver])
+
+
+    update_table.sort(lambda x,y:cmp(string.lower(x[1]), string.lower(y[1])) or \
+                      cmp(string.lower(x[2]), string.lower(y[2])))
+
+    rcformat.tabular([], update_table)
+    
 
 def exploded_updates_table(server, update_list, no_abbrev):
 
-    update_list.sort(lambda x,y:cmp(x[1]["channel"], y[1]["channel"]) \
+    channel_name_dict = {}
+
+    for update_item in update_list:
+        ch = update_item[1]["channel"]
+        if not channel_name_dict.has_key(ch):
+            channel_name_dict[ch] = rcchannelutils.channel_id_to_name(server, ch)
+
+    print channel_name_dict
+
+    update_list.sort(lambda x,y,cnd=channel_name_dict:\
+                     cmp(string.lower(cnd[x[1]["channel"]]),
+                         string.lower(cnd[y[1]["channel"]])) \
                      or cmp(x[1]["importance_num"], y[1]["importance_num"]) \
                      or cmp(string.lower(x[1]["name"]), string.lower(y[1]["name"])))
 
@@ -336,9 +372,9 @@ def exploded_updates_table(server, update_list, no_abbrev):
         if chan_id != this_channel_id or chan_id == "last":
             if this_channel_table:
                 rctalk.message("")
-                
-                ch = rcchannelutils.get_channel_by_id(server, this_channel_id)
-                rctalk.message("Updates for channel '" + ch["name"] + "'")
+
+                channel_name = channel_name_dict[this_channel_id]
+                rctalk.message("Updates for channel '" + channel_name + "'")
                 
                 rcformat.tabular(["Urg", "Name", "Current Version", "Update Version"],
                                  this_channel_table)
@@ -422,7 +458,7 @@ class PackageUpdatesCmd(rccommand.RCCommand):
         if rctalk.show_verbose:
             verbose_updates_list(server, up)
         elif rctalk.be_terse:
-            rctalk.error("Terse form not defined.") # FIXME!!!
+            terse_updates_table(server, up)
         else:
             exploded_updates_table(server, up, no_abbrev)
 

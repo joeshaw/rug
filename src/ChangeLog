@@ -1,5 +1,17 @@
 2002-07-02  Jon Trowbridge  <trow@ximian.com>
 
+	* rcmain.py (main): Extracted a bunch of the options
+	handling/parsing code and moved it into...
+
+	* rccommand.py:	...various places in here.
+
+	* rcpackagecmds.py (terse_updates_table): Added.  Handles output
+	of updates in --terse mode.
+	(exploded_updates_table): Fixed channel sorting so that we sort
+	by channel name, not ID.
+	(PackageUpdatesCmd.execute): Call terse_updates_table if we are
+	in --terse mode.
+
 	* rcchannelcmds.py: Added argument and description methods.
 
 	* rcpackagecmds.py: Added argument and description methods.  Major

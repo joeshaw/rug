@@ -4,6 +4,3 @@ Implements "preferences" command.
 
 Need docs and a man page.
 
-Move all of the arg processing logic out of rcmain.py and into
-rccommand.py where it belongs.
-
