@@ -412,17 +412,18 @@ Set the preference variable \fItoken\fR to the value \fIvalue\fR. Options are no
 .IP 
 \fBproxy\-username:\fR Username for the proxy, if any.    
 .IP 
-\fBremote\-enabled:\fR Allow clients to connect to this daemon remotely.
+\fBremote\-enabled:\fR Allow clients to connect to this daemon remotely. Defaults to "true."
 .IP 
-\fBremote\-port:\fR Port used for connections of remote clients. Defaults to 504.
+\fBremote\-port:\fR Port used for connections of remote clients. Defaults to 505.
 .IP 
-\fBrequire\-signatures:\fR Require packages be signed before installing.     
+\fBrequire\-signatures:\fR Require packages be signed before installing. Defaults to "true."
 .IP 
-\fBrequire\-verified\-certificates:\fR Verify SSL certificates from server. Red Carpet Enterprise users should set this to false unless they have purchased an SSL certificate.
+\fBrequire\-verified\-certificates:\fR Verify SSL certificates from server. Red Carpet Enterprise users should set this to false unless they have a signed SSL certificate (generated or purchased). Defaults to "true."
 .IP 
-\fBrollback:\fR Store more detailed transaction history, enabling rollback feature.
+\fBrollback:\fR Store more detailed transaction history, enabling rollback feature. Defaults to "false."
 .IP 
 \fBserver\-poll\-interval:\fR Interval, in seconds, to check for changes to transaction information. Note that this does not affect the channel and package refresh interval, which is set with the heartbeat\-interval token.
+.IP 
 \fBsyslog\-level:\fR Sets the amount of logging output saved in syslog. Values may be from 0 (none) to 6 (lots). The default is 4.
 .IP 
 \fBNote:\fR as of rug 2.0, the "host" option is no longer present; servers are defined with the \fBrug service\-add\fR command instead. The "enable\-premium" option has also been removed; premium servers are now detected automatically.
