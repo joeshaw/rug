@@ -99,11 +99,11 @@ class ListYouPatchesCmd(rccommand.RCCommand):
             patches.sort(lambda x,y:cmp(string.lower(x["name"]),string.lower(y["name"])))
 
         if multiple_channels:
-            keys = ["installed", "channel", "name", "version"]
-            headers = ["S", "Channel", "Name", "Version"]
+            keys = ["installed", "channel", "name", "version", "product"]
+            headers = ["S", "Channel", "Name", "Version", "Product"]
         else:
-            keys = ["installed", "name", "version"]
-            headers = ["S", "Name", "Version"]
+            keys = ["installed", "name", "version", "product"]
+            headers = ["S", "Name", "Version", "Product"]
 
         # If we're getting all of the packages available to us, filter out
         # ones in the "hidden" channels, like the system packages channel.
