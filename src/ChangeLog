@@ -1,5 +1,11 @@
 2002-09-10  Joe Shaw  <joe@ximian.com>
 
+	* rcformat.py (pending_to_str): take an optional "time" argument
+	which determines whether to display the elapsed and estimated
+	times.
+	(transaction_status): Get rid of the download, finish, and failed
+	messages.
+
 	* rcpackagecmds.py (transact_and_poll): Use the much saner method
 	for tracking transaction progress in the daemon.  Get the three
 	pending IDs and report status to the user.
