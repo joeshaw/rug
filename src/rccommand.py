@@ -131,7 +131,7 @@ def usage_basic():
 
         rctalk.message("")
         rctalk.message("For a more complete list of commands and important options,")
-        rctalk.message("run rc with the --help option.")
+        rctalk.message("run \"rc help\".")
 
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")
@@ -438,7 +438,21 @@ class RCCommand:
 
         return opt_dict, args
 
+class HelpCmd(RCCommand):
 
+    def name(self):
+        return "help"
 
-    
-    
+    def category(self):
+        return "basic"
+
+    def description_short(self):
+        return "A list of all of the available commands"
+
+    def execute(self, server, options_dict, non_option_args):
+        usage_full()
+
+    def usage(self):
+        usage_full()
+
+register(HelpCmd)
