@@ -11,28 +11,17 @@ rc \-\-version
 rc \fI\-\-help\fP 
 .SH "DESCRIPTION"
 .LP 
-rc is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rc. 
+rc is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rc.
 .LP 
-Red Carpet services sort software by category into channels. Examples would be chnanel software from the operating system vendor, the Ximian Desktop, or a set of third party software. The channel system allows you to subscribe to, or unsubscribe from, individual channels to control the display of available packages and prevent the accidental installation of unwanted software. You can search for packages within or across channels, and query for dependency and conflict information in just your subscribed channels, or in all channels.
-
+Red Carpet services sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
+.LP 
+Red Carpet services, including rc, use your operating system's native package management system (except on Solaris), so you can use most other package management tools alongside them.
 .SH "COMMANDS"
 .LP 
-rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most important is \fBrc update\fR, which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need. The others are below:
-.TP 
-\fBrc channels (ch)\fR
-List available channels of software.
+rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most important is \fBrc update\fR, which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
 
-.TP 
-\fBrc debug\fR \fR
-Get a core\-dump for debugging purposes.
-
-.TP 
-\fBrc get\-prefs (get, prefs)\fR 
-List the system preferences that may be set.
-
-.TP 
-\fBrc history\fR <\fIquerystring\fR>\fR
-Search log entries for the string <\fIquerystring\fR>.
+.LP 
+\fBBasic Operations on Packages\fR
 
 .TP 
 \fBrc info\fR <\fIpackagename\fR>\fR
@@ -43,48 +32,20 @@ Display detailed information about the package.
 Install the package <\fIpackagename\fR>.
 
 .TP 
-\fBrc news\fR \fR
-List the Red Carpet news.
-
-.TP 
 \fBrc packages\fR <\fIchannelname\fR>
 List all packages in a given channel. Packages that are already installed are marked with the letter \fIi\fR.
 
 .TP 
-\fBrc ping\fR \fR
-Ping the Red Carpet mirror you are using.
-
-.TP 
-\fBrc refresh\fR \fR
-Reload all channel data.
-
-.TP 
-\fBrc remove\fR <\fIpackagename\fR>
-Remove the package <\fIpackagename\fR>
+\fBrc remove (rm, erase)\fR <\fIpackagename\fR>
+Remove the package <\fIpackagename\fR>.
 
 .TP 
 \fBrc search\fR <\fIquerystring\fR>
 Search the list of available packages for the string <\fIquerystring\fR>.
 
 .TP 
-\fBrc set\-prefs (set)\fR <\fIkey\fR> [\fIvalue\fR]
-Set the preference variable <\fIkey\fR> to the value [\fIvalue\fR].
-
-.TP 
-\fBrc shutdown\fR
-Stop the server process.
-
-.TP 
-\fBrc subscribe (sub)\fR <\fIchannel>\fR
-Subscribe to a channel.
-
-.TP 
 \fBrc summary (sum)\fR
 Displays the number of updates to currently installed software available in each channel to which you are subscribed. For more detail, use updates or up.
-
-.TP 
-\fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
-Unsubscribe from channel.
 
 .TP 
 \fBrc update\-all\fR
@@ -93,6 +54,10 @@ Download and install all updates to currently installed software in channels to 
 .TP 
 \fBrc updates (up)\fR
 Describe available updates to currently installed software in the channels to which you are subscribed. For less detail, use summary or sum.
+
+
+.LP 
+\fBPackage Dependency and Conflict Operations\fR
 
 .TP 
 \fBrc verify\fR
@@ -109,6 +74,64 @@ List the packages that provide with the command, library, package, or program <\
 .TP 
 \fBrc what\-requires\fR <\fIquerystring\fR>\fR 
 List the packages that require the command, library, package, or program <\fIquerystring\fR>.
+
+
+.LP 
+\fBOperations on Channels\fR
+
+.TP 
+\fBrc channels (ch)\fR
+List available channels of software.
+
+
+.TP 
+\fBrc refresh\fR \fR
+Reload all channel data.
+
+.TP 
+\fBrc subscribe (sub)\fR <\fIchannel>\fR
+Subscribe to a channel.
+
+.TP 
+\fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
+Unsubscribe from channel.
+
+.LP 
+\fBCommands for Server Interaction:\fR
+
+.TP 
+\fBrc news\fR \fR
+List the Red Carpet news.
+
+.TP 
+\fBrc ping\fR \fR
+Ping the Red Carpet mirror you are using.
+
+.TP 
+\fBrc shutdown\fR
+Stop the server process.
+
+
+.LP 
+\fBOther Commands:\fR
+
+.TP 
+\fBrc debug\fR \fR
+Get a core\-dump for debugging purposes.
+
+.TP 
+\fBrc get\-prefs (get, prefs)\fR 
+List the system preferences that may be set.
+
+.TP 
+\fBrc history\fR <\fIquerystring\fR>\fR
+Search log entries for the string <\fIquerystring\fR>.
+
+
+.TP 
+\fBrc set\-prefs (set)\fR <\fIkey\fR> [\fIvalue\fR]
+Set the preference variable <\fIkey\fR> to the value [\fIvalue\fR].
+
 .SH "GLOBAL OPTIONS"
 .LP 
 The following options can be applied to any rc transaction:
@@ -181,7 +204,7 @@ Displays the version number of the program and exits.
 
 .SH "COMMAND OPTIONS"
 .LP 
-Many rc commands have options which apply only to them:
+Many rc commands have options which apply only to them.  They are listed here alphabetically.
 .TP 
 \fBrc channels (ch)\fR
 .B \fI\-s, \-\-subscribed\fR: List only channels to which you are subscribed.
@@ -337,7 +360,7 @@ Many rc commands have options which apply only to them:
 .TP 
 \fBRC_ARGS\fP
 This environment variable is prepended to any
-command line options that are passed to rc and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-eng\fR flag in the RC_ARGS variable; this is absurd.
+command line options that are passed to rc and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-env\fR flag in the RC_ARGS variable; this is absurd.
 .SH "EXAMPLES"
 .LP 
 When run by normal users, this program can be used to query software lists and package databases, but cannot be used to install, update, or remove software.  Those operations require root privileges and should be performed as root or with sudo. Note that rc will use the .rcrc file in the home directory of the user running the program, whether that is root, a normal user, or a normal user with sudo privileges.
@@ -345,7 +368,7 @@ When run by normal users, this program can be used to query software lists and p
 Here are some standard ways in which the program might be used:
 .TP 
 \fBrc update\-all \-y\fR
-Download and install all updates to currently installed package in currently subscribed channels, removing any software that conflicts with those updates, and without asking for confirmation. This is a risky, but convenient, option.
+Download and install all updates to currently installed package in currently subscribed channels, removing any software that conflicts with those updates, and without asking for confirmation. This is convenient option but should be used only with servers which you trust absolutely.
 
 .TP 
 \fBrc \-V \-\-host=<hostname> install <packagename> \-u\fR

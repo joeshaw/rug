@@ -305,18 +305,18 @@ class PackageSearchCmd(rccommand.RCCommand):
         return "package"
         
     def local_opt_table(self):
-        return [["", "match-all", "",              "Require packages to match all search strings (default)"],
-                ["", "match-any", "",              "Allow packages to match any of the search strings"],
-                ["", "match-substrings", "",       "Match search strings against any part of the text"],
-                ["", "match-words",      "",       "Require search strings to match entire words"],
-                ["", "search-description", "",     "Search only in the descriptions of packages and not their names"],
+        return [["", "match-all", "",              "Search for a match to all search strings (default)"],
+                ["", "match-any", "",              "Search for a match to any of the search strings"],
+                ["", "match-substrings", "",       "Matches for search strings may be partial words"],
+                ["", "match-words",      "",       "Matches for search strings must be whole words"],
+                ["", "search-description", "",     "Search in package descriptions, but not package names"],
                 ["i", "installed-only",   "",      "Show only packages that are already installed"],
                 ["u", "uninstalled-only", "",      "Show only packages that are not currently installed"],
                 ["c", "channel",        "channel", "Show only the packages from the channel you specify"],
-                ["", "show-package-ids",   "",     "Show package IDs"],
+                ["", "show-package-ids",   "",     "Show package IDs along with names"],
                 ["", "sort-by-name",     "",       "Sort packages by name (default)"],
-                ["", "sort-by-channel",  "",       "Sort packages by channel"],
-                ["", "no-abbrev", "",              "Don't abbreviate channel or version information"]]
+                ["", "sort-by-channel",  "",       "Sort packages by channel, not by name"],
+                ["", "no-abbrev", "",              "Do not abbreviate channel or version information"]]
 
     def local_orthogonal_opts(self):
         return [["match-any", "match-all"],
@@ -579,7 +579,7 @@ class SummaryCmd(rccommand.RCCommand):
         return "package"
 
     def local_opt_table(self):
-        return [["", "no-abbrev", "", "Don't abbreviate channel names or importance levels"]]
+        return [["", "no-abbrev", "", "Do not abbreviate channel names or importance levels"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -853,10 +853,10 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
         return "dependency"
 
     def local_opt_table(self):
-        return [["i", "installed-providers", "", "If a requirement is satisifed by an installed package, don't list uninstalled packages that satisfy the same requirement. (default)"],
-                ["a", "all-providers", "", "List all packages that can satisfy a requirement."],
-                ["v", "show-versions", "", "Display full version information for packages."],
-                ["",  "no-abbrev", "", "Don't abbeviate channel or version information"]]
+        return [["i", "installed-providers", "", "If a required package is already installed, do not list alternatives (default)"],
+                ["a", "all-providers", "", "List all packages that can satisfy a requirement"],
+                ["v", "show-versions", "", "Display full version information for packages"],
+                ["",  "no-abbrev", "", "Do not abbeviate channel or version information"]]
 
     def local_orthogonal_opts(self):
         return [["installed-providers", "all-providers"]]
@@ -954,7 +954,7 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
         return "<package>"
 
     def description_short(self):
-        return "List a package's conflicts"
+        return "List all conflicts for the package"
 
     def category(self):
         return "dependency"
@@ -1108,7 +1108,7 @@ class TransactCmd(rccommand.RCCommand):
         return 0
     
     def local_opt_table(self):
-        opts = [["N", "dry-run", "", "Don't actually perform requested actions."],
+        opts = [["N", "dry-run", "", "Do not actually perform requested actions"],
                 ["y", "no-confirmation", "", "Permit all actions without confirmations"]]
 
         if not self.unattended_removals():
