@@ -1,3 +1,8 @@
+2002-08-20  Jon Trowbridge  <trow@ximian.com>
+
+	* rcformat.py (pending_to_str): Some tweaks to shrink the download
+	status line.  Fixes (or at least helps) bug #29169.
+
 2002-08-19  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py (main): Force the connection to be local when using
