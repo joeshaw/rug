@@ -20,16 +20,18 @@ rc is the command\-line complement to the Ximian Red Carpet software management 
 .LP 
 Red Carpet services sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
 .LP 
-Red Carpet services, including rc, use your operating system's native package management system (except on Solaris), so you can use most other package management tools alongside them.
+Red Carpet services, including rc, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
 .SH "COMMANDS"
 .LP 
 rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most commonly used is \fIrc update\-all\fR which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
 
 .LP 
 \fBPackage management commands:\fR
+.LP 
+Note that you may substitute standard shell wildcards in package names, although not in channel names.
 .TP 
 info \fI<packagename>\fR 
-Show detailed information about a package. Multiple packages may be listed, separated by spaces.  
+Show detailed information about a package. Multiple packages may be listed, separated by spaces.
 
 .TP 
 install \fI<packagename>\fR\fR
@@ -454,6 +456,10 @@ Installs the package that provides \fIlibrary.so.1\fR and a version of \fIapplic
 .TP 
 \fBrc info\-provides mychannel:mypackage</fR>
 Displays the functionality provided by the "mypackage" software from "mychannel."
+
+.TP 
+\fBrc install rc*\fR
+Installs all packages that are in subscribed channels whose names begin with "rc".
 .SH "AUTHORS"
 .LP 
 Copyright 2002 Ximian, Inc.

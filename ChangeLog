@@ -1,4 +1,8 @@
-2002-10-31 Aaron Weber <aaron@ximian.com>
+2002-11-07 Aaron Weber <aaron@ximian.com>
+
+	* rc.1: Added info about shell wildcards.
+
+2002-11-06 Aaron Weber <aaron@ximian.com>
 
 	* rc.1: added -d --download-only to install command.
 
