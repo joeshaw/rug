@@ -47,6 +47,8 @@ local = 0
 
 def main(rc_version):
 
+    global local
+
     ###
     ### Grab the option list and extract the first non-option argument that
     ### looks like a command.  This could get weird if someone passes the name

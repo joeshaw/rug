@@ -1,3 +1,20 @@
+2002-07-17  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Declare local as global.
+
+	* rcpackagecmds.py (find_local_package): Return a valid
+	package instance, but set the "local_filename" field to the
+	filename on the local system.
+	(get_local_file): Added.  If the "local_filename" field is set,
+	just return either the filename or the binary data (depending
+	whether we're local or not) else just return the package instance.
+	(PackageInfoCmd.execute): Check for a local package first.  Call
+	get_local_file() before we give it to rcd.packsys.package_info().
+	(transact_and_poll): Call get_local_file() on the install and
+	remove package lists.
+	(TransactCmd.transact): Ditto, when resolving deps.
+	(PackageInstallCmd.execute): Try local files first.
+
 2002-07-16  Jon Trowbridge  <trow@ximian.com>
 
 	* rcusercmds.py (UserAddCmd.execute): The beginnings of a proper

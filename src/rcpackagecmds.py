@@ -97,7 +97,7 @@ def find_local_package(server, package):
             raise
 
     try:
-        server.rcd.packsys.query_file(package)
+        p = server.rcd.packsys.query_file(package)
     except ximian_xmlrpclib.Fault, f:
         if f.faultCode == rcfault.package_not_found:
             return None
@@ -107,10 +107,8 @@ def find_local_package(server, package):
         else:
             raise
 
-    if rcmain.local:
-        return package
-    else:
-        return ximian_xmlrpclib.Binary(open(package).read())
+    p["local_filename"] = package
+    return p
 
 def get_updates(server, non_option_args):
     up = server.rcd.packsys.get_updates()
@@ -641,40 +639,44 @@ class PackageInfoCmd(rccommand.RCCommand):
             allow_unsub = 0
 
         for a in non_option_args:
+            inform = 0
             channel = None
             package = None
 
-            off = string.find(a, ":")
-            if off != -1:
-                channel = a[:off]
-                package = a[off+1:]
-            else:
-                package = a
+            p = find_local_package(server, a)
 
-            if not channel:
-                p = find_package_on_system(server, package)
+            if not p:
+                off = string.find(a, ":")
+                if off != -1:
+                    channel = a[:off]
+                    package = a[off+1:]
+                else:
+                    package = a
 
-                if not p:
-                    p, inform = find_package_in_channel(server, -1, package, allow_unsub)
+                if not channel:
+                    p = find_package_on_system(server, package)
 
-                    if inform:
-                        rctalk.message("Using " + p["name"] + " " +
-                                       rcformat.evr_to_str(p) + " from the '" +
-                                       rcchannelutils.channel_id_to_name(server, p["channel"]) +
-                                       "' channel")
+                    if not p:
+                        p, inform = find_package_in_channel(server, -1, package, allow_unsub)
 
-            else:
-                clist = rcchannelutils.get_channels_by_name(server, channel)
-                if not rcchannelutils.validate_channel_list(channel, clist):
-                    sys.exit(1)
+                        if inform:
+                            rctalk.message("Using " + p["name"] + " " +
+                                           rcformat.evr_to_str(p) + " from the '" +
+                                           rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                                           "' channel")
 
-                c = clist[0]
-                p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
+                else:
+                    clist = rcchannelutils.get_channels_by_name(server, channel)
+                    if not rcchannelutils.validate_channel_list(channel, clist):
+                        sys.exit(1)
+
+                    c = clist[0]
+                    p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
 
             if not p:
                 sys.exit(1)
 
-            pinfo = server.rcd.packsys.package_info(p)
+            pinfo = server.rcd.packsys.package_info(get_local_file(p))
 
             rctalk.message("")
             rctalk.message("Name: " + p["name"])
@@ -728,6 +730,9 @@ class PackageInfoCmd(rccommand.RCCommand):
                         rctalk.message(time_str + " " + action_str + " " + pkg_str)
 
 def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
+    packages_to_install = map(lambda x:get_local_file(x), packages_to_install)
+    packages_to_remove = map(lambda x:get_local_file(x), packages_to_remove)
+
     tid = server.rcd.packsys.transact(packages_to_install,
                                       packages_to_remove,
                                       ximian_xmlrpclib.Boolean(dry_run))
@@ -805,6 +810,15 @@ def format_dependencies(server, dep_list):
 
     rctalk.message("")
 
+def get_local_file(package):
+    if package.has_key("local_filename"):
+        if rcmain.local:
+            return package["local_filename"]
+        else:
+            return ximian_xmlrpclib.Binary(open(package["local_filename"]).read())
+    else:
+        return package
+
 ###
 ### Base class for all transaction-based commands
 ###
@@ -826,13 +840,20 @@ class TransactCmd(rccommand.RCCommand):
             if verify:
                 dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
             else:
-                dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
+                ip = map(lambda x:get_local_file(x), install_packages)
+                rp = map(lambda x:get_local_file(x), remove_packages)
+                
+                dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(ip, rp, extra_reqs)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.failed_dependencies:
                 rctalk.error(f.faultString)
                 sys.exit(1)
             else:
                 raise
+
+        if verify and not dep_install and not dep_remove:
+            rctalk.message("System dependency tree verified successfully.")
+            return
 
         if install_packages:
             rctalk.message("The following requested packages will be installed:")
@@ -912,38 +933,37 @@ class PackageInstallCmd(TransactCmd):
             allow_unsub = 0
 
         for a in non_option_args:
+            inform = 0
             channel = None
             package = None
 
-            off = string.find(a, ":")
-            if off != -1:
-                channel = a[:off]
-                package = a[off+1:]
-            else:
-                package = a
+            p = find_local_package(server, a)
+            if not p:
+                off = string.find(a, ":")
+                if off != -1:
+                    channel = a[:off]
+                    package = a[off+1:]
+                else:
+                    package = a
 
-            if not channel:
-                c = -1
-            else:
-                clist = rcchannelutils.get_channels_by_name(server, channel)
-                if not rcchannelutils.validate_channel_list(channel, clist):
-                    sys.exit(1)
-                c = clist[0]["id"]
-            
-            p, inform = find_package_in_channel(server, c, package, allow_unsub)
+                if not channel:
+                    c = -1
+                else:
+                    clist = rcchannelutils.get_channels_by_name(server, channel)
+                    if not rcchannelutils.validate_channel_list(channel, clist):
+                        sys.exit(1)
+                    c = clist[0]["id"]
+
+                p, inform = find_package_in_channel(server, c, package, allow_unsub)
+
+                if inform:
+                    rctalk.message("Using " + p["name"] + " " +
+                                   rcformat.evr_to_str(p) + " from the '" +
+                                   rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                                   "' channel")
 
             if not p:
-                inform = 0
-                if not find_local_package(server, package):
-                    sys.exit(1)
-                else:
-                    p = package
-
-            if inform:
-                rctalk.message("Using " + p["name"] + " " +
-                               rcformat.evr_to_str(p) + " from the '" +
-                               rcchannelutils.channel_id_to_name(server, p["channel"]) +
-                               "' channel")
+                sys.exit(1)
                 
             packages_to_install.append(p)
 
