@@ -14,6 +14,13 @@ rugsupport_DATA = 		\
 	rcutil.py		\
 	ximian_xmlrpclib.py
 
+
+if ENABLE_PATCHES
+patch_sources = rcyoucmds.py
+else
+patch_sources =
+endif
+
 rugcmdsdir = $(rugsupportdir)/commands
 rugcmds_DATA = 			\
 	rcchannelcmds.py	\
@@ -27,11 +34,9 @@ rugcmds_DATA = 			\
 	rcsystemcmds.py		\
 	rctransactcmds.py	\
 	rcusercmds.py		\
-	rcwhatcmds.py
+	rcwhatcmds.py		\
+	$(patch_sources)
 
-if ENABLE_PATCHES
-rugcmds_DATA += rcyoucmds.py
-endif
 
 EXTRA_DIST = $(rugsupport_DATA) $(rugcmds_DATA)
 
