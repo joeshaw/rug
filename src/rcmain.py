@@ -19,6 +19,7 @@
 
 import sys
 import string
+import getpass
 
 # For exception handling.
 import socket
@@ -99,6 +100,8 @@ def main(rc_version):
 
         if (opt_dict.has_key("password")):
             password = rcutil.md5ify_password(opt_dict["password"])
+        else:
+            password = rcutil.md5ify_password(getpass.getpass())
 
     else:
         url = "/tmp/rcd"
