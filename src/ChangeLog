@@ -1,5 +1,12 @@
 2002-07-17  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (find_local_package): Check to see if we're
+	local and stream the package down if we're not.
+	(get_local_file): Get rid of this.  It's icky here, and we can
+	just be smarter in the daemon about it.
+
+2002-07-17  Joe Shaw  <joe@ximian.com>
+
 	* rcmain.py (main): Declare local as global.
 
 	* rcpackagecmds.py (find_local_package): Return a valid

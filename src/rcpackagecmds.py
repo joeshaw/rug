@@ -96,8 +96,13 @@ def find_local_package(server, package):
         else:
             raise
 
+    if rcmain.local:
+        pdata = package
+    else:
+        pdata = ximian_xmlrpclib.Binary(open(package).read())
+
     try:
-        p = server.rcd.packsys.query_file(package)
+        p = server.rcd.packsys.query_file(pdata)
     except ximian_xmlrpclib.Fault, f:
         if f.faultCode == rcfault.package_not_found:
             return None
@@ -107,7 +112,11 @@ def find_local_package(server, package):
         else:
             raise
 
-    p["local_filename"] = package
+    if rcmain.local:
+        p["package_filename"] = pdata
+    else:
+        p["package_data"] = pdata
+        
     return p
 
 def get_updates(server, non_option_args):
@@ -676,7 +685,7 @@ class PackageInfoCmd(rccommand.RCCommand):
             if not p:
                 sys.exit(1)
 
-            pinfo = server.rcd.packsys.package_info(get_local_file(p))
+            pinfo = server.rcd.packsys.package_info(p)
 
             rctalk.message("")
             rctalk.message("Name: " + p["name"])
@@ -730,9 +739,6 @@ class PackageInfoCmd(rccommand.RCCommand):
                         rctalk.message(time_str + " " + action_str + " " + pkg_str)
 
 def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
-    packages_to_install = map(lambda x:get_local_file(x), packages_to_install)
-    packages_to_remove = map(lambda x:get_local_file(x), packages_to_remove)
-
     tid = server.rcd.packsys.transact(packages_to_install,
                                       packages_to_remove,
                                       ximian_xmlrpclib.Boolean(dry_run))
@@ -810,15 +816,6 @@ def format_dependencies(server, dep_list):
 
     rctalk.message("")
 
-def get_local_file(package):
-    if package.has_key("local_filename"):
-        if rcmain.local:
-            return package["local_filename"]
-        else:
-            return ximian_xmlrpclib.Binary(open(package["local_filename"]).read())
-    else:
-        return package
-
 ###
 ### Base class for all transaction-based commands
 ###
@@ -840,10 +837,7 @@ class TransactCmd(rccommand.RCCommand):
             if verify:
                 dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
             else:
-                ip = map(lambda x:get_local_file(x), install_packages)
-                rp = map(lambda x:get_local_file(x), remove_packages)
-                
-                dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(ip, rp, extra_reqs)
+                dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.failed_dependencies:
                 rctalk.error(f.faultString)
