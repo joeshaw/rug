@@ -1120,6 +1120,119 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
             if len(plist) > 1:
                 rctalk.message("")
 
+
+###
+### "info-children" command
+###
+
+class PackageInfoChildrenCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "info-children"
+
+    def aliases(self):
+        return ["ichild"]
+
+    def arguments(self):
+        return "<package> ..."
+
+    def description_short(self):
+        return "List a package set's children"
+
+    def category(self):
+        return "dependency"
+
+    def local_opt_table(self):
+        return [["i", "installed-providers", "", "If a required package is already installed, do not list alternatives (default)"],
+                ["a", "all-providers", "", "List all packages that can satisfy a requirement"],
+                ["v", "show-versions", "", "Display full version information for packages"],
+                ["",  "no-abbrev", "", "Do not abbeviate channel or version information"]]
+
+    def local_orthogonal_opts(self):
+        return [["installed-providers", "all-providers"]]
+
+    def execute(self, server, options_dict, non_option_args):
+
+        if len(non_option_args) < 1:
+            self.usage()
+            sys.exit(1)
+
+        no_abbrev = options_dict.has_key("no-abbrev")
+
+        plist = []
+
+        for a in non_option_args:
+            plist = plist + find_package(server, a, 1)
+
+        if not plist:
+            rctalk.message("--- No packages found ---")
+            sys.exit(1)
+
+        for pkg in plist:
+            dep_info = server.rcd.packsys.package_dependency_info(pkg)
+
+            if not dep_info.has_key("children"):
+                continue
+
+            table = []
+
+            row_spec = ["name", "channel"]
+            row_headers = ["Provided By", "Channel"]
+            pad = []
+
+            if options_dict.has_key("show-versions"):
+                row_spec.insert(1, "version")
+                row_headers.insert(1, "Version")
+                pad = pad + [""]
+
+            if options_dict.has_key("all-providers"):
+                row_spec.insert(2, "installed")
+                row_headers.insert(2, "S")
+                pad = pad + [""]
+
+            for dep in dep_info["children"]:
+                providers = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+                prov_dict = {}
+
+                name = rcformat.dep_to_str(dep)
+                status = "*"
+                for prov in providers:
+                    if prov["installed"]:
+                        status = ""
+
+                if status == "" \
+                       and not options_dict.has_key("all-providers"):
+                    providers = filter(lambda x:x["installed"], providers)
+
+
+                count = 0
+                for prov in providers:
+                    row = rcformat.package_to_row(server, prov, no_abbrev, row_spec)
+                    key = string.join(row)
+                    if not prov_dict.has_key(key):
+                        table.append([status, name] + row)
+                        prov_dict[key] = 1
+                        status = ""
+                        name = ""
+                        count = count + 1
+
+                if count == 0:
+                    table.append(["*", name, "** Unknown **", ""] + pad)
+                elif count > 1 and not rctalk.be_terse:
+                    table.append(["", "", "", ""] + pad)
+
+            if len(plist) > 1:
+                rctalk.message("--- %s %s ---" %
+                               (pkg["name"], rcformat.evr_to_str(pkg)))
+
+            if not table:
+                rctalk.message("--- No Children ---")
+            else:
+                rcformat.tabular(["!", "Requirement"] + row_headers, table)
+
+            if len(plist) > 1:
+                rctalk.message("")
+
         
 ###
 ### "info-conflicts" command
@@ -2046,6 +2159,7 @@ rccommand.register(SummaryCmd)
 rccommand.register(PackageInfoCmd)
 rccommand.register(PackageInfoProvidesCmd)
 rccommand.register(PackageInfoRequirementsCmd)
+rccommand.register(PackageInfoChildrenCmd)
 rccommand.register(PackageInfoConflictsCmd)
 rccommand.register(PackageInstallCmd)
 rccommand.register(PackageRemoveCmd)

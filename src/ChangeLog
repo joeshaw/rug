@@ -1,3 +1,11 @@
+2003-04-18  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageInfoRequirementsCmd): Added an
+	'info-children' (or 'ichild') command, which for now is just a
+	cut&paste of 'ir' with a few trivial changes.  This needs to fixed
+	up later, since the data displayed, column headers, etc.  are not
+	quite what they should be.
+
 2003-04-17  Jon Trowbridge  <trow@ximian.com>
 
 	* Made a number of small changes to deal with the fact that
