@@ -39,7 +39,10 @@ def install_indicator(server, package):
         return ""
 
 def append_to_table(server, package_table, p, multi, no_abbrev):
-    channel_name = rcchannelcmds.channel_id_to_name(server, p["channel"])
+    if not p["channel"]:
+        channel_name = ""
+    else:
+        channel_name = rcchannelcmds.channel_id_to_name(server, p["channel"])
 
     if no_abbrev:
         evr_fn = rcformat.evr_to_str
@@ -72,21 +75,33 @@ def sort_and_format_table(package_table, multi):
 
 def find_package_in_channel(server, channel, package):
     if channel != -1:
-        [package] = server.rcd.packsys.search([["name",      "is", package],
-                                               ["installed", "is", "false"],
-                                               ["channel",   "is", channel]])
+        plist = server.rcd.packsys.search([["name",      "is", package],
+                                           ["installed", "is", "false"],
+                                           ["channel",   "is", channel]])
+
+        if not plist:
+            return None;
+        else:
+            p = plist[0]
+            
         inform = 0
     else:
-        package = server.rcd.packsys.find_latest_version(package)
+        p = server.rcd.packsys.find_latest_version(package)
         inform = 1
 
-    return package, inform
+    return p, inform
 
 def find_package_on_system(server, package):
-    [package] = server.rcd.packsys.search([["name",      "is", package],
-                                           ["installed", "is", "true"]])
+    plist = server.rcd.packsys.search([["name",      "is", package],
+                                       ["installed", "is", "true"]])
 
-    return package
+    # We need exactly one match
+    if not plist or len(plist) > 1:
+        return None
+    else:
+        p = plist[0]
+
+    return p
 
 class PackageListCmd(rccommand.RCCommand):
 
@@ -152,6 +167,8 @@ class PackageSearchCmd(rccommand.RCCommand):
 
         package_table = [];
 
+        no_abbrev = options_dict.has_key("no-abbrev")
+
         search_type = "name"
         if options_dict.has_key("search-summary"):
             search_type = "summary"
@@ -180,7 +197,7 @@ class PackageSearchCmd(rccommand.RCCommand):
         # FIXME: Check for -p
         for p in packages:
             if (channel == -1 and p["channel"] != 0) or (channel == p["channel"]):
-                append_to_table(server, package_table, p, multi)
+                append_to_table(server, package_table, p, multi, no_abbrev)
 
         if package_table:
             sort_and_format_table(package_table, multi)
@@ -304,6 +321,45 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
 
         time.sleep(1)
 
+class PackageInfoCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "info"
+
+    def execute(self, server, options_dict, non_option_args):
+        for a in non_option_args:
+            channel = -1
+            package = None
+
+            off = string.find(a, ":")
+            if off != -1:
+                channel = a[:off]
+                package = a[off+1:]
+            else:
+                package = a
+
+            if channel == -1:
+                p = find_package_on_system(server, package)
+            else:
+                p, inform = find_package_in_channel(server, channel, package)
+
+            if not p:
+                rctalk.error("Unable to find package '" + package + "'")
+                sys.exit(1)
+
+            pinfo = server.rcd.packsys.package_info(p)
+
+            rctalk.message("Name: " + p["name"])
+            rctalk.message("Version: " + p["version"])
+            rctalk.message("Release: " + p["release"])
+            if pinfo.has_key("file_size"):
+                rctalk.message("Package size: 99" + str(pinfo["file_size"]))
+            if pinfo.has_key("installed_size"):
+                rctalk.message("Installed size: " + str(pinfo["installed_size"]))
+            rctalk.message("Summary: " + pinfo["summary"])
+            rctalk.message("Description: ")
+            rctalk.message("  " + pinfo["description"])
+
 class PackageInstallCmd(rccommand.RCCommand):
 
     def name(self):
@@ -366,5 +422,6 @@ class PackageRemoveCmd(rccommand.RCCommand):
 rccommand.register(PackageListCmd,    "List the packages in a channel")
 rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")
 rccommand.register(PackageUpdatesCmd, "List pending updates")
+rccommand.register(PackageInfoCmd,    "Show info on a package")
 rccommand.register(PackageInstallCmd, "Install a package")
 rccommand.register(PackageRemoveCmd,  "Remove a package")

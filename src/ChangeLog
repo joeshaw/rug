@@ -1,5 +1,10 @@
 2002-06-14  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageInfoCmd): Added.  Shows some detailed
+	package info, like rpm -qi
+
+2002-06-14  Joe Shaw  <joe@ximian.com>
+
 	* rcformat.py (evr_to_str, evr_to_abbrev_str): Changed to take a
 	package instead of an EVR triple.
 	(display_version): Remove, replaced by the above two.
