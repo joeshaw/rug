@@ -2,6 +2,8 @@
 
 	* rcchannelcmds.py (ListChannelsCmd.execute): Display aliases
 	when listing the channels.
+	(RefreshChannelCmd.execute): Only print the "Download complete"
+	message once, not once per channel.
 
 	* rcchannelutils.py (get_channel_alias): An accessor for the
 	alias, with some (hackish) fallback code to create aliases if none

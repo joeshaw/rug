@@ -274,7 +274,7 @@ class RefreshChannelCmd(rccommand.RCCommand):
                     if polling:
                         time.sleep(0.4)
 
-                    rctalk.message_finished("Download complete")
+                rctalk.message_finished("Download complete")
 
             except KeyboardInterrupt:
 
