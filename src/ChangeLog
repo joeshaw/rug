@@ -1,5 +1,8 @@
 2002-07-03  Jon Trowbridge  <trow@ximian.com>
 
+	* rcformat.py (pending_to_str): Added code to show the
+	average download speed on the status line.
+
 	* rcpackagecmds.py (SummaryCmd): Added "summary" command.
 
 2002-07-03  Joe Shaw  <joe@ximian.com>

@@ -215,12 +215,12 @@ def pending_to_str(p):
     pc = p["percent_complete"]
     msg = "%3d%%" % pc
 
-    hash_max = 25
+    hash_max = 14
     hash_count = int(hash_max * pc / 100)
     hashes = "#" * hash_count + "-" * (hash_max - hash_count)
 
     msg = msg + " " + hashes
-    
+
     if p.has_key("completed_size") and p.has_key("total_size"):
         cs = bytes_to_str(p["completed_size"])
         ts = bytes_to_str(p["total_size"])
@@ -239,6 +239,10 @@ def pending_to_str(p):
                     rem = p["remaining_sec"]
                     if rem >= 0:
                         msg = msg + ", " + seconds_to_str(rem) + " remaining"
+
+                if elap > 0 and p.has_key("completed_size"):
+                    rate = p["completed_size"] / elap
+                    msg = msg + ", " + bytes_to_str(rate) + "/s"
 
     else:
 
