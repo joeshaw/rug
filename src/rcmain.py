@@ -61,6 +61,8 @@ def main(ver):
 
     argv = sys.argv[1:]
 
+    argv = rccommand.expand_synthetic_args(argv)
+
     if "--version" in argv:
         print
         print rc_name + " " + rc_version
@@ -74,6 +76,7 @@ def main(ver):
         command.usage()
         sys.exit(0)
 
+    argv = rccommand.get_user_default_args(argv)
 
     opt_dict, args = command.process_argv(argv)
 

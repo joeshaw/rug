@@ -1,3 +1,19 @@
+2002-09-18  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmain.py (main): Cal expand_synthetic_args first.  This means
+	that there is much more latitude in what can be done with
+	--read-from-stdin and --read-from-file.  We now call
+	get_user_default_args at the point that we previously called
+	expand_synthetic_args.
+
+	* rccommand.py (get_user_default_args): Broken out from
+	expand_synthetic_args.  This is the code that handles the .rcrc
+	files and RC_ARGS environment variable.
+	(expand_synthetic_args): This code now just handles
+	--read-from-file and --read-from-stdin.  Both of these options now
+	have much saner sematics.  (This all fixes bugs #30496 and
+	#30497.)
+
 2002-09-18  Joe Shaw  <joe@ximian.com>
 
 	* rcusercmds.py: Show success/failure on adding or deleting users,

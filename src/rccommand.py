@@ -242,10 +242,10 @@ def extract_command_from_argv(argv):
     return command
 
 ###
-### Handle .rcrc, RC_ARGS, --read-from-file and --read-from-stdin
+### Handle .rcrc and RC_ARGS
 ###
 
-def expand_synthetic_args(argv, command_name):
+def get_user_default_args(argv, command_name):
 
     # We add arguments to the beginning of argv.  This means we can
     # override an magically added arg by explicitly putting the
@@ -283,27 +283,89 @@ def expand_synthetic_args(argv, command_name):
         args = string.split(os.environ["RC_ARGS"])
         argv = join_args(args, argv)
 
-    # FIXME: Should support --read-from-file=foo.txt syntax!
-    if "--read-from-file" in argv:
-        i = argv.index("--read-from-file") + 1
-        if i < len(argv):
-            filename = argv[i]
+    return argv
+
+###
+### Handle --read-from-file and --read-from-stdin
+###
+
+def expand_synthetic_args(argv):
+
+    ###
+    ### First, walk across our argument list and find any --read-from-file
+    ### options.  For each, read the arguments from the file and insert
+    ### them directly after the --read-from-file option.
+    ###
+    
+    i = 0
+    is_file_to_read_from = 0
+    while i < len(argv):
+        arg = argv[i]
+        file_to_read = None
+        if is_file_to_read_from:
+            file_to_read = arg
+            is_file_to_read_from = 0
+        if arg == "--read-from-file":
+            is_file_to_read_from = 1
+        elif string.find(arg, "--read-from-file=") == 0:
+            file_to_read = arg[len("--read-from-file="):]
+            is_file_to_read_from = 0
+
+        if file_to_read:
             lines = []
             try:
-                f = open(filename, "r")
-                lines = f.readlines()
+                f = open(file_to_read, "r")
+                lines = map(string.strip, f.readlines())
             except IOError:
-                rctalk.error("Couldn't open file '" + filename + "'")
+                rctalk.error("Couldn't open file '%s' to read arguments" % file_to_read)
                 sys.exit(1)
-            argv = join_args(argv, lines)
-        else:
-            rctalk.error("No filename provided for --read-from-file option")
-            sys.exit(1)
+            argv = argv[:i] + lines + argv[i+1:]
+            i = i + len(lines)
 
-    if "--read-from-stdin" in argv:
-        lines = sys.stdin.readlines()
-        argv = join_args(argv, lines)
+        i = i + 1
 
+    ###
+    ### Next, look for --read-from-stdin options.  If there is more than
+    ### one on the command line, we split our list of options on blank
+    ### lines.
+    ###
+
+    rfs_count = argv.count("--read-from-stdin")
+    if rfs_count > 0:
+        lines = map(string.strip, sys.stdin.readlines())
+
+        i = 0  # position in argv
+        j = 0  # position in lines
+        while i < len(argv):
+
+            if argv[i] == "--read-from-stdin":
+
+                if j < len(lines):
+                    if rfs_count > 1 and "" in lines[j:]:
+                        j1 = j + lines[j:].index("")
+                        argv = argv[:i+1] + lines[j:j1] + argv[i+1:]
+                        j = j1+1
+                    else:
+                        argv = argv[:i+1] + \
+                               filter(lambda x:x!="", lines[j:]) + \
+                               argv[i+1:]
+                        j = len(lines)
+
+                        
+                rfs_count = rfs_count - 1
+
+            i = i + 1
+
+    ###
+    ### Finally, we filter our all of those --read-from-* arguments
+    ### that we left lying around in argv.
+    ###
+
+    argv = filter(lambda x: \
+                  string.find(x,"--read-from-file") != 0 \
+                  and x != "--read-from-stdin",
+                  argv)
+                        
     return argv
 
 
@@ -399,7 +461,7 @@ class RCCommand:
         ### in something easy-to-use.
         ###
 
-        argv = expand_synthetic_args(argv, self.name())
+        argv = get_user_default_args(argv, self.name())
 
         opt_table = self.opt_table()
 
