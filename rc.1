@@ -51,7 +51,7 @@ List the locks that have been put in place. Locks are sorted by ID number.
 
 .TP 
 packages \fI<"channelname">\fR\fR
-List all installed packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
+List all packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
  
 .TP  
 remove (rm, erase) \fI<packagename>\fR
@@ -130,6 +130,39 @@ List the system preferences that may be set.
 .TP 
 set\-prefs (set) \fI<key>  \fI<value>\fR         
 Set the preference variable \fIkey\fRto the value \fI<value>\fR.
+Values that may be set are:
+.IP 
+\fBhost:\fR The URL of the Red Carpet Server you will be using.
+.IP                                             
+\fBenable\-premium:\fR If the value is true, the server is an Enterprise, CorporateConnect, or Express server.
+.IP      
+\fBproxy\-url:\fR URL for the proxy server, if any.
+.IP 
+\fBproxy\-username:\fR Username for the proxy, if any.
+.IP 
+\fBproxy\-password:\fR Password for the proxy, if any.                             
+.IP 
+\fBhttp\-1.0:\fR Use the HTTP/1.0 protocol for communications with the server. Defaults to False.
+.IP 
+\fBcache\-enabled:\fR If True, cache downloaded packages and metadata. Defaults is True.
+.IP 
+\fBcache\-directory:\fR The directory where cached data are stored. Default is /var/cache/redcarpet.
+.IP 
+\fBcache\-cleanup\-enabled:\fR Delete old packages from the cache. Default is True. 
+.IP 
+\fBcache\-max\-age\-in\-days:\fR The number of days to leave packages in the cache (if cache\-cleanup\-enabled is true). Default is 30.
+.IP 
+\fBcache\-max\-size\-in\-mb:\fR Maximum size of the cache before cleanup (if cleanup is enabled). Default is 300.
+.IP 
+\fBrequire\-signatures:\fR Require packages be signed before installing.         
+.IP 
+\fBheartbeat\-interval:\fR The interval in seconds between automatic refreshes of server data (in seconds). The default is 21600.
+.IP 
+\fBmax\-downloads:\fR Maximum number of concurrent package downloads. Default value is 5.
+.IP 
+\fBdebug\-level:\fR Verbosity of debugging output to stderr. Values may be from 0 (none) to 6 (lots).
+.IP 
+\fBsyslog\-level:\fR Verbosity of logging output saved in syslog. Values may be from 0 (none) to 6 (lots).
 
 .LP 
 \fBSystem commands:\fR
@@ -347,7 +380,7 @@ Many rc commands have options which apply only to them.  They are listed here al
 
 .B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
 .br 
-.B \fI\-i, \-\-installed\-only \fR:   Show only installed packages (default).
+.B \fI\-i, \-\-installed\-only \fR:   Show only installed packages. This is the default behavior if no channel is specified.
 .B \fI\-u, \-\-uninstalled\-only\fR:  Show only uninstalled packages
 .B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
 .br 

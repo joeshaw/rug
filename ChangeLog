@@ -1,5 +1,9 @@
 2002-12-03 Aaron Weber <aaron@ximian.com>
 
+	* rc.1: Updated rc set to describe values that can be set.
+	
+2002-12-03 Aaron Weber <aaron@ximian.com>
+
 	* rc.1: Updated see also section, and the rc packages options. 
 
 2002-12-03  Joe Shaw  <joe@ximian.com>
