@@ -1,3 +1,8 @@
+2003-05-16  Joe Shaw  <joe@ximian.com>
+
+	* rcusercmds.py (get_privileges): Handle spaces between "+"/"-"
+	and the privilege name.  Fixes #43142.
+
 2003-05-14  Jon Trowbridge  <trow@ximian.com>
 
 	* rcformat.py (package_to_row): If the package is actually a

@@ -92,6 +92,22 @@ def get_privileges(initial, in_legal):
         if not changes:
             return current.keys()
 
+        # Yuck.  Handle spaces between "+"/"-" and priv name
+        max = len(changes)
+        filter = []
+        i = 0
+        while i < max:
+            # If "+" or "-" is by itself and not the last thing on the line
+            if changes[i] in ("+", "-") and i+1 < max:
+                filter.append(changes[i] + changes[i+1])
+                i += 1
+            else:
+                filter.append(changes[i])
+
+            i += 1
+
+        changes = filter
+        
         for change in changes:
             x = string.lower(change)
             valid = 0
