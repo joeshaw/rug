@@ -232,6 +232,10 @@ class PackagesCmd(rccommand.RCCommand):
         else:
             query = [["installed", "=", "true"]]
 
+        if not query:
+            rctalk.error("No valid channels specified")
+            sys.exit(1)
+
         packages = server.rcd.packsys.search(query)
 
         if options_dict.has_key("sort-by-channel"):
@@ -1043,6 +1047,11 @@ class TransactCmd(rccommand.RCCommand):
 
         if verify and not dep_install and not dep_remove:
             rctalk.message("System dependency tree verified successfully.")
+            return
+        elif extra_reqs and not dep_install and not dep_remove:
+            rctalk.message("Requirements are already met on the system.  No "
+                           "packages need to be")
+            rctalk.message("installed or removed.")
             return
 
         if install_packages:
