@@ -94,6 +94,9 @@ class UnmountCmd(rccommand.RCCommand):
     def name(self):
         return "unmount"
 
+    def aliases(self):
+        return ["umount"]
+
     def description_short(self):
         return "Unmount a directory that has been mounted as a channel"
 

@@ -1,3 +1,8 @@
+2003-04-02  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmountcmds.py (UnmountCmd.aliases): Make 'umount' an alias for
+	'unmount'.
+
 2003-03-31  Jon Trowbridge  <trow@ximian.com>
 
 	* rcprefscmds.py (PrefsListCmd): Added.  Implements the "mirrors"
