@@ -25,12 +25,14 @@ import socket
 import cgiwrap
 
 import ximian_xmlrpclib
+import rcutil
 import rctalk
 import rccommand
 import rcfault
 import rcsystemcmds
 import rcchannelcmds
 import rcpackagecmds
+import rcusercmds
 import rcwhatcmds
 import rclogcmds
 import rcnewscmds
@@ -41,15 +43,6 @@ rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
 
 # Whether we are connecting over Unix domain sockets or TCP.
 local = 0
-
-# Python 1.5 doesn't have hexdigest() for md5.  blah.
-def hexstr(s):
-    h = string.hexdigits
-    r = ''
-    for c in s:
-        i = ord(c)
-        r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
-    return r
 
 def main(rc_version):
 
@@ -105,9 +98,8 @@ def main(rc_version):
             username = opt_dict["user"]
 
         if (opt_dict.has_key("password")):
-            import md5
-            
-            password = hexstr(md5.new(opt_dict["password"]).digest())
+            password = rcutil.md5ify_password(opt_dict["password"])
+
     else:
         url = "/tmp/rcd"
 

@@ -1,3 +1,11 @@
+2002-07-12  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmain.py: Removed hexstr, changed to use md5ify_password.
+
+	* rcutil.py: Added.  Currently contains just the hexstr function
+	(moved from rcmain.py) and an md5ify_password convenience
+	function.
+
 2002-07-12  Joe Shaw  <joe@ximian.com>
 
 	* rcfault.py: Added.  A mapping of fault codes to something a
