@@ -29,7 +29,7 @@ rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section
 \fBPackage management commands:\fR
 .TP 
 info \fI<packagename>\fR 
-Show detailed information about a package. Multiple packages may be listed, separated by spaces.
+Show detailed information about a package. Multiple packages may be listed, separated by spaces.  
 
 .TP 
 install \fI<packagename>\fR\fR
@@ -85,7 +85,7 @@ List all packages that conflict with \fIpackagename.\fR
 
 .TP 
 info\-provides (ip)  \fI<packagename>\fR
-Display the functionality or libraries that a package provides.
+Display the functionality or libraries that a package provides. If you wish to specify a particular channel from which to get the package, use the syntax [channel alias + ':']<package name> as is described in the EXAMPLES section.
 
 .TP 
 info\-requirements (ir)  \fI<packagename>\fR
@@ -425,6 +425,10 @@ This will operate in verbose mode and contact the rcd daemon on the specified ho
 .TP 
 \fBrc solvedeps \fI"library.so.1" "application < 1.2"\fR
 Installs the package that provides \fIlibrary.so.1\fR and a version of \fIapplication\fR lower than 1.2.
+
+.TP 
+\fBrc info\-provides mychannel:mypackage</fR>
+Displays the functionality provided by the "mypackage" software from "mychannel."
 .SH "AUTHORS"
 .LP 
 Copyright 2002 Ximian, Inc.
