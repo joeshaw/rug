@@ -1,5 +1,15 @@
 2002-06-28  Jon Trowbridge  <trow@ximian.com>
 
+	* rcmain.py: Strip out comments when processing the .rcrc file.
+	Catch IOError exceptions when opening a file for the
+	--read-from-file option.  Use join_args instead of add_args in
+	"--read-from-stdin".
+
+	* rcnewscmds.py: Added.  Implements a no-frills
+	"news" command.
+
+2002-06-28  Jon Trowbridge  <trow@ximian.com>
+
 	* rcpackagecmds.py (PackagesCmd.local_orthogonal_opts): Added.
 	(PackagesCmd.execute): Don't use "str" as a variable name.
 	Use the string->channel functions from rcchannelcmds.py

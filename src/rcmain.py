@@ -33,6 +33,7 @@ import rcsystemcmds
 import rcchannelcmds
 import rcpackagecmds
 import rclogcmds
+import rcnewscmds
 
 rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
@@ -108,13 +109,24 @@ def main(rc_version):
             rcrc = open(os.path.expanduser("~/.rcrc"), "r")
             while 1:
                 line = rcrc.readline()
+
+                # strip out comments
+                hash_pos = string.find(line, "#")
+                if hash_pos >= 0:
+                    line = line[0:hash_pos]
+
+                # skip empty lines
                 if not line:
                     break
+                
                 pieces = string.split(line)
                 if len(pieces) and pieces[0] == command.name():
                     argv = join_args(pieces[1:], argv)
             rcrc.close()
+            
         except IOError:
+            # If we can't open the .rcrc file, that is fine... just
+            # continue as if nothing happened.
             pass
         
 
@@ -127,9 +139,13 @@ def main(rc_version):
         i = argv.index("--read-from-file") + 1
         if i < len(argv):
             filename = argv[i]
-            f = open(filename, "r")
-            # FIXME: error checking!
-            lines = f.readlines()
+            lines = []
+            try:
+                f = open(filename, "r")
+                lines = f.readlines()
+            except IOError:
+                rctalk.error("Couldn't open file '" + filename + "'")
+                sys.exit(1)
             argv = join_args(lines, argv)
         else:
             rctalk.error("No filename provided for --read-from-file option")
@@ -137,7 +153,7 @@ def main(rc_version):
 
     if "--read-from-stdin" in argv:
         lines = sys.stdin.readlines()
-        argv = add_args(lines, argv)
+        argv = join_args(lines, argv)
 
     ###
     ### Find the list of command line options associated with the command.
