@@ -1239,6 +1239,9 @@ class PackageUpdateAllCmd(TransactCmd):
     def category(self):
         return "basic"
 
+    def aliases(self):
+        return ["ua"]
+
     def arguments(self):
         return "<channel> <channel> ..."
 

@@ -1,3 +1,7 @@
+2002-07-27  Ian Peters  <itp@ximian.com>
+
+	* rcpackagecmds.py: add "ua" as an alias to update-all
+
 2002-07-26  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py: Handle socket.sslerror as well.
