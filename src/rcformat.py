@@ -122,3 +122,20 @@ def tabular(headers, table):
     for r in table:
         print row_to_string(r, col_sizes)
 
+###
+### Code for displaying versions of packages
+###
+def display_version(package):
+    version = ""
+    
+    if package["epoch"]:
+        version = version + str(package["epoch"]) + ":"
+
+    version = version + package["version"]
+
+    if package["release"]:
+        version = version + "-" + package["release"]
+
+    return version
+
+        

@@ -1,5 +1,15 @@
 2002-06-10  Joe Shaw  <joe@ximian.com>
 
+	* rcformat.py (display_version): Added.  Outputs a correctly
+	formatted version.
+
+	* rcpackagecmds.py: Use rcformat.display_version() throughout
+	(find_package): Added.  Does a query based on a package name and
+	optional channel.
+	(PackageInstallCmd): Added.  Incomplete and kind of broken.
+
+2002-06-10  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageListCmd): If no channels are specified,
 	list the system packages.  Only show the "channel" field if there
 	is more than one channel specified.

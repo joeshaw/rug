@@ -16,6 +16,7 @@
 ###
 
 import sys
+import string
 import rctalk
 import rcformat
 import rccommand
@@ -51,7 +52,7 @@ def append_to_table(server, package_table, p, multi):
     row = [install_indicator(server, p),
            str(p["channel"]),
            p["name"],
-           p["version"] + "-" + p["release"]];
+           rcformat.display_version(p)]
 
     if multi:
         package_table.append(row)
@@ -67,7 +68,21 @@ def sort_and_format_table(package_table, multi):
     else:
         package_table.sort(lambda x, y:cmp(x[1],y[1]))
         rcformat.tabular(header[:1]+header[2:], package_table)
-                         
+
+def find_package(server, channel, package):
+    query = [["name", "is", package], ["installed", "is", "false"]]
+
+    if channel != -1:
+        query.append(["channel", "is", channel])
+
+    packages = server.rcd.packsys.query(query)
+
+    # FIXME: This is wrong; we should be doing a real version compare here.
+    packages.sort(lambda x, y:cmp(rcformat.display_version(y),
+                                  rcformat.display_version(x)))
+
+    return packages[0]
+
 class PackageListCmd(rccommand.RCCommand):
 
     def name(self):
@@ -143,7 +158,7 @@ class PackageSearchCmd(rccommand.RCCommand):
         
         # FIXME: Check for -p
         for p in packages:
-            package_table.append([install_indicator(server, p), str(p["channel"]), p["name"], p["version"] + "-" + p["release"]])
+            package_table.append([install_indicator(server, p), str(p["channel"]), p["name"], rcformat.display_version(p)])
 
         if package_table:
             package_table.sort(lambda x, y:cmp(x[2],y[2]))
@@ -151,5 +166,39 @@ class PackageSearchCmd(rccommand.RCCommand):
         else:
             rctalk.message("--- No packages found ---")
 
+class PackageInstallCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "install"
+
+    def execute(self, server, options_dict, non_option_args):
+        packages_to_install = []
+        
+        for a in non_option_args:
+            channel = -1
+            package = None
+
+            off = string.find(a, ":")
+            if off != -1:
+                channel = a[:off]
+                package = a[off+1:]
+            else:
+                package = a
+
+            p = find_package(server, channel, package)
+
+            if not p:
+                rctalk.error("Unable to find package '" + package + "'")
+                sys.exit(1)
+                
+            packages_to_install.append(p)
+
+        if not packages_to_install:
+            rctalk.message("--- No packages to install ---")
+            sys.exit(0)
+
+        server.rcd.packsys.transact(packages_to_install, [])
+
 rccommand.register(PackageListCmd, "List the packages in a channel")
 rccommand.register(PackageSearchCmd, "Search for packages matching criteria")
+rccommand.register(PackageInstallCmd, "Install a package")
