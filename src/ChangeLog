@@ -1,3 +1,20 @@
+2002-07-01  Jon Trowbridge  <trow@ximian.com>
+
+	* rcformat.py (pending_to_str): Make our pending status line
+	look nicer.
+
+	* rcnewscmds.py (textify_entities): Added.  Try to do something
+	smart if our string contains an entity.
+	(NewsCmd.execute): Pass strings through textify_entities before
+	printing them.
+
+	* rcpackagecmds.py (transact_and_poll): Things feel "snappier"
+	if we poll more frequently during the download.
+
+	* rclogcmds.py: Substantially reworked.  Added some more
+	query-related options and added three different ways of formatting
+	output corresponding to "normal", --verbose and --terse mode.
+	
 2002-07-01  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py: Make local a file-global variable, so we can see if

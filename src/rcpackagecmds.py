@@ -481,7 +481,7 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
             
             if tid_info["percent_complete"] > download_percent:
                 download_percent = tid_info["percent_complete"]
-                progress_msg = "Download " + rcformat.pending_to_str(tid_info)
+                progress_msg = rcformat.pending_to_str(tid_info)
                 rctalk.message_status(progress_msg)
 
             if tid_info["status"] != "running":
@@ -497,7 +497,7 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
             if tid_info["status"] == "finished" or tid_info["status"] == "failed":
                 break
 
-            time.sleep(1)
+            time.sleep(0.4)
         except KeyboardInterrupt:
             if tid_info and tid_info["status"] == "running":
                 rctalk.message("Aborting download...")

@@ -17,10 +17,31 @@
 
 import sys
 import string
+import re
 import rctalk
 import rcformat
 import rccommand
 import ximian_xmlrpclib
+
+entity_dict = { "copy":"(C)",
+                "reg":"(R)" }
+
+entity_regex = re.compile("\&\w+\;")
+
+def textify_entities(in_str):
+    s = in_str
+    while 1:
+        x = entity_regex.search(s)
+        if not x:
+            return s
+        i = x.start(0)
+        j = x.end(0)
+        entity = s[i+1:j-1]
+        if entity and entity_dict.has_key(entity):
+            entity = entity_dict[entity]
+        else:
+            entity = "("+entity+")"
+        s = s[:i] + entity + s[j:]
 
 class NewsCmd(rccommand.RCCommand):
 
@@ -49,11 +70,11 @@ class NewsCmd(rccommand.RCCommand):
 
         for n in news:
             if n.has_key("title"):
-                rctalk.message(n["title"])
+                rctalk.message(textify_entities(n["title"]))
             if n.has_key("time_str"):
                 rctalk.message("("+n["time_str"]+")")
             if n.has_key("summary"):
-                lines = rcformat.linebreak(n["summary"], 75)
+                lines = rcformat.linebreak(textify_entities(n["summary"]), 75)
                 for l in lines:
                     rctalk.message(l)
             if n.has_key("url"):

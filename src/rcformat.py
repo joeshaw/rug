@@ -17,6 +17,7 @@
 
 import string
 import re
+import time
 import rctalk
 
 ###
@@ -125,8 +126,14 @@ def abbrev_importance(str):
 def pending_to_str(p):
 
     pc = p["percent_complete"]
-    msg = str(int(pc)) + "% complete"
+    msg = "%3d%%" % pc
 
+    hash_max = 25
+    hash_count = int(hash_max * pc / 100)
+    hashes = "#" * hash_count + "-" * (hash_max - hash_count)
+
+    msg = msg + " " + hashes
+    
     if p.has_key("completed_size") and p.has_key("total_size"):
         cs = p["completed_size"]
         ts = p["total_size"]
