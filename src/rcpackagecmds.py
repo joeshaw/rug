@@ -73,40 +73,28 @@ class PackagesCmd(rccommand.RCCommand):
         multiple_channels = 1
 
         query = []
-        if non_option_args:
-
-            clist = []
+        clist = []
             
-            for a in non_option_args:
+        for a in non_option_args:
 
-                    cl = rcchannelutils.get_channels_by_name(server, a)
+                cl = rcchannelutils.get_channels_by_name(server, a)
 
-                    if rcchannelutils.validate_channel_list(a, cl):
-                        clist = clist + cl
+                if rcchannelutils.validate_channel_list(a, cl):
+                    clist = clist + cl
 
-            query = map(lambda c:["channel", "=", c["id"]], clist)
+        query = map(lambda c:["channel", "=", c["id"]], clist)
 
-            if len(clist) > 1:
-                query.insert(0, ["", "begin-or", ""])
-                query.append(["", "end-or", ""])
+        if len(clist) > 1:
+            query.insert(0, ["", "begin-or", ""])
+            query.append(["", "end-or", ""])
 
-            if options_dict.has_key("installed-only"):
-                query.append(["name-installed", "=", "true"])
-            elif options_dict.has_key("uninstalled-only"):
-                query.append(["package-installed", "=", "false"])
+        if options_dict.has_key("installed-only"):
+            query.append(["name-installed", "=", "true"])
+        elif options_dict.has_key("uninstalled-only"):
+            query.append(["package-installed", "=", "false"])
 
-            if len(clist) == 1:
-                multiple_channels = 0
-
-        else:
-            if options_dict.has_key("uninstalled-only"):
-                query = [["name-installed", "=", "false"]]
-            else:
-                query = [["installed", "=", "true"]]
-
-        if not query:
-            rctalk.error("No valid channels specified")
-            sys.exit(1)
+        if len(clist) == 1:
+            multiple_channels = 0
 
         packages = server.rcd.packsys.search(query)
 

@@ -177,7 +177,7 @@ def package_to_row(server, pkg, no_abbrev, key_list):
             if id:
                 val = rcchannelutils.channel_id_to_name(server, id)
             else:
-                val = "unknown"
+                val = "(none)"
 
             if not no_abbrev:
                 val = abbrev_channel_name(val)
