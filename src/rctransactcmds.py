@@ -444,7 +444,7 @@ class PackageInstallCmd(TransactCmd):
                         dups = filter(lambda x, pn=p:x["name"] == pn["name"],
                                       packages_to_install)
 
-                        if dups:
+                        if dups and not options_dict.has_key("download-only"):
                             rctalk.error("Duplicate entry found: " +
                                          dups[0]["name"])
                             sys.exit(1)
