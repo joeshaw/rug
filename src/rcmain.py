@@ -197,6 +197,7 @@ def main(ver):
         if e.errcode == 401:
             rctalk.error("Unable to authenticate with the daemon; you must")
             rctalk.error("provide a username and password")
+            sys.exit(1)
         else:
             raise
     except ximian_xmlrpclib.Fault, f:
@@ -206,6 +207,7 @@ def main(ver):
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
             raise
+        sys.exit(1)
     except NotImplementedError:
         rctalk.error("This system's python is built without SSL support.  SSL is required for remote connections")
         sys.exit(1)
