@@ -53,11 +53,15 @@ List the locks that have been put in place. Locks are sorted by ID number.
 packages \fI<"channelname">\fR\fR
 List all packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
 <LI>
-The output for this command is in three columns. The first column indicates the status, the second the name of the package, and the third the version of the package. The package status column will be empty if the package is not installed, and will show "i" if the package is installed, or "v" if the package is installed but is a different version from the one displayed in the list.
+The output for this command is in three columns. The first column indicates the status, the second the name of the package, and the third the version of the package. The package status column will be empty if the package is not installed, and will show "i" if the package is installed, or "v" if the package is installed but is a different version from the one displayed in the list. If a package is locked (see the entries for the rc commands lock\-add, lock\-delete, and lock\-list), the status column will also display an L.
  
 .TP  
 remove (rm, erase) \fI<packagename>\fR
 Remove packages. Both \fIrm\fR and \fIerase\fR are equivalents.
+
+.TP 
+rollback (ro) \fI[options] <packagename>\fR
+Downgrade to the previous version of a package. To use this command you must use "rc set" to set the "repackage" variable in the [System] section of rcd.conf to "true" (see rcd.conf(5) for more information). Caveats: this feature only works on systems using RPM version 4.0.4 or greater,  will cause upgrades and removals to be very slow, and uses significant amounts of disk space.
 
 .TP 
 search \fI<querystring>\fR
@@ -131,8 +135,7 @@ List the system preferences that may be set.
 
 .TP 
 set\-prefs (set) \fI<key> <value>\fR         
-Set the preference variable \fIkey\fR to the value \fI<value>\fR.
-Values that may be set are:
+Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are normally stored in the rcd.conf file (see rcd.conf(5) for more information), and can be changed by editing that file directly. However, additional Red Carpet modules can create additional settings which are not necessarily kept in rcd.conf but which are still set with the rc set.  The base set of options is:
 .IP 
 \fBhost:\fR The URL of the Red Carpet Server you will be using.
 .IP                                             
@@ -188,6 +191,11 @@ Ping the rcd process on the server. If no server is specified, the current serve
 .TP 
 refresh
 Refresh channel data for all channels.
+
+.TP 
+recurring
+Display information about recurring events, including both AutoPull and heartbeat (automatic channel refresh).  The command provides the label for the transaction, the total number of times it has occurred, and the date and time of the next and previous transactions. 
+
 .TP 
 shutdown
 Halt the server's rcd process.
@@ -391,6 +399,14 @@ Many rc commands have options which apply only to them.  They are listed here al
 .TP 
 \fBrc remove\fR <\fIpackagename\fR>
 .B \fI\-y, \-\-no\-confirmation\fR: Perform the actions with no confirmation.
+
+.TP 
+\fBrc rollback\fR <\fIpackagename\fR>
+.B \fI\-N, \-\-dry\-run\fR: Do not actually perform requested actions
+.br 
+.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmations
+.br 
+.B \fI\-d, \-\-allow\-removals\fR: Permit removal of software without confirmation
 
 .TP 
 \fBrc search\fR <\fIquerystring\fR>
