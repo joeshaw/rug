@@ -52,12 +52,12 @@ summary (sum)
 Display a summary of available updates.
 
 .TP 
-list\-updates (lu)
-List all available updates.
+list\-updates (lu) [channelname] [channelname]
+List updates in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates.
 
 .TP 
-update (up)
-Download and install updates.  With no arguments, this will get all updates for subscribed channels. With the \-\-channel flag, you can choose one channel at a time.  For single packages, use rc install.
+update (up) [channelname] [channelname]
+Download and install updates.  With no arguments, this will get all updates for subscribed channels. To choose specific channels, list them as arguments, separated by spaces.  For single packages, use rc install. If you are not subscribed to a channel, it will never have updates available; you must subscribe to install updates. If you want to install or update software from a channel to which you are not subscribed, use rc install with the \-u option.
 
 .TP 
 verify
@@ -283,6 +283,13 @@ Many rc commands have options which apply only to them.  They are listed here al
 .B  \fI\-u, \-\-unsubscribed\-only\fR: Show news only for channels to which you are not subscribed.
 
 .TP 
+\fBrc list\-updates (lu)\fR
+.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
+.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
+.br 
+.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
+
+.TP 
 \fBrc packages\fR <\fIchannelname\fR>
 .B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
 .br 
@@ -334,21 +341,19 @@ Output Options:
 .B \fI\-\-no\-abbrev\fR: Do not abbreviate channel names or importance levels.
 
 .TP 
+\fBrc update (up)\fR <\fIchannel\fR>
+.B \fI\-N, \-\-dry\-run\fR: Do not actually perform requested actions
+.br 
+.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmations
+.br 
+.B \fI\-d, \-\-allow\-removals\fR: Permit removal of software without confirmation
+.br 
+.B \fI\-i, \-\-importance=<importance>\fR: Only install updates as or more important than
+the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
+
+.TP 
 \fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
 .B \fI\-s, \-\-strict\fR: Fail if attempting to unsubscribe from a channel to which you are not subscribed.
-
-.TP 
-\fBrc update\-all\fR
-.B \fI\-d, \-\-allow\-removals\fR: Permit rc to remove software without confirmation.
-.B \fI\-y, \-\-no\-confirmation\fR: Perform all actions with no confirmation.
-
-.TP 
-\fBrc updates (up)\fR
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-
 
 .TP 
 \fBrc user\-add\fR
