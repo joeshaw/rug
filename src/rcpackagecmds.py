@@ -22,6 +22,7 @@ import rctalk
 import rcformat
 import rccommand
 import rcchannelcmds
+import ximian_xmlrpclib
 
 def get_packages(server, channel):
     return server.rcd.packsys.search([["channel","is",str(channel["id"])]])
@@ -80,13 +81,19 @@ def find_package_in_channel(server, channel, package):
                                            ["channel",   "is", channel]])
 
         if not plist:
-            return None;
+            return None
         else:
             p = plist[0]
             
         inform = 0
     else:
-        p = server.rcd.packsys.find_latest_version(package)
+        try:
+            p = server.rcd.packsys.find_latest_version(package)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -601:
+                p = None
+            else:
+                raise
         inform = 1
 
     return p, inform
@@ -425,6 +432,10 @@ class PackageInstallCmd(rccommand.RCCommand):
 
         dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
 
+        if rctalk.show_verbose:
+            rctalk.message("The following requested packages will be installed:")
+            format_dependencies(packages_to_install)
+
         if dep_install:
             rctalk.message("The following additional packages will be installed:")
             format_dependencies(dep_install)
@@ -470,6 +481,10 @@ class PackageRemoveCmd(rccommand.RCCommand):
             sys.exit(0)
 
         dep_install, dep_remove = server.rcd.packsys.resolve_dependencies([], packages_to_remove)
+
+        if rctalk.show_verbose:
+            rctalk.message("The following requested packages will be REMOVED:")
+            format_dependencies(packages_to_remove)
 
         if dep_install:
             rctalk.message("The following additional packages will be installed:")

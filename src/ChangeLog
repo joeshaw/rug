@@ -1,5 +1,17 @@
 2002-06-21  Joe Shaw  <joe@ximian.com>
 
+	* rcmain.py (main): If we don't get the HTTP error code or XML-RPC
+	fault code we want, don't raise a new exception, just call "raise"
+	with no arguments and it'll re-raise the current exception, stack
+	trace and all.
+
+	* rcpackagecmds.py (find_package_in_channel): Handle fault code
+	-601 from the daemon: cannot find package.
+	(PackageInstallCmd.execute, PackageRemoveCmd.execute): Show the
+	list of packages we explicitly requested in --verbose mode.
+
+2002-06-21  Joe Shaw  <joe@ximian.com>
+
 	* rcmain.py: Split out all of the stuff in rc.in into here.
 
 	* rc.in: Just a shell around rcmain.main() now.

@@ -244,9 +244,9 @@ def main(rc_version):
         if e.errcode == 401:
             rctalk.error("Unable to authenticate with the daemon.")
         else:
-            raise cgiwrap.ProtocolError(e.url, e.errcode, e.errmsg, e.headers)
+            raise
     except ximian_xmlrpclib.Fault, f:
         if f.faultCode == -610:
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
-            raise ximian_xmlrpclib.Fault(f.faultCode, f.faultString)
+            raise
