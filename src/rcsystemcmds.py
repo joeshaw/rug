@@ -153,65 +153,6 @@ class RestartCmd(rccommand.RCCommand):
 
 rccommand.register(RestartCmd)
 
-class ActivateCmd(rccommand.RCCommand):
-
-    def name(self):
-        return "activate"
-
-    def aliases(self):
-        return ["act"]
-
-    def arguments(self):
-        return "<activation code> <email address>"
-
-    def description_short(self):
-        return "Activates the machine against a premium server"
-
-    def category(self):
-        return "system"
-
-    def local_opt_table(self):
-        return [["a", "alias", "alias", "Use \"alias\" to name this machine"],
-                ["n", "no-refresh", "", "Don't refresh channel data after a successful activation"]]
-
-    def execute(self, server, options_dict, non_option_args):
-        if len(non_option_args) < 2:
-            self.usage()
-            sys.exit(1)
-
-        err_str = None
-
-        args = [non_option_args[0], non_option_args[1]]
-
-        if options_dict.has_key("alias"):
-            args.append(options_dict["alias"])
-
-        try:
-            success = apply(server.rcd.system.activate, args)
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.cant_activate:
-                err_str = f.faultString
-                success = 0
-            else:
-                raise
-
-        if success:
-            for s in success:
-                rctalk.message("System successfully activated against %s" % s)
-
-            if not options_dict.has_key("no-refresh"):
-                rcchannelutils.refresh_channels(server)
-            
-        else:
-            if not err_str:
-                err_str = "Invalid activation code or email address"
-            
-            rctalk.warning("System could not be activated: %s" % err_str)
-            sys.exit(1)
-
-rccommand.register(ActivateCmd)
-
-
 class RecurringCmd(rccommand.RCCommand):
 
     def name(self):
