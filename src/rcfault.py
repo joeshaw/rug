@@ -35,3 +35,4 @@ locked                 = -609
 cant_authenticate      = -610
 cant_refresh           = -611
 no_icon                = -612
+cant_activate          = -613

@@ -1,3 +1,10 @@
+2003-03-11  Joe Shaw  <joe@ximian.com>
+
+	* rcfault.py: Add cant_activate
+
+	* rcsystemcmds.py (ActivateCmd.execute): Handle the cant_activate
+	fault and print out the error to the user.
+
 2003-03-10  Joe Shaw  <joe@ximian.com>
 
 	* rcsystemcmds.py (ActivateCmd): Add a -a/--alias option to the

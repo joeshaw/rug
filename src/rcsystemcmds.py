@@ -145,6 +145,8 @@ class ActivateCmd(rccommand.RCCommand):
             self.usage()
             sys.exit(1)
 
+        err_str = None
+
         try:
             if options_dict.has_key("alias"):
                 success = server.rcd.system.activate_with_alias(non_option_args[0],
@@ -160,6 +162,9 @@ class ActivateCmd(rccommand.RCCommand):
                 else:
                     rctalk.error("This daemon does not support activation")
                 sys.exit(1)
+            elif f.faultCode == rcfault.cant_activate:
+                err_str = f.faultString
+                success = 0
             else:
                 raise
 
@@ -170,7 +175,10 @@ class ActivateCmd(rccommand.RCCommand):
                 rcchannelutils.refresh_channels(server, [])
             
         else:
-            rctalk.warning("System could not be activated: Invalid activation code or email address")
+            if not err_str:
+                err_str = "Invalid activation code or email address"
+            
+            rctalk.warning("System could not be activated: %s" % err_str)
             sys.exit(1)
 
 rccommand.register(ActivateCmd)
