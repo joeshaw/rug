@@ -8,6 +8,19 @@ commands.  Aaron would probably be a good person to do this with,
 since he knows about words and stuff.
 
 Do we do anything in the way of checks to make sure that there is
-enough disk space to download/install the packages we need to install?
-If not, we need to add this!
+enough disk space to download the packages?  If not, we need to add
+this!  (libredcarpet should be doing this stuff!)
+
+Need to format update output to be less "apt-like", to show what channel
+packages are coming in from, to show versions in --verbose mode, etc.
+
+
+--------------
+
+Talk to Carlos about moving to a public CVS.  And talk to him about
+needing Aaron for docs.
+
+Talk to Frank about packaging and snapshots.
+
+
 
