@@ -718,7 +718,9 @@ class PackageInfoCmd(rccommand.RCCommand):
                         rctalk.message(time_str + " " + action_str + " " + pkg_str)
 
 def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
-    tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove, ximian_xmlrpclib.Boolean(dry_run))
+    tid = server.rcd.packsys.transact(packages_to_install,
+                                      packages_to_remove,
+                                      ximian_xmlrpclib.Boolean(dry_run))
     message_offset = 0
     download_percent = 0.0
 
@@ -767,6 +769,9 @@ def extract_package(dep_or_package):
         return dep_or_package["package"]
     else:
         return dep_or_package
+
+def extract_packages(dep_or_package_list):
+    return map(lambda x:extract_package(x), dep_or_package_list)
 
 def format_dependencies(server, dep_list):
     dep_list.sort(lambda x,y:cmp(string.lower(extract_package(x)["name"]),
@@ -898,7 +903,10 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        transact_and_poll(server, packages_to_install + dep_install, dep_remove, dry_run)
+        transact_and_poll(server,
+                          packages_to_install + extract_packages(dep_install),
+                          extract_packages(dep_remove),
+                          dry_run)
 
 
 ###
@@ -967,7 +975,10 @@ class PackageRemoveCmd(rccommand.RCCommand):
                 rctalk.message("Aborted.")
                 sys.exit(0)
 
-        transact_and_poll(server, dep_install, packages_to_remove + dep_remove, dry_run)
+        transact_and_poll(server,
+                          extract_packages(dep_install),
+                          packages_to_remove + extract_packages(dep_remove),
+                          dry_run)
 
 
 ###
@@ -1034,7 +1045,10 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        transact_and_poll(server, packages_to_install + dep_install, dep_remove, dry_run)
+        transact_and_poll(server,
+                          packages_to_install + extract_packages(dep_install),
+                          extract_packages(dep_remove),
+                          dry_run)
 
 
 ###
@@ -1089,7 +1103,10 @@ class PackageVerifyCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        transact_and_poll(server, dep_install, dep_remove, dry_run)
+        transact_and_poll(server,
+                          extract_packages(dep_install),
+                          extract_packages(dep_remove),
+                          dry_run)
 
 class PackageDebugCmd(rccommand.RCCommand):
 
