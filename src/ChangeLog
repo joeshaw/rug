@@ -1,3 +1,8 @@
+2003-03-24  Jon Trowbridge  <trow@ximian.com>
+
+	* rclockcmds.py (LockAddCmd.execute): In Python, there is a
+	big difference between ',' and '%'.  Fixes #40215.
+
 2003-03-20  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (TransactCmd.resolve_deps): Call

@@ -246,7 +246,7 @@ class LockAddCmd(rccommand.RCCommand):
             # be the empty string, etc.)
             match["glob"] = glob
         elif len(non_option_args) != 0:
-            rctalk.error("Unrecognized input \"%s\"",
+            rctalk.error("Unrecognized input \"%s\"" %
                          string.join(non_option_args, " "))
             sys.exit(1)
             
