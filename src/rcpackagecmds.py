@@ -492,11 +492,13 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
             time.sleep(0.4)
         except KeyboardInterrupt:
             if tid_info and tid_info["status"] == "running":
+                rctalk.message("")
                 rctalk.message("Aborting download...")
                 v = server.rcd.packsys.abort_download(tid)
-                print "Abort: " + str(v)
                 if v:
                     sys.exit(0)
+                else:
+                    rctalk.warning("Transaction cannot be aborted")
             elif tid_info:
                 rctalk.warning("Transaction cannot be aborted")
 
@@ -675,6 +677,38 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
 
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
+class PackageVerifyCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "verify"
+
+    def local_opt_table(self):
+        return [["d", "allow-removals", "", "Allow removals with no confirmation"],
+                ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
+
+    def execute(self, server, options_dict, non_option_args):
+        dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
+
+        if dep_install:
+            rctalk.message("The following packages must be installed:")
+            format_dependencies(dep_install)
+
+        if dep_remove:
+            rctalk.message("The following packages must be REMOVED:")
+            format_dependencies(dep_remove)
+
+        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+            confirm = raw_input("Do you want to continue? [Y/n] ")
+            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Aborted.")
+                sys.exit(0)
+
+        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
+            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
+            sys.exit(1)
+
+        transact_and_poll(server, dep_install, dep_remove)
+
 rccommand.register(PackageListCmd,    "List the packages in a channel")
 rccommand.register(PackageSearchCmd,  "Search for a package")
 rccommand.register(PackageUpdatesCmd, "List pending updates")
@@ -682,3 +716,4 @@ rccommand.register(PackageInfoCmd,    "Show info on a package")
 rccommand.register(PackageInstallCmd, "Install a package")
 rccommand.register(PackageRemoveCmd,  "Remove a package")
 rccommand.register(PackageUpdateAllCmd, "Update all available packages")
+rccommand.register(PackageVerifyCmd,  "Verify system dependencies")
