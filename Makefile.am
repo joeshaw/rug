@@ -1,3 +1,12 @@
-SUBDIRS = unmarshaller src
+
+
+if FAST_UNMARSHALLER
+UNMARSHALLER_DIR = unmarshaller
+else
+UNMARSHALLER_DIR =
+endif
+
+SUBDIRS = $(UNMARSHALLER_DIR) src
+
 man_MANS = rc.1
 EXTRA_DIST = rc.1

@@ -1,3 +1,10 @@
+2002-11-27  Jon Trowbridge  <trow@ximian.com>
+
+	* configure.in: Added a configure check for python distutils
+	and a --disable-unmarshaller option.
+
+	* Makefile.am: Building the fast unmarshaller is now conditional.
+
 2002-11-21  Jon Trowbridge  <trow@ximian.com>
 
 	* Makefile.am (SUBDIRS): Added unmarshaller.

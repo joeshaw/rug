@@ -1,3 +1,8 @@
+2002-11-27  Jon Trowbridge  <trow@ximian.com>
+
+	* Makefile.am: Added setup.py and unmarshaller.c to EXTRA_DIST.
+	We now pass 'make distcheck'.
+
 2002-11-21  Jon Trowbridge  <trow@ximian.com>
 
 	* Added initial versions of Makefile.am, unmarshaller.c, setup.py.
