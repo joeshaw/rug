@@ -1,3 +1,11 @@
+2002-08-15  Jon Trowbridge  <trow@ximian.com>
+
+	* rccommand.py (RCCommand.usage): Rearranged output so that the
+	command-specific options appear before the general options.  Added
+	a line of whitespace before the first "usage:" line.
+	(usage_basic): Added whitespace after last line of text.
+	(usage_full): Added whitespace after last line of text.
+
 2002-08-12  Jon Trowbridge  <trow@ximian.com>
 
 	* rcprefscmds.py (PrefsSetCmd.execute): If we were unable to set

@@ -176,6 +176,7 @@ def usage_basic():
         rctalk.message("")
         rctalk.message("For a more complete list of commands and important options,")
         rctalk.message("run \"rc help\".")
+        rctalk.message("")
 
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")
@@ -201,6 +202,7 @@ def usage_full():
         rctalk.message("")
         rctalk.message("For more detailed information about a specific command,")
         rctalk.message("run 'rc <command name> --help'.")
+        rctalk.message("")
 
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")
@@ -359,6 +361,7 @@ class RCCommand:
 
     def usage(self):
 
+        rctalk.message("")
         rctalk.message("Usage: rc " + self.name() + " <options> " + \
                        self.arguments())
         rctalk.message("")
@@ -369,6 +372,12 @@ class RCCommand:
             for l in rcformat.linebreak(description, 72):
                 rctalk.message(l)
             rctalk.message("")
+
+        opts = self.local_opt_table()
+        if opts:
+            rctalk.message("'" + self.name() + "' Options:")
+            rcformat.opt_table(opts)
+            rctalk.message("")
         
         opts = self.default_opt_table()
         if opts:
@@ -376,11 +385,6 @@ class RCCommand:
             rcformat.opt_table(opts)
             rctalk.message("")
 
-        opts = self.local_opt_table()
-        if opts:
-            rctalk.message("'" + self.name() + "' Options:")
-            rcformat.opt_table(opts)
-            rctalk.message("")
         
 
     def execute(self, server, options_dict, non_option_args):
