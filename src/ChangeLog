@@ -1,3 +1,11 @@
+2003-09-22  Joe Shaw  <joe@ximian.com>
+
+	* rcmountcmds.py (MountCmd): Make the alias be foo-N when
+	uniquifying it.
+
+	* rcpackagecmds.py (PackageCmd): If the user passed in channels
+	but none match, exit out with code 1.
+
 2003-09-19  Joe Shaw  <joe@ximian.com>
 
 	* rcmountcmds.py (UnmountCmd): Don't worry about undefined method

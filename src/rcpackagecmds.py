@@ -82,6 +82,9 @@ class PackagesCmd(rccommand.RCCommand):
                 if rcchannelutils.validate_channel_list(a, cl):
                     clist = clist + cl
 
+        if non_option_args and not clist:
+            sys.exit(1)
+
         query = map(lambda c:["channel", "=", c["id"]], clist)
 
         if len(clist) > 1:

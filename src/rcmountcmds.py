@@ -66,9 +66,9 @@ class MountCmd(rccommand.RCCommand):
         old_alias = alias
         count = 1
         while alias in aliases:
-            alias = "%s%d" % (old_alias, count)
+            alias = "%s-%d" % (old_alias, count)
             count = count + 1
-            
+
         if old_alias != alias and complain_about_collision:
             rctalk.warning("Alias '%s' already in use.  Using '%s' instead." %
                            (old_alias, alias))
