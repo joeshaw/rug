@@ -1,3 +1,4 @@
+.\" Please visit bugzilla.ximian.com to report problems with the software or its documentation.
 .TH "rc" "1" "1.0" "Ximian, Inc." "System tools"
 .SH "NAME"
 .LP 
@@ -18,120 +19,147 @@ Red Carpet services sort software by category into channels, groups of similar s
 Red Carpet services, including rc, use your operating system's native package management system (except on Solaris), so you can use most other package management tools alongside them.
 .SH "COMMANDS"
 .LP 
-rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most important is \fBrc update\fR, which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
+rc provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most commonly used is \fIrc update\-all\fR which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
 
 .LP 
-\fBBasic Operations on Packages\fR
+\fBPackage management commands:\fR
+.TP 
+info \fI<packagename>\fR 
+Show detailed information about a package. Multiple packages may be listed, separated by spaces.
 
 .TP 
-\fBrc info\fR <\fIpackagename\fR>\fR
-Display detailed information about the package.
+install \fI<packagename>\fR\fR
+Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed.
 
 .TP 
-\fBrc install\fR <\fIpackagename\fR>\fR
-Install the package <\fIpackagename\fR>.
+packages \fI<"channelname">\fR\fR
+List the packages in a channel. If no channel is specified, all packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested.  You may truncate channel names to any unique substring. Multiple channel names may be used, separated by spaces.
+ 
+.TP  
+remove (rm, erase) \fI<packagename>\fR
+Remove packages. Both \fIrm\fR and \fIerase\fR are equivalents.
 
 .TP 
-\fBrc packages\fR <\fIchannelname\fR>
-List all packages in a given channel. Packages that are already installed are marked with the letter \fIi\fR.
+search \fI<querystring>\fR
+Search for the query string in the list of packages.
 
 .TP 
-\fBrc remove (rm, erase)\fR <\fIpackagename\fR>
-Remove the package <\fIpackagename\fR>.
+summary (sum)
+Display a summary of available updates.
 
 .TP 
-\fBrc search\fR <\fIquerystring\fR>
-Search the list of available packages for the string <\fIquerystring\fR>.
+update\-all (ua)
+Download and install available updates
 
 .TP 
-\fBrc summary (sum)\fR
-Displays the number of updates to currently installed software available in each channel to which you are subscribed. For more detail, use updates or up.
+updates (up)
+List available updates. To perform all updates, use rc update\-all. To perform a single update, use rc install.
 
 .TP 
-\fBrc update\-all\fR
-Download and install all updates to currently installed software in channels to which you are subscribed.
-
-.TP 
-\fBrc updates (up)\fR
-Describe available updates to currently installed software in the channels to which you are subscribed. For less detail, use summary or sum.
-
+verify
+Verify system dependencies. If the system dependencies are not satisfied, rc will suggest the removal or installation of packages necessary to resolve the conflicts.
 
 .LP 
-\fBPackage Dependency and Conflict Operations\fR
+\fBChannel commands:\fR
+.TP 
+channels (ch) 
+List available channels
 
 .TP 
-\fBrc verify\fR
-Verify system dependencies. If the system's dependency tree is not in a consistent state, rc may be able to add or remove software as needed to restore a proper state.
+subscribe (sub)\fI<channelname>\fR
+Subscribe to a channel. You may truncate channel names to any unique substring of the name.
 
 .TP 
-\fBrc what\-conflicts\fR <\fIpackagename\fR>
-List the packages that conflict with the package <\fIpackagename\fR>.
-
-.TP 
-\fBrc what\-provides\fR <\fIquerystring\fR>\fR 
-List the packages that provide with the command, library, package, or program <\fIquerystring\fR>.
-
-.TP 
-\fBrc what\-requires\fR <\fIquerystring\fR>\fR 
-List the packages that require the command, library, package, or program <\fIquerystring\fR>.
-
+unsubscribe (unsub) \fI<channelname>\fR
+Unsubscribe from a channel.  You may truncate channel names to any unique substring of the name.
 
 .LP 
-\fBOperations on Channels\fR
+\fBDependency analysis commands:\fR 
+.TP 
+info\-conflicts (ic) \fI<packagename>\fR
+List all packages that conflict with \fIpackagename.\fR
 
 .TP 
-\fBrc channels (ch)\fR
-List available channels of software.
-
-
-.TP 
-\fBrc refresh\fR \fR
-Reload all channel data.
+info\-provides (ip)  \fI<packagename>\fR
+Display the functionality or libraries that a package provides.
 
 .TP 
-\fBrc subscribe (sub)\fR <\fIchannel>\fR
-Subscribe to a channel.
+info\-requirements (ir)  \fI<packagename>\fR
+List the software that must be present before the package can be installed.  
 
 .TP 
-\fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
-Unsubscribe from channel.
+solvedeps (solve) \fI<string>\fR 
+Install or remove software to meet package, application, or library, and can include version numbers or ranges. The ! operator is used to indicate removal.  For example, the command rc solvedeps "!rpm\-python" "rpm404\-python" will 
+
+.TP 
+what\-conflicts (wc) \fI<packagename>\fR
+List packages that conflict with the item you specify.
+
+.TP 
+what\-provides (wp) \fI<querystring>\fR
+List packages that provide the library, program, or package that you specify.
+
+.TP 
+what\-requires (wr)  \fI<querystring>\fR       
+List packages that require the library, program, or package you specify.
 
 .LP 
-\fBCommands for Server Interaction:\fR
-
+\fBPreference management commands:\fR 
 .TP 
-\fBrc news\fR \fR
-List the Red Carpet news.
-
-.TP 
-\fBrc ping\fR \fR
-Ping the Red Carpet mirror you are using.
-
-.TP 
-\fBrc shutdown\fR
-Stop the server process.
-
-
-.LP 
-\fBOther Commands:\fR
-
-.TP 
-\fBrc debug\fR \fR
-Get a core\-dump for debugging purposes.
-
-.TP 
-\fBrc get\-prefs (get, prefs)\fR 
+get\-prefs (get, prefs)\fR   
 List the system preferences that may be set.
 
 .TP 
-\fBrc history\fR <\fIquerystring\fR>\fR
-Search log entries for the string <\fIquerystring\fR>.
+set\-prefs (set) \fI<key>  \fI<value>\fR         
+Set the preference variable \fIkey\fRto the value \fI<value>\fR.
 
+.LP 
+\fBSystem commands:\fR
+.TP 
+dump
+.br 
+Get an XML dump of system information.
 
 .TP 
-\fBrc set\-prefs (set)\fR <\fIkey\fR> [\fIvalue\fR]
-Set the preference variable <\fIkey\fR> to the value [\fIvalue\fR].
+ping \fI<servername>\fR 
+Ping the server. If no server is specified, the current server will be pinged.
 
+.TP 
+refresh
+Refresh channel data for all channels.
+.TP 
+shutdown
+Shut down the server.
+
+.LP 
+\fBUser management commands:\fR 
+.TP 
+user\-add
+Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly.
+
+.TP 
+user\-delete  \fI<username>\fR
+Delete a specific user.
+
+.TP 
+user\-list
+List the users that may update your system software.
+
+.LP 
+\fBOther commands:\fR 
+.TP 
+help \fI<command>\fR
+Get detailed help on a command. If no command is specified, displays a list of all of the available commands.
+
+.TP 
+history \fI<querystring>\fR     
+Search log entries for the query string.
+
+.TP 
+news
+.br 
+Display the Red Carpet news.
+.br 
 .SH "GLOBAL OPTIONS"
 .LP 
 The following options can be applied to any rc transaction:
@@ -265,7 +293,8 @@ Many rc commands have options which apply only to them.  They are listed here al
 
 .TP 
 \fBrc search\fR <\fIquerystring\fR>
-
+.TP 
+Seach String Options:
 .B \fI\-\-match\-all\fR: Search only for a match for all search strings (default).
 .br 
 .B \fI\-\-match\-any\fR: Display results that match any search string.
@@ -274,15 +303,17 @@ Many rc commands have options which apply only to them.  They are listed here al
 .br 
 .B \fI\-\-match\-words\fR: Search only for a match on a complete word.
 .br 
+.TP 
+Search Data Options:
 .B \fI\-\-search\-description\fR: Search only in the package description, not in the package names.
 .br 
-
 .B \fI\-i, installed\-only\fR: Search only in the installed packages.
 .br 
 .B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
 .br 
 .B \fI\-c, \-\-channel=<channel>\fR: Search only in the channel you specify.
-.br 
+.TP 
+Output Options:
 .B \fI\-show\-package\-ids\fR: Show package IDs.
 .br 
 .B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
@@ -371,8 +402,12 @@ Here are some standard ways in which the program might be used:
 Download and install all updates to currently installed package in currently subscribed channels, removing any software that conflicts with those updates, and without asking for confirmation. This is convenient option but should be used only with servers which you trust absolutely.
 
 .TP 
-\fBrc \-V \-\-host=<hostname> install <packagename> \-u\fR
+\fBrc \-Vu \-\-host=\fI<hostname>\fB install \fI<packagename>\fR
 This will operate in verbose mode and contact the rcd daemon on the specified host to install the specified package, regardless of whether it is in a channel to which the user is subscribed.
+
+.TP 
+\fBrc solvedeps \fI"library.so.1" "application < 1.2"\fR
+Installs the package that provides \fIlibrary.so.1\fR and a version of \fIapplication\fR lower than 1.2.
 .SH "AUTHORS"
 .LP 
 Copyright 2002 Ximian, Inc. 
@@ -381,4 +416,4 @@ http://www.ximian.com/
 .LP 
 rcd(8), red\-carpet(1), rcman(1)
 .LP 
-Visit http://ximian.com for more information about rc, Ximian Red Carpet Enterprise, and other software from Ximian.
+Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian.
