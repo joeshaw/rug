@@ -1,3 +1,11 @@
+2002-07-11  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (format_dependencies): Reworked to include info
+	on what channel a package is coming from, and why dependencies are
+	being pulled in.
+	(PackageDebugCmd.execute): Open a file for write instead of
+	append; we probably just want to truncate it.
+
 2002-07-11  Jon Trowbridge  <trow@ximian.com>
 
 	* rctalk.py (fatal): Added (via Jose).  A convenience function

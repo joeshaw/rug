@@ -759,15 +759,36 @@ def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
             elif tid_info:
                 rctalk.warning("Transaction cannot be aborted")
 
-def format_dependencies(dep_list):
-    dep_list.sort(lambda x,y:cmp(string.lower(x["name"]),
-                                 string.lower(y["name"])))
-    plist = ""
-    for p in dep_list:
-        plist = plist + " " + p["name"]
-    map(lambda x:rctalk.message("  " + x), rcformat.linebreak(plist, 72))
+def extract_package(dep_or_package):
+    # Check to see if we're dealing with package op structures or real
+    # package structures.  Package structures won't have a "package" key.
 
+    if dep_or_package.has_key("package"):
+        return dep_or_package["package"]
+    else:
+        return dep_or_package
 
+def format_dependencies(server, dep_list):
+    dep_list.sort(lambda x,y:cmp(string.lower(extract_package(x)["name"]),
+                                 string.lower(extract_package(y)["name"])))
+
+    dlist = []
+    for d in dep_list:
+        p = extract_package(d)
+
+        c = rcchannelutils.channel_id_to_name(server, p["channel"])
+        if c:
+            c = "(" + c + ")"
+        else:
+            c = ""
+
+        rctalk.message("  " + p["name"] + " " + rcformat.evr_to_str(p) +
+                       " " + c)
+
+        if d.has_key("details"):
+            map(lambda x:rctalk.message("    " + x), d["details"])
+
+    rctalk.message("")
 
 ###
 ### "install" command
@@ -857,15 +878,15 @@ class PackageInstallCmd(rccommand.RCCommand):
 
         if rctalk.show_verbose:
             rctalk.message("The following requested packages will be installed:")
-            format_dependencies(packages_to_install)
+            format_dependencies(server, packages_to_install)
 
         if dep_install:
             rctalk.message("The following additional packages will be installed:")
-            format_dependencies(dep_install)
+            format_dependencies(server, dep_install)
 
         if dep_remove:
             rctalk.message("The following packages must be REMOVED:")
-            format_dependencies(dep_remove)
+            format_dependencies(server, dep_remove)
 
         if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
             confirm = raw_input("Do you want to continue? [Y/n] ")
@@ -930,15 +951,15 @@ class PackageRemoveCmd(rccommand.RCCommand):
 
         if rctalk.show_verbose:
             rctalk.message("The following requested packages will be REMOVED:")
-            format_dependencies(packages_to_remove)
+            format_dependencies(server, packages_to_remove)
 
         if dep_install:
             rctalk.message("The following additional packages will be installed:")
-            format_dependencies(dep_install)
+            format_dependencies(server, dep_install)
 
         if dep_remove:
             rctalk.message("The following packages must also be REMOVED:")
-            format_dependencies(dep_remove)
+            format_dependencies(server, dep_remove)
 
         if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
             confirm = raw_input("Do you want to continue? [Y/n] ")
@@ -1052,11 +1073,11 @@ class PackageVerifyCmd(rccommand.RCCommand):
 
         if dep_install:
             rctalk.message("The following packages must be installed:")
-            format_dependencies(dep_install)
+            format_dependencies(server, dep_install)
 
         if dep_remove:
             rctalk.message("The following packages must be REMOVED:")
-            format_dependencies(dep_remove)
+            format_dependencies(server, dep_remove)
 
         if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
             confirm = raw_input("Do you want to continue? [Y/n] ")
@@ -1084,7 +1105,7 @@ class PackageDebugCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
         if non_option_args:
             try:
-                f = open(non_option_args[0], "a")
+                f = open(non_option_args[0], "w")
             except IOError, e:
                 rctalk.error("Couldn't open '" + non_option_args[0] + "' for writing: " + e.strerror)
                 sys.exit(1)
