@@ -1,5 +1,10 @@
 2002-11-13  Joe Shaw  <joe@ximian.com>
 
+	* rcwhatcmds.py (WhateverCmd.execute): If we don't have any
+	arguments, show the usage and abort.
+
+2002-11-13  Joe Shaw  <joe@ximian.com>
+
 	* rcmain.py (main): Allow "http://" or "https://" to be passed in
 	as part of the host.
 

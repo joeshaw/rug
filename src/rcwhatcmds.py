@@ -111,6 +111,10 @@ class WhateverCmd(rccommand.RCCommand):
 
 
     def execute(self, server, options_dict, non_option_args):
+
+        if len(non_option_args) < 1:
+            self.usage()
+            sys.exit(1)
         
         dep_name = non_option_args[0]
 
