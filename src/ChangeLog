@@ -1,3 +1,14 @@
+2002-08-22  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmain.py (main): As long as we are not in terse-mode, print
+	some whitespace before and after we execute the command.  Catch
+	the IOError exception and exit quietly so that we don't spew out a
+	backtrace on broken pipes.
+
+	* rccommand.py (RCCommand.process_argv): If getopt fails,
+	try to print out a helpful message about which options were
+	not recognized.
+
 2002-08-22  Joe Shaw  <joe@ximian.com>
 
 	* rcsystemcmds.py (PingCmd): Get server URL and whether it's an

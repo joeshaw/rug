@@ -156,6 +156,12 @@ def main(ver):
     if opt_dict.has_key("verbose"):
         rctalk.show_verbose = 1
 
+    ### Whitespace is nice, so we always print a blank line before
+    ### executing the command
+
+    if not rctalk.be_terse:
+        rctalk.message("")
+
     ###
     ### Execute the command
     ###
@@ -164,6 +170,12 @@ def main(ver):
         command.execute(server, opt_dict, args)
     except KeyboardInterrupt:
         # Just quietly exit if we got a control C.
+        print
+        sys.exit(0)
+    except IOError:
+        # Just quietly exit in this case, too.  It is probably a
+        # broken pipe from something like quitting "less" before
+        # rc is finished.
         print
         sys.exit(0)
     except socket.error, e:
@@ -186,3 +198,10 @@ def main(ver):
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
             raise
+        
+    ### Whitespace is nice, so we always print a blank line after
+    ### executing the command
+
+    if not rctalk.be_terse:
+        rctalk.message("")
+

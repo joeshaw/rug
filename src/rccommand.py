@@ -436,8 +436,25 @@ class RCCommand:
         try:
             optlist, args = getopt.getopt(argv, short_opt_getopt, long_opt_getopt)
         except getopt.error:
-            rctalk.error("Unrecognized arguments")
+            did_something = 0
+            for a in argv:
+                if string.find(a,"--") == 0:
+                    if not a[2:] in map(lambda x:x[1], opt_table):
+                        rctalk.error("Invalid argument " + a)
+                        did_something = 1
+                elif string.find(a, "-") == 0:
+                    if not a[1:] in map(lambda x:x[0], opt_table):
+                        rctalk.error("Invalid argument " + a)
+                        did_something = 1
+
+            # Just in case something strange went wrong and we weren't
+            # able to describe quite why the options parsing failed,
+            # we print a catch-all error message.
+            if not did_something:
+                rctalk.error("Invalid arguments")
+                
             self.usage()
+            
             sys.exit(1)
 
         ###
