@@ -1,3 +1,12 @@
+2003-08-25  Joe shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd): Change the way we filter
+	out packages which are installed on the system and are also in
+	a channel.
+
+	* rcpackageutils.py (filter_visible_channels): Added, does the
+	actual filtering.
+
 2003-08-22  Joe Shaw  <joe@ximian.com>
 
 	* rcsystemcmds.py (ActivateCmd): Only call rcd.system.activate()

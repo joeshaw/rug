@@ -143,11 +143,6 @@ class PackagesCmd(rccommand.RCCommand):
 ### "search" command
 ###
 
-def pkg_to_key(p):
-    ch = p["channel"] or p.get("channel_guess", "");
-    return "%s:%s:%d:%s:%s" % \
-           (ch, p["name"], p["epoch"], p["version"], p["release"])
-
 class PackageSearchCmd(rccommand.RCCommand):
 
     def name(self):
@@ -232,24 +227,17 @@ class PackageSearchCmd(rccommand.RCCommand):
             elif options_dict.has_key("unlocked-only"):
                 packages = filter(lambda p:not p["locked"], packages)
 
-        # Keep track of all of the installed packages where
-        # we know that it comes from a certain channel.
-        # (It doesn't matter if we are doing a channel search,
-        # so we leave our dict empty in that case.)
-        in_channel = {}
-        if not options_dict.has_key("channel"):
-            for p in packages:
-                if p["installed"] and p["channel"]:
-                    in_channel[pkg_to_key(p)] = 1
+        # Filter out packages which are in "hidden" channels, like the
+        # system packages channel.
+        packages = rcpackageutils.filter_visible_channels(server, packages)
 
         package_table = []
         no_abbrev = options_dict.has_key("no-abbrev")
 
         for p in packages:
-            if p["channel"] != 0 or not in_channel.has_key(pkg_to_key(p)):
-                row = rcformat.package_to_row(server, p, no_abbrev,
-                                              ["installed", "channel", "name", "version"])
-                package_table.append(row)
+            row = rcformat.package_to_row(server, p, no_abbrev,
+                                          ["installed", "channel", "name", "version"])
+            package_table.append(row)
 
         if package_table:
             

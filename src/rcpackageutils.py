@@ -280,3 +280,19 @@ def get_updates(server, non_option_args):
 
     return up
 
+def filter_visible_channels(server, packages):
+    visible_channels = map(lambda c:c["id"],
+                           filter(lambda c:not c["hidden"],
+                                  rcchannelutils.get_channels(server)))
+
+    # Return a filtered list of packages, each of which:
+    #
+    #  (a) is in a visible channel.
+    #  (b) is not in a visible channel, but doesn't have a guessed channel
+    #      (indicating that it's a system package and we don't know what
+    #      channel it came from)
+
+    return filter(lambda p:p["channel"] in visible_channels
+                  or not p.has_key("channel_guess"),
+                  packages)
+
