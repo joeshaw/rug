@@ -1,3 +1,15 @@
+2003-02-12  Joe Shaw  <joe@ximian.com>
+
+	* rctalk.py (prompt): Added.  Prints out the prompt, flushes
+	stdout, and calls raw_input().  Should fix problems where prompts
+	weren't being redirected to a file and people were wondering why
+	rc hung in scripts.
+
+	* rclockcmds.py (LockDeleteCmd): Use rctalk.prompt() instead of
+	raw_input().
+
+	* rcpackagecmds.py (TransactCmd): Ditto.
+
 2003-01-28  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Slightly edit the text when we get a 401

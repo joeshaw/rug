@@ -73,5 +73,8 @@ def fatal(str):
 def debug(str):
     if show_debug:
         print "DEBUG: " + str
-    
 
+def prompt(str):
+    sys.stdout.write(str + " ")
+    sys.stdout.flush()
+    return raw_input()

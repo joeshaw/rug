@@ -344,7 +344,7 @@ class LockDeleteCmd(rccommand.RCCommand):
                 msg = "this lock"
             else:
                 msg = "these locks"
-            confirm = raw_input("Delete %s? [y/N] " % msg)
+            confirm = rctalk.prompt("Delete %s? [y/N]" % msg)
             if not confirm or not string.lower(confirm[0]) == "y":
                 rctalk.message("Cancelled.")
                 sys.exit(0)

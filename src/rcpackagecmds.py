@@ -1456,7 +1456,7 @@ class TransactCmd(rccommand.RCCommand):
                 rctalk.message("This is %sa %s download." % (approx_str, size_str))
 
         if not options_dict.has_key("no-confirmation"):
-            confirm = raw_input("Do you want to continue? [y/N] ")
+            confirm = rctalk.prompt("Do you want to continue? [y/N]")
             if not confirm or not (confirm[0] == "y" or confirm[0] == "Y"):
                 rctalk.message("Cancelled.")
                 sys.exit(0)
