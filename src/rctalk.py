@@ -16,6 +16,8 @@
 ###
 
 import sys
+import os
+import stat
 
 show_messages = 1
 show_verbose  = 0
@@ -23,6 +25,11 @@ show_warnings = 1
 show_errors   = 1
 show_debug    = 0
 be_terse      = 0
+
+# Check to see if stdout has been redirected to a file.
+stdout_is_file = 0
+if stat.S_ISREG(os.fstat(sys.stdout.fileno())[stat.ST_MODE]):
+    stdout_is_file = 1
 
 def message(str):
     if show_messages:
@@ -32,12 +39,20 @@ esc = ""
 
 def message_status(str):
     if show_messages and not be_terse:
-        print esc + "[1G" + str + esc + "[0K",
-        sys.stdout.flush()
+        # If we've redirected to a file, don't print escape characters
+        if stdout_is_file:
+            print str
+        else:
+            print esc + "[1G" + str + esc + "[0K",
+            sys.stdout.flush()
 
 def message_finished(str):
     if show_messages and not be_terse:
-        print esc + "[1G" + str + esc + "[0K"
+        # If we've redirected to a file, don't print escape characters
+        if stdout_is_file:
+            print str
+        else:
+            print esc + "[1G" + str + esc + "[0K"
 
 def verbose(str):
     if show_verbose:
