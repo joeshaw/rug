@@ -93,7 +93,7 @@ def main(rc_version):
             host = "localhost"
 
         if string.find(host, ":") == -1:
-            host = host + ":5505"
+            host = host + ":505"
 
         url = "https://" + host + "/RPC2"
 

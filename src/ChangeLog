@@ -1,3 +1,7 @@
+2002-07-30  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Default to port 505.
+
 2002-07-29  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageDebugCmd.execute): Send the "Getting a
