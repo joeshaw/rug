@@ -30,3 +30,4 @@ invalid_package_file   = -605
 invalid_channel        = -606
 invalid_transaction_id = -607
 invalid_preference     = -608
+locked                 = -609

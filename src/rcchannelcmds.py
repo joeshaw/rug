@@ -18,9 +18,11 @@
 import sys
 import string
 import rctalk
+import rcfault
 import rcformat
 import rccommand
 import rcchannelutils
+import ximian_xmlrpclib
 
 class ListChannelsCmd(rccommand.RCCommand):
 
@@ -191,7 +193,16 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
         if not non_option_args:
             if not options_dict.has_key("dry-run"):
-                server.rcd.packsys.refresh_all_channels()
+                try:
+                    server.rcd.packsys.refresh_all_channels()
+                except ximian_xmlrpclib.Fault, f:
+                    if f.faultCode == rcfault.locked:
+                        rctalk.error("The daemon is busy processing another "
+                                     "request.")
+                        rctalk.error("Please try again shortly.")
+                        sys.exit(1)
+                    else:
+                        raise
             rctalk.message("Refreshing all channels")
         else:
             failed = 0

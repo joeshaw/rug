@@ -1,3 +1,10 @@
+2002-07-18  Joe Shaw  <joe@ximian.com>
+
+	* rcchannelcmds.py (RefreshChannelCmd.execute): Check for a lock
+	fault.
+
+	* rcfault.py: Add a locked fault.
+
 2002-07-17  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py: Don't import cgiwrap anymore; we don't need it.
