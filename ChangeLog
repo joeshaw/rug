@@ -1,3 +1,10 @@
+2003-12-03  Joe Shaw  <joe@ximian.com>
+                                                                                
+        * configure.in: 2.0.1
+                                                                                
+        * autogen.sh: Add REQUIRED_AUTOMAKE_VERSION to work with newer
+        gnome-common packages.
+
 2003-10-30  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 2.0.0
