@@ -1,5 +1,11 @@
 2003-10-29  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageListUpdatesCmd.local_opt_table): Get
+	rid of the --sort-by-name and --sort-by-channel arguments.
+	They're not used at all.
+
+2003-10-29  Joe Shaw  <joe@ximian.com>
+
 	* rcchannelcmds.py (ListChannelsCmd.execute): If we can't find a
 	matching service, print an error and exit.
 

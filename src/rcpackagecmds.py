@@ -385,9 +385,7 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
         return "package"
 
     def local_opt_table(self):
-        return [["",  "sort-by-name", "", "Sort updates by name"],
-                ["",  "sort-by-channel", "", "Sort updates by channel"],
-                ["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
+        return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
                 ["i", "importance", "importance", "Show only updates as or more important than 'importance' (valid are " + rcformat.importance_str_summary() + ")"]]
 
     def execute(self, server, options_dict, non_option_args):
