@@ -151,7 +151,7 @@ class RestartCmd(rccommand.RCCommand):
                 eno, str = e
                 if eno == errno.ENOENT \
                        or eno == errno.ECONNREFUSED \
-                       or eno == ernno.ECONNRESET:
+                       or eno == errno.ECONNRESET:
                     is_down = 1
                 else:
                     raise

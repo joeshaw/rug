@@ -1,3 +1,7 @@
+2003-12-02  Tambet Ingo  <tambet@ximian.com>
+
+	* rcsystemcmds.py (RestartCmd.execute): Fix a typo.
+
 2003-11-20  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelcmds.py (SubscribeCmd, UnsubscribeCmd): Add --all
