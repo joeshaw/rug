@@ -6,11 +6,14 @@
 rc \- rc is the command\-line interface to the Ximian Red Carpet daemon rcd.
 .SH "SYNTAX"
 .LP 
-rc [\-h <hostname>] [\-U <username>] [\-P <password>] ... <command> [<command options>] 
+rc \fI[\-\-global\-options]\fR <command> \fI[\-\-command\-options]\fR <arguments>
+
 .br 
+
 rc \-\-version
 .br 
-rc \fI\-\-help\fP 
+
+rc \fI\-\-help\fR 
 .SH "DESCRIPTION"
 .LP 
 rc is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rc.
@@ -49,7 +52,7 @@ summary (sum)
 Display a summary of available updates.
 
 .TP 
-list\-updates (la)
+list\-updates (lu)
 List all available updates.
 
 .TP 
@@ -90,7 +93,7 @@ List the software that must be present before the package can be installed.
 
 .TP 
 solvedeps (solve) \fI<string>\fR 
-Install or remove software to meet package, application, or library, and can include version numbers or ranges. The ! operator is used to indicate removal.  For example, the command rc solvedeps "!rpm\-python" "rpm404\-python" will 
+Install or remove software to meet package, application, or library, and can include version numbers or ranges. The ! operator is used to indicate removal.  For example, the command rc solvedeps "!rpm\-python" "rpm404\-python" will remove the rpm\-python package, and replace it with the rpm404\-python package.
 
 .TP 
 what\-conflicts (wc) \fI<packagename>\fR
@@ -123,14 +126,14 @@ Get an XML dump of system information.
 
 .TP 
 ping \fI<servername>\fR 
-Ping the server. If no server is specified, the current server will be pinged.
+Ping the rcd process on the server. If no server is specified, the current server will be pinged.
 
 .TP 
 refresh
 Refresh channel data for all channels.
 .TP 
 shutdown
-Shut down the server.
+Halt the server's rcd process.
 
 .LP 
 \fBUser management commands:\fR 
@@ -153,8 +156,8 @@ help \fI<command>\fR
 Get detailed help on a command. If no command is specified, displays a list of all of the available commands.
 
 .TP 
-history \fI<querystring>\fR     
-Search log entries for the query string.
+history \fI<packagename>\fR     
+Search log entries for the package you specify.
 
 .TP 
 news
@@ -198,7 +201,7 @@ Do not perform the actual transaction, but print what would have been done.
 Normal output (the default mode). This is somewhere between "verbose" and "terse."
 
 .TP 
-\fB\-P, \-\-password <password>fR>
+\fB\-P, \-\-password <password\fR
 Specify password to be used.
 
 .TP 
@@ -299,7 +302,7 @@ Seach String Options:
 .br 
 .B \fI\-\-match\-any\fR: Display results that match any search string.
 .br 
-.B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word.
+.B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word (default).
 .br 
 .B \fI\-\-match\-words\fR: Search only for a match on a complete word.
 .br 
@@ -351,14 +354,6 @@ Output Options:
 \fBrc user\-add\fR
 .B \fI\-P\fR: Specify the password for this user.
 .B \fI\-U\fR: Specify the user name for this user.
-
-.TP 
-\fBrc user\-delete\fR
-.B No options for this command.
-
-.TP 
-\fBrc user\-list\fR
-.B  No options for this command.
 
 .TP 
 \fBrc verify\fR
