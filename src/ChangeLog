@@ -1,3 +1,10 @@
+2003-08-19  Joe Shaw  <joe@ximian.com>
+
+	* rcmountcmds.py (MountCmd): Go back to only allowing local
+	directories to be mounted (use the service-add command for other
+	URLs and such).  Don't list mounted channels when no arguments are
+	passed since we don't know that info anymore; just print the usage.
+
 2003-08-16  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelcmds.py (ListChannelsCmd): Get rid of some checks for
