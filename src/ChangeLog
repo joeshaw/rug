@@ -1,3 +1,8 @@
+2002-07-30  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd.local_orthogonal_opts): Made
+	sort-by-name and sort-by-channel orthogonal options.
+
 2002-07-30  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Default to port 505.

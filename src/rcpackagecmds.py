@@ -311,7 +311,8 @@ class PackageSearchCmd(rccommand.RCCommand):
     def local_orthogonal_opts(self):
         return [["match-any", "match-all"],
                 ["match-substrings", "match-words"],
-                ["installed-only", "uninstalled-only"]]
+                ["installed-only", "uninstalled-only"],
+                ["sort-by-name", "sort-by-channel"]]
 
     def execute(self, server, options_dict, non_option_args):
 
