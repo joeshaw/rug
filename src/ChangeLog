@@ -1,3 +1,8 @@
+2003-09-05  Tambet Ingo  <tambet@ximian.com>
+
+	* rcservicecmds.py (ServiceActivateCmd.execute): "email" argument
+	is optional from now on.
+
 2003-09-03  Joe Shaw  <joe@ximian.com>
 
 	* rcservicecmds.py (ServiceActivateCmd): Added.  Moved here from

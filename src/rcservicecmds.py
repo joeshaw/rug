@@ -351,7 +351,7 @@ class ServiceActivateCmd(rccommand.RCCommand):
         return ["act"]
 
     def arguments(self):
-        return "<activation code> <email address>"
+        return "<activation code> [email address]"
 
     def description_short(self):
         return "Activates the machine against a premium server"
@@ -365,7 +365,7 @@ class ServiceActivateCmd(rccommand.RCCommand):
                 ["n", "no-refresh", "", "Don't refresh channel data after a successful activation"]]
 
     def execute(self, server, options_dict, non_option_args):
-        if len(non_option_args) < 2:
+        if len(non_option_args) < 1:
             self.usage()
             sys.exit(1)
 
@@ -374,7 +374,9 @@ class ServiceActivateCmd(rccommand.RCCommand):
 
         activation_info = {}
         activation_info["activation_code"] = non_option_args[0]
-        activation_info["email"] = non_option_args[1]
+
+        if len(non_option_args) > 1:
+            activation_info["email"] = non_option_args[1]
 
         if options_dict.has_key("service"):
             activation_info["service"] = options_dict["service"]
