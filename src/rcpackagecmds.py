@@ -360,6 +360,14 @@ class PackageInfoCmd(rccommand.RCCommand):
             rctalk.message("Description: ")
             rctalk.message("  " + pinfo["description"])
 
+def format_dependencies(dep_list):
+    dep_list.sort(lambda x,y:cmp(string.lower(x["name"]),
+                                 string.lower(y["name"])))
+    plist = ""
+    for p in dep_list:
+        plist = plist + " " + p["name"]
+    map(lambda x:rctalk.message("  " + x), rcformat.linebreak(plist, 72))
+
 class PackageInstallCmd(rccommand.RCCommand):
 
     def name(self):
@@ -394,7 +402,17 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to install ---")
             sys.exit(0)
 
-        transact_and_poll(server, packages_to_install, [])
+        dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
+
+        if dep_install:
+            rctalk.message("The following additional packages will be installed:")
+            format_dependencies(dep_install)
+
+        if dep_remove:
+            rctalk.message("The following packages must be REMOVED:")
+            format_dependencies(dep_remove)
+
+        transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
 class PackageRemoveCmd(rccommand.RCCommand):
 
@@ -417,7 +435,17 @@ class PackageRemoveCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to remove ---")
             sys.exit(0)
 
-        transact_and_poll(server, [], packages_to_remove)
+        dep_install, dep_remove = server.rcd.packsys.resolve_dependencies([], packages_to_remove)
+
+        if dep_install:
+            rctalk.message("The following additional packages will be installed:")
+            format_dependencies(dep_install)
+
+        if dep_remove:
+            rctalk.message("The following packages must also be REMOVED:")
+            format_dependencies(dep_remove)
+
+        transact_and_poll(server, dep_install, packages_to_remove + dep_remove)
 
 rccommand.register(PackageListCmd,    "List the packages in a channel")
 rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")
