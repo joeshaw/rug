@@ -882,7 +882,7 @@ class PackageRemoveCmd(rccommand.RCCommand):
         return "<package-name> <package-name> ..."
 
     def description_short(self):
-        return "Removed packages"
+        return "Remove packages"
 
     def local_opt_table(self):
         return [["y", "no-confirmation", "", "Perform the actions without confirmation"]]
@@ -1059,7 +1059,38 @@ class PackageVerifyCmd(rccommand.RCCommand):
 
         transact_and_poll(server, dep_install, dep_remove, dry_run)
 
+class PackageDebugCmd(rccommand.RCCommand):
 
+    def name(self):
+        return "debug"
+
+    def arguments(self):
+        return "<file>"
+
+    def description_short(self):
+        return "Get a dump of the system for debugging"
+
+    def execute(self, server, options_dict, non_option_args):
+        if non_option_args:
+            try:
+                f = open(non_option_args[0], "a")
+            except IOError, e:
+                rctalk.error("Couldn't open '" + non_option_args[0] + "' for writing: " + e.strerror)
+                sys.exit(1)
+            my_open = 1
+        else:
+            f = sys.stdout
+            my_open = 0
+
+        rctalk.message("Getting a dump of the system.  Note: This could take several moments.")
+
+        f.write(server.rcd.packsys.dump())
+        f.flush()
+
+        if my_open:
+            f.close()
+
+        rctalk.message("Dump finished.");
 
 ###
 ### Don't forget to register!
@@ -1074,3 +1105,4 @@ rccommand.register(PackageInstallCmd)
 rccommand.register(PackageRemoveCmd)
 rccommand.register(PackageUpdateAllCmd)
 rccommand.register(PackageVerifyCmd)
+rccommand.register(PackageDebugCmd)
