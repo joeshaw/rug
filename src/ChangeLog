@@ -1,3 +1,11 @@
+2002-06-07  Joe Shaw  <joe@ximian.com>
+
+	* All files: Change the license to explicitly require version 2 of
+	the GPL.
+
+	* rcchannelcmds.py (RefreshChannelCmd): Added, refreshes all of
+	the channels on the system or a specified channel.
+
 2002-06-07  Jon Trowbridge  <trow@ximian.com>
 
 	* rc: Print usage info if --help or -? is passed on the command

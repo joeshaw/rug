@@ -3,8 +3,7 @@
 ###
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
+### the Free Software Foundation, version 2 of the License.
 ###
 ### This program is distributed in the hope that it will be useful,
 ### but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -120,7 +119,7 @@ class SubscribeCmd(rccommand.RCCommand):
         for a in non_option_args:
             c = get_channel_by_id(server, a)
             if c and server.rcd.packsys.subscribe(int(a)):
-                print "Subscribed to channel '"+channel_to_str(c)
+                print "Subscribed to channel "+channel_to_str(c)
 
 
 class UnsubscribeCmd(rccommand.RCCommand):
@@ -150,12 +149,31 @@ class UnsubscribeCmd(rccommand.RCCommand):
         for a in non_option_args:
             c = get_channel_by_id(server, a)
             if c and server.rcd.packsys.unsubscribe(int(a)):
-                print "Unsubscribed to channel '"+c["name"]+"' (ID# "+str(c["id"])+")"
+                print "Unsubscribed from channel "+channel_to_str(c)
 
 
+class RefreshChannelCmd(rccommand.RCCommand):
 
+    def name(self):
+        return "refresh"
 
+    def execute(self, server, options_dict, non_option_args):
+
+        if not non_option_args:
+            server.rcd.packsys.refresh_all_channels()
+            print "Refreshing all channels"
+        else:
+            for a in non_option_args:
+                if not get_channel_by_id(server, a):
+                    print "Invalid channel id: " + a
+                    sys.exit(1)
+
+            for a in non_option_args:
+                c = get_channel_by_id(server, a)
+                if c and server.rcd.packsys.refresh_channel(int(a)):
+                    print "Refreshing channel "+channel_to_str(c)
 
 rccommand.register(ListChannelsCmd, "List available channels")
 rccommand.register(SubscribeCmd, "Subscribe to a channel")
 rccommand.register(UnsubscribeCmd, "Unsubscribe from a channel")
+rccommand.register(RefreshChannelCmd, "Refresh channel data")
