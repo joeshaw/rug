@@ -1099,54 +1099,66 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
 ### Transacting commands 
 ###
 
-def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
-    tid = server.rcd.packsys.transact(packages_to_install,
-                                      packages_to_remove,
-                                      ximian_xmlrpclib.Boolean(dry_run),
-                                      rcmain.rc_name, rcmain.rc_version)
+def transact_and_poll(server,
+                      packages_to_install,
+                      packages_to_remove,
+                      dry_run):
+    
+    download_id, transact_id, step_id = server.rcd.packsys.transact(
+        packages_to_install,
+        packages_to_remove,
+        ximian_xmlrpclib.Boolean(dry_run),
+        rcmain.rc_name, rcmain.rc_version)
+    
     message_offset = 0
-    download_percent = 0.0
-    download_completed = 0
+    download_complete = 0
 
     while 1:
-        tid_info = None
-
         try:
-            tid_info = server.rcd.system.poll_pending(tid)
-            
-            if tid_info["percent_complete"] > download_percent:
-                download_percent = tid_info["percent_complete"]
-                progress_msg = rcformat.pending_to_str(tid_info)
-                rctalk.message_status(progress_msg)
+            if download_id != -1 and not download_complete:
+                pending = server.rcd.system.poll_pending(download_id)
 
-            if tid_info["percent_complete"] >= 100.0 and not download_completed:
-                download_completed = 1
-                rctalk.message("")
-                rctalk.message_finished("Download complete")
-            elif tid_info["status"] == "failed":
-                rctalk.message_finished("")
+                rctalk.message_status(rcformat.pending_to_str(pending))
 
-            message_len = len(tid_info["messages"])
+                if pending["status"] == "finished":
+                    rctalk.message_finished("Download complete")
+                    download_complete = 1
+                elif pending["status"] == "failed":
+                    rctalk.message_finished("Download failed: %s" % pending["error_msg"])
+                    break
+            else:
+                pending = server.rcd.system.poll_pending(transact_id)
+                step_pending = server.rcd.system.poll_pending(step_id)
 
-            if message_len > message_offset:
-                for e in tid_info["messages"][message_offset:]:
-                    rctalk.message(rcformat.transaction_status(e))
-                message_offset = message_len
+                message_len = len(pending["messages"])
+                if message_len > message_offset:
+                    for e in pending["messages"][message_offset:]:
+                        rctalk.message_finished(rcformat.transaction_status(e))
+                    message_offset = message_len
 
-            if tid_info["status"] == "finished" or tid_info["status"] == "failed":
-                break
+                message_or_message_finished = rctalk.message
+
+                if step_pending["status"] == "running":
+                    rctalk.message_status(rcformat.pending_to_str(step_pending, time=0))
+
+                if pending["status"] == "finished":
+                    rctalk.message_finished("Transaction finished")
+                    break
+                elif pending["status"] == "failed":
+                    rctalk.message_finished("Transaction failed: %s" % pending["error_msg"])
+                    break
 
             time.sleep(0.4)
         except KeyboardInterrupt:
-            if tid_info and tid_info["status"] == "running":
+            if download_id != -1 and not download_complete:
                 rctalk.message("")
                 rctalk.message("Cancelling download...")
-                v = server.rcd.packsys.abort_download(tid)
+                v = server.rcd.packsys.abort_download(download_id)
                 if v:
                     sys.exit(0)
                 else:
                     rctalk.warning("Transaction cannot be cancelled")
-            elif tid_info:
+            else:
                 rctalk.warning("Transaction cannot be cancelled")
 
 def extract_package(dep_or_package):

@@ -226,12 +226,15 @@ def bytes_to_str(x):
 
 ## Format pending strings
 
-def pending_to_str(p):
+def pending_to_str(p, time=1):
 
     pc = p["percent_complete"]
     msg = "%3d%%" % pc
 
-    hash_max = 10
+    if time:
+        hash_max = 10
+    else:
+        hash_max = 20
     hash_count = int(hash_max * pc / 100)
     hashes = "#" * hash_count + "-" * (hash_max - hash_count)
 
@@ -244,7 +247,7 @@ def pending_to_str(p):
 
     status = p["status"]
 
-    if status in ("pre_begin", "blocking", "running"):
+    if status in ("pre_begin", "blocking", "running") and time:
 
         if p.has_key("elapsed_sec"):
             elap = p["elapsed_sec"]
@@ -344,15 +347,12 @@ def tabular(headers, table):
 ###
 
 def transaction_status(message):
-    messages = {"download"  : "Downloading Packages",
-                "verify"    : "Verifying",
+    messages = {"verify"    : "Verifying",
                 "prepare"   : "Preparing Transaction",
                 "install"   : "Installing",
                 "remove"    : "Removing",
-                "configure" : "Configuring",
-                "finish"    : "Transaction finished",
-                "failed"    : "Transaction failed:"}
-
+                "configure" : "Configuring"}
+    
     status = string.split(message, ":", 1)
 
     m = messages[status[0]]

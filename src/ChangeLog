@@ -1,3 +1,9 @@
+2002-09-10  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (transact_and_poll): Use the much saner method
+	for tracking transaction progress in the daemon.  Get the three
+	pending IDs and report status to the user.
+
 2002-09-06  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageSearchCmd): Always do a name-installed
