@@ -177,6 +177,22 @@ class LogQueryCmd(rccommand.RCCommand):
             query.insert(0, ["", "begin-or", ""])
             query.append(["", "end-or", ""])
 
+        days_back = 30
+        if options_dict.has_key("days-back"):
+            db = options_dict["days-back"]
+            try:
+                db = float(db)
+            except:
+                db = -1
+
+            if db <= 0:
+                rctalk.warning("Ignoring invalid argument to --days-back option.")
+            else:
+                days_back = db
+
+        secs_back = int(days_back * 86400)  # 1 day = 86400 sec
+
+        query.append(["cutoff_time", "<=", str(secs_back)])
 
         ## Pass our query to the server, and get a pile of log entries back.
         ## We need to sort them, since they aren't guaranteed to be in any
