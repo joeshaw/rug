@@ -1121,9 +1121,9 @@ class TransactCmd(rccommand.RCCommand):
     def transact(self, server, options_dict, install_packages, remove_packages, extra_reqs=[], verify=0):
         try:
             if verify:
-                dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
+                dep_install, dep_remove, dep_info = server.rcd.packsys.verify_dependencies()
             else:
-                dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
+                dep_install, dep_remove, dep_info = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.failed_dependencies:
                 rctalk.error(f.faultString)
