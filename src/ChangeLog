@@ -1,3 +1,9 @@
+2002-07-26  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (transact_and_poll): Print a newline after the
+	download is done, and print "Download complete" there instead of
+	trying to be clever and failing.
+
 2002-07-25  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoConflictsCmd.execute): Do the

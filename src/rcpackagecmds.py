@@ -967,7 +967,8 @@ def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
                 progress_msg = rcformat.pending_to_str(tid_info)
                 rctalk.message_status(progress_msg)
 
-            if tid_info["status"] != "running":
+            if tid_info["percent_complete"] >= 100.0:
+                rctalk.message("")
                 rctalk.message_finished("Download complete")
 
             message_len = len(tid_info["messages"])
