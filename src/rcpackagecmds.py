@@ -1123,6 +1123,9 @@ class PackageSolveCmd(rccommand.RCCommand):
     def arguments(self):
         return "<package-dep>"
 
+    def description_short(self):
+        return "Resolve dependencies for libraries"
+
     def execute(self, server, options_dict, non_option_args):
         if options_dict.has_key("dry-run"):
             dry_run = 1
