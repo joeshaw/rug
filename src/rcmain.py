@@ -191,16 +191,12 @@ def main(ver):
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
             raise
-    except:
-        try:
-            try:
-                raise
-            except socket.sslerror, e:
-                rctalk.error("Unable to make a secure connection to the daemon: " + str(e))
-                sys.exit(1)
-        except (AttributeError, NameError):
-            rctalk.error("This system's python is build without SSL support.  SSL is required for remote connections")
-            sys.exit(1)
+    except NotImplementedError:
+        rctalk.error("This system's python is built without SSL support.  SSL is required for remote connections")
+        sys.exit(1)
+    except vars(socket).has_key("sslerror") and socket.sslerror, e:
+        rctalk.error("Unable to make a secure connection to the daemon: " + str(e))
+        sys.exit(1)
 
     ### Whitespace is nice, so we always print a blank line after
     ### executing the command
