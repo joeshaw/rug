@@ -114,6 +114,9 @@ class PackagesCmd(rccommand.RCCommand):
             keys = ["installed", "name", "version"]
             headers = ["S", "Name", "Version"]
 
+        # If we're getting all of the packages available to us, filter out
+        # ones in the "hidden" channels, like the system packages channel.
+        packages = rcpackageutils.filter_visible_channels(server, packages)
         
         for p in packages:
             row = rcformat.package_to_row(server, p, options_dict.has_key("no-abbrev"), keys)

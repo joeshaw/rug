@@ -1,3 +1,9 @@
+2003-09-18  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackagesCmd): Call
+	rcpackageutils.filter_visible_channels() to fix the
+	single-package-listed-doubly issue.
+
 2003-09-17  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoRequirementsCmd,
