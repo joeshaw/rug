@@ -147,11 +147,14 @@ def main(rc_version):
         sys.exit(1)
     except ximian_xmlrpclib.ProtocolError, e:
         if e.errcode == 401:
-            rctalk.error("Unable to authenticate with the daemon.")
+            rctalk.error("Unable to authenticate with the daemon; you must")
+            rctalk.error("provide a username and password")
         else:
             raise
     except ximian_xmlrpclib.Fault, f:
-        if f.faultCode == rcfault.permission_denied:
+        if f.faultCode == rcfault.cant_authenticate:
+            rctalk.error("Unable to authenticate your username and/or password")
+        elif f.faultCode == rcfault.permission_denied:
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
             raise

@@ -31,3 +31,4 @@ invalid_channel        = -606
 invalid_transaction_id = -607
 invalid_preference     = -608
 locked                 = -609
+cant_authenticate      = -610

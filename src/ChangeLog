@@ -1,3 +1,10 @@
+2002-07-19  Joe Shaw  <joe@ximian.com>
+
+	* rcfault.py: Add cant_authenticate fault.
+
+	* rcmain.py (main): Handle rcfault.cant_authenticate as well as
+	rcfault.permission_denied.
+
 2002-07-19  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py: Added very preliminary implementations
