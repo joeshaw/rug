@@ -1448,7 +1448,11 @@ class PackageUpdateCmd(TransactCmd):
         return "Download and install available updates"
 
     def local_opt_table(self):
-        return [["i", "importance", "importance", "Only install updates as or more important than 'importance' (valid are " + str(update_importances.keys()) + ")"]]
+        opts = TransactCmd.local_opt_table(self)
+
+        opts.append(["i", "importance", "importance", "Only install updates as or more important than 'importance' (valid are " + str(update_importances.keys()) + ")"])
+
+        return opts
 
     def execute(self, server, options_dict, non_option_args):
         min_importance = None

@@ -1,5 +1,10 @@
 2002-08-21  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageUpdateCmd): We need to inherit
+	TransactCmd's local_opt_table.
+
+2002-08-21  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageListUpdateCmd, PackageUpdateCmd): Add
 	-i/--importance options which will show or update only packages of
 	equal or greater importance.
