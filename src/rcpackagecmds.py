@@ -796,10 +796,86 @@ def format_dependencies(server, dep_list):
     rctalk.message("")
 
 ###
+### Base class for all transaction-based commands
+###
+
+class TransactCmd(rccommand.RCCommand):
+    def unattended_removals(self):
+        return 0
+    
+    def local_opt_table(self):
+        opts = [["y", "no-confirmation", "", "Permit all actions without confirmations"]]
+
+        if not self.unattended_removals():
+            opts.append(["d", "allow-removals", "", "Permit removal of software without confirmation"])
+
+        return opts
+
+    def transact(self, server, options_dict, install_packages, remove_packages, extra_reqs=[], verify=0):
+        try:
+            if verify:
+                dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
+            else:
+                dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -604:
+                rctalk.error(f.faultString)
+                sys.exit(1)
+            else:
+                raise
+
+        if install_packages:
+            rctalk.message("The following requested packages will be installed:")
+            format_dependencies(server, install_packages)
+
+        if dep_install:
+            if install_packages:
+                rctalk.message("The following additional packages will be installed:")
+            else:
+                rctalk.message("The following packages will be installed:")
+                
+            format_dependencies(server, dep_install)
+
+        if remove_packages:
+            rctalk.message("The following requested packages will be removed:")
+            format_dependencies(server, remove_packages)
+
+        if dep_remove:
+            if remove_packages:
+                rctalk.message("The following packages must also be REMOVED:")
+            else:
+                rctalk.message("The following packages must be REMOVED:")
+
+            format_dependencies(server, dep_remove)
+
+        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+            confirm = raw_input("Do you want to continue? [Y/n] ")
+            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Aborted.")
+                sys.exit(0)
+
+        allow_remove = self.unattended_removals() or options_dict.has_key("allow-removals")
+
+        if dep_remove and options_dict.has_key("no-confirmation") and not allow_remove:
+            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
+            sys.exit(1)
+
+        if options_dict.has_key("dry-run"):
+            dry_run = 1
+        else:
+            dry_run = 0
+        
+        transact_and_poll(server,
+                          install_packages + extract_packages(dep_install),
+                          remove_packages + extract_packages(dep_remove),
+                          dry_run)
+
+
+###
 ### "install" command
 ###
 
-class PackageInstallCmd(rccommand.RCCommand):
+class PackageInstallCmd(TransactCmd):
 
     def name(self):
         return "install"
@@ -811,9 +887,11 @@ class PackageInstallCmd(rccommand.RCCommand):
         return "Install packages"
 
     def local_opt_table(self):
-        return [["d", "allow-removals", "", "Permit removal of software without confirmation"],
-                ["y", "no-confirmation", "", "Permit all actions without confirmations"],
-                ["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"]]
+        opts = TransactCmd.local_opt_table(self)
+
+        opts.append(["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"])
+
+        return opts
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_install = []
@@ -822,11 +900,6 @@ class PackageInstallCmd(rccommand.RCCommand):
             allow_unsub = 1
         else:
             allow_unsub = 0
-
-        if options_dict.has_key("dry-run"):
-            dry_run = 1
-        else:
-            dry_run = 0
 
         for a in non_option_args:
             channel = None
@@ -872,49 +945,13 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to install ---")
             sys.exit(0)
 
-        try:
-            dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -604:
-                rctalk.error(f.faultString)
-                sys.exit(1)
-            else:
-                raise
-
-        if rctalk.show_verbose:
-            rctalk.message("The following requested packages will be installed:")
-            format_dependencies(server, packages_to_install)
-
-        if dep_install:
-            rctalk.message("The following additional packages will be installed:")
-            format_dependencies(server, dep_install)
-
-        if dep_remove:
-            rctalk.message("The following packages must be REMOVED:")
-            format_dependencies(server, dep_remove)
-
-        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
-            confirm = raw_input("Do you want to continue? [Y/n] ")
-            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
-                rctalk.message("Aborted.")
-                sys.exit(0)
-
-        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
-            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
-            sys.exit(1)
-
-        transact_and_poll(server,
-                          packages_to_install + extract_packages(dep_install),
-                          extract_packages(dep_remove),
-                          dry_run)
-
+        self.transact(server, options_dict, packages_to_install, [], [])
 
 ###
 ### "remove" command
 ###
 
-class PackageRemoveCmd(rccommand.RCCommand):
-
+class PackageRemoveCmd(TransactCmd):
     def name(self):
         return "remove"
 
@@ -924,17 +961,12 @@ class PackageRemoveCmd(rccommand.RCCommand):
     def description_short(self):
         return "Remove packages"
 
-    def local_opt_table(self):
-        return [["y", "no-confirmation", "", "Perform the actions without confirmation"]]
+    def unattended_removals(self):
+        return 1
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_remove = []
         
-        if options_dict.has_key("dry-run"):
-            dry_run = 1
-        else:
-            dry_run = 0
-
         for a in non_option_args:
             p = find_package_on_system(server, a)
 
@@ -948,44 +980,13 @@ class PackageRemoveCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to remove ---")
             sys.exit(0)
 
-        try:
-            dep_install, dep_remove = server.rcd.packsys.resolve_dependencies([], packages_to_remove)
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -604:
-                rctalk.error(f.faultString)
-                sys.exit(1)
-            else:
-                raise
-
-        if rctalk.show_verbose:
-            rctalk.message("The following requested packages will be REMOVED:")
-            format_dependencies(server, packages_to_remove)
-
-        if dep_install:
-            rctalk.message("The following additional packages will be installed:")
-            format_dependencies(server, dep_install)
-
-        if dep_remove:
-            rctalk.message("The following packages must also be REMOVED:")
-            format_dependencies(server, dep_remove)
-
-        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
-            confirm = raw_input("Do you want to continue? [Y/n] ")
-            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
-                rctalk.message("Aborted.")
-                sys.exit(0)
-
-        transact_and_poll(server,
-                          extract_packages(dep_install),
-                          packages_to_remove + extract_packages(dep_remove),
-                          dry_run)
-
+        self.transact(server, options_dict, [], packages_to_remove, [])
 
 ###
 ### "update-all" command
 ###
 
-class PackageUpdateAllCmd(rccommand.RCCommand):
+class PackageUpdateAllCmd(TransactCmd):
 
     def name(self):
         return "update-all"
@@ -996,15 +997,7 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
     def description_short(self):
         return "Download and install available updates"
 
-    def local_opt_table(self):
-        return [["d", "allow-removals", "", "Allow removals with no confirmation"],
-                ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
-
     def execute(self, server, options_dict, non_option_args):
-        if options_dict.has_key("dry-run"):
-            dry_run = 1
-        else:
-            dry_run = 0
 
         up = get_updates(server, non_option_args)
 
@@ -1015,47 +1008,13 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to update ---")
             sys.exit(0)
 
-        try:
-            dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -604:
-                rctalk.error(f.faultString)
-                sys.exit(1)
-            else:
-                raise
-
-        rctalk.message("The following packages will be updated:")
-        format_dependencies(packages_to_install)
-
-        if dep_install:
-            rctalk.message("The following additional packages will be installed:")
-            format_dependencies(dep_install)
-
-        if dep_remove:
-            rctalk.message("The following packages must be REMOVED:")
-            format_dependencies(dep_remove)
-
-        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
-            confirm = raw_input("Do you want to continue? [Y/n] ")
-            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
-                rctalk.message("Aborted.")
-                sys.exit(0)
-
-        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
-            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
-            sys.exit(1)
-
-        transact_and_poll(server,
-                          packages_to_install + extract_packages(dep_install),
-                          extract_packages(dep_remove),
-                          dry_run)
-
+        self.transact(server, options_dict, packages_to_install, [], [])
 
 ###
 ### "verify" command
 ###
 
-class PackageVerifyCmd(rccommand.RCCommand):
+class PackageVerifyCmd(TransactCmd):
 
     def name(self):
         return "verify"
@@ -1066,53 +1025,14 @@ class PackageVerifyCmd(rccommand.RCCommand):
     def description_short(self):
         return "Verify system dependencies"
 
-    def local_opt_table(self):
-        return [["d", "allow-removals", "", "Allow removals with no confirmation"],
-                ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
-
     def execute(self, server, options_dict, non_option_args):
-        if options_dict.has_key("dry-run"):
-            dry_run = 1
-        else:
-            dry_run = 0
-
-        try:
-            dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -604:
-                rctalk.error(f.faultString)
-                sys.exit(1)
-            else:
-                raise
-
-        if dep_install:
-            rctalk.message("The following packages must be installed:")
-            format_dependencies(server, dep_install)
-
-        if dep_remove:
-            rctalk.message("The following packages must be REMOVED:")
-            format_dependencies(server, dep_remove)
-
-        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
-            confirm = raw_input("Do you want to continue? [Y/n] ")
-            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
-                rctalk.message("Aborted.")
-                sys.exit(0)
-
-        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
-            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
-            sys.exit(1)
-
-        transact_and_poll(server,
-                          extract_packages(dep_install),
-                          extract_packages(dep_remove),
-                          dry_run)
+        self.transact(server, options_dict, [], [], [], verify=1)
 
 ###
 ### "solvedeps" command
 ###
 
-class PackageSolveCmd(rccommand.RCCommand):
+class PackageSolveCmd(TransactCmd):
 
     def name(self):
         return "solvedeps"
@@ -1145,41 +1065,7 @@ class PackageSolveCmd(rccommand.RCCommand):
 
             dlist.append(dep)
 
-        try:
-            dep_install, dep_remove = server.rcd.packsys.solve_dependencies(dlist)
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -604:
-                rctalk.error(f.faultString)
-                sys.exit(1)
-            else:
-                raise
-
-        if not dep_install and not dep_remove:
-            rctalk.message("Those dependencies are already satisfied on the system")
-            sys.exit(0)
-
-        if dep_install:
-            rctalk.message("The following packages must be installed:")
-            format_dependencies(server, dep_install)
-
-        if dep_remove:
-            rctalk.message("The following packages must be REMOVED:")
-            format_dependencies(server, dep_remove)
-
-        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
-            confirm = raw_input("Do you want to continue? [Y/n] ")
-            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
-                rctalk.message("Aborted.")
-                sys.exit(0)
-
-        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
-            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
-            sys.exit(1)
-
-        transact_and_poll(server,
-                          extract_packages(dep_install),
-                          extract_packages(dep_remove),
-                          dry_run)
+        self.transact(server, options_dict, [], [], dlist)
 
 ###
 ### "debug" command

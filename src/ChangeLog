@@ -1,5 +1,12 @@
 2002-07-11  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (TransactCmd): Added.  A base class for all of
+	the other transaction-based commands (install, remove, update-all,
+	and solvedeps) to derive from.  Updates the RPC call to
+	rcd.packsys.resolve_dependencies().
+
+2002-07-11  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageSolveCmd): Added.  Takes a list of deps
 	("gtkhtml", "libgal.so.20", etc.) and does a dependency resolution
 	on them.
