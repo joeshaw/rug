@@ -1,3 +1,9 @@
+2003-08-16  Joe Shaw  <joe@ximian.com>
+
+	* rcchannelcmds.py (ListChannelsCmd): Get rid of some checks for
+	the old transient flag and add one for the new hidden flag.  Don't
+	show the channel if it's hidden.
+
 2003-08-13  Joe Shaw  <joe@ximian.com>
 
 	* rccommand.py: Add a "service" category

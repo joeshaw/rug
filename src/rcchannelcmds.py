@@ -66,8 +66,8 @@ class ListChannelsCmd(rccommand.RCCommand):
 
             show = 1
 
-            if options_dict.has_key("mounted") and not c["transient"]:
-                    show = 0
+            if c["hidden"]:
+                show = 0
 
             if c["subscribed"]:
                 if rctalk.be_terse:
