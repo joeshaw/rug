@@ -1,5 +1,10 @@
 2002-08-28  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (TransactCmd.transact): Make 'N' the default
+	for transactions... it safer this way.
+
+2002-08-28  Joe Shaw  <joe@ximian.com>
+
 	* rclogcmds.py (log_entries_list): Add whitespace between package
 	name and EVR.
 

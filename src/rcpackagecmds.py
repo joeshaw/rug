@@ -1262,8 +1262,8 @@ class TransactCmd(rccommand.RCCommand):
             format_dependencies(server, dep_remove)
 
         if not options_dict.has_key("no-confirmation"):
-            confirm = raw_input("Do you want to continue? [Y/n] ")
-            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+            confirm = raw_input("Do you want to continue? [y/N] ")
+            if not confirm or not (confirm[0] == "y" or confirm[0] == "Y"):
                 rctalk.message("Cancelled.")
                 sys.exit(0)
 
