@@ -1,3 +1,12 @@
+2002-07-28  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (find_package_in_channel): Print an "Unable to
+	find package" warning if a specific channel was specified.
+	(PackageInfoConflictsCmd.execute): Exit if the requested package
+	was not found.  Suppress self-conflicts.
+	(PackageInfoProvidesCmd.execute): Exit if the requested package
+	was not found.
+
 2002-07-27  Ian Peters  <itp@ximian.com>
 
 	* rcpackagecmds.py: add "ua" as an alias to update-all

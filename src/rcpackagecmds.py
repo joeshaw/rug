@@ -37,6 +37,7 @@ def find_package_in_channel(server, channel, package, allow_unsub):
                                            ["channel",   "is", str(channel)]])
 
         if not plist:
+            rctalk.error("Unable to find package '" + package + "'")
             return (None, 0)
         else:
             p = plist[0]
@@ -770,7 +771,7 @@ class PackageInfoCmd(rccommand.RCCommand):
 ### "info-provides" command
 ###
 
-### FIXME: this barely works
+### FIXME: this is pretty minimalistic
 
 class PackageInfoProvidesCmd(rccommand.RCCommand):
 
@@ -784,6 +785,9 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
         
         pkg_specifier = non_option_args[0]
         pkg = find_package(server, pkg_specifier, 1)
+
+        if not pkg:
+            sys.exit(1)
 
         dep_info = server.rcd.packsys.package_dependency_info(pkg)
 
@@ -891,6 +895,14 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
 ### "info-conflicts" command
 ###
 
+def evr_eq(a, b):
+    for x in ["name", "version", "release", "epoch"]:
+        if a.has_key(x) != b.has_key(x) or \
+           (a.has_key(x) and a[x] != b[x]):
+            return 0
+    return 1
+        
+
 class PackageInfoConflictsCmd(rccommand.RCCommand):
     
     def name(self):
@@ -903,6 +915,9 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
 
         pkg_specifier = non_option_args[0]
         pkg = find_package(server, pkg_specifier, 1)
+
+        if not pkg:
+            sys.exit(1)
 
         dep_info = server.rcd.packsys.package_dependency_info(pkg)
 
@@ -918,19 +933,21 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
             name = rcformat.dep_to_str(dep)
             status = ""
             for conf in conflictors:
-                if conf["installed"]:
+                if conf["installed"] \
+                       and not evr_eq(conf, pkg): # skip self-conflicts
                     status = "*"
 
             count = 0
             for conf in conflictors:
-                row = rcformat.package_to_row(server, conf, 0, ["name", "installed", "channel"])
-                key = string.join(row)
-                if not conf_dict.has_key(key):
-                    table.append([status, name] + row)
-                    conf_dict[key] = 1
-                    status = ""
-                    name = ""
-                    count = count + 1
+                if not evr_eq(conf, pkg): # skip self-conflicts
+                    row = rcformat.package_to_row(server, conf, 0, ["name", "installed", "channel"])
+                    key = string.join(row)
+                    if not conf_dict.has_key(key):
+                        table.append([status, name] + row)
+                        conf_dict[key] = 1
+                        status = ""
+                        name = ""
+                        count = count + 1
 
             if count == 0:
                 table.append(["", name, "", "", ""])
