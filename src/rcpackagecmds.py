@@ -955,6 +955,7 @@ def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
                                       ximian_xmlrpclib.Boolean(dry_run))
     message_offset = 0
     download_percent = 0.0
+    download_completed = 0
 
     while 1:
         tid_info = None
@@ -967,7 +968,8 @@ def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
                 progress_msg = rcformat.pending_to_str(tid_info)
                 rctalk.message_status(progress_msg)
 
-            if tid_info["percent_complete"] >= 100.0:
+            if tid_info["percent_complete"] >= 100.0 and not download_completed:
+                download_completed = 1
                 rctalk.message("")
                 rctalk.message_finished("Download complete")
 
