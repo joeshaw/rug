@@ -1,5 +1,10 @@
 2003-05-23  Joe Shaw  <joe@ximian.com>
 
+	* ximian_xmlrpclib.py: Sync this up with the version from
+	red-carpet so we can take advantage of our new fast unmarshaller.
+
+2003-05-23  Joe Shaw  <joe@ximian.com>
+
 	* rcprefscmds.py (PrefsMirrorsCmd): Gracefully handle when there
 	are no available mirrors.
 
