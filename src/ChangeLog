@@ -1,5 +1,9 @@
 2002-07-22  Jon Trowbridge  <trow@ximian.com>
 
+	* rcchannelcmds.py (RefreshChannelCmd.execute): Keep track of
+	the pending action IDs of our channel downloads, and block & poll
+	the actions while the downloads occur.
+
 	* rcusercmds.py (UserAddCmd.is_hidden): Should be os.getuid() !=
 	0, not os.getuid != 0.
 	(UserDeleteCmd): Added.  A command that deletes users from

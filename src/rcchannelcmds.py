@@ -17,6 +17,7 @@
 
 import sys
 import string
+import time
 import rctalk
 import rcfault
 import rcformat
@@ -191,10 +192,12 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
+        stuff_to_poll = []
+
         if not non_option_args:
             if not options_dict.has_key("dry-run"):
                 try:
-                    server.rcd.packsys.refresh_all_channels()
+                    stuff_to_poll = server.rcd.packsys.refresh_all_channels()
                 except ximian_xmlrpclib.Fault, f:
                     if f.faultCode == rcfault.locked:
                         rctalk.error("The daemon is busy processing another "
@@ -219,10 +222,50 @@ class RefreshChannelCmd(rccommand.RCCommand):
                 sys.exit(1)
 
             for c in to_do:
-                if c and \
-                   (options_dict.has_key("dry-run") or \
-                    server.rcd.packsys.refresh_channel(int(c["id"]))):
-                    rctalk.message("Refreshing channel "+channel_to_str(c))
+                if c:
+                    if not options_dict.has_key("dry-run"):
+                        stuff_to_poll.append(server.rcd.packsys.refresh_channel(int(c["id"])))
+                    rctalk.message("Refreshing channel "+rcchannelutils.channel_to_str(c))
+
+        if stuff_to_poll:
+            try:
+                count = 1
+                polling = 1
+                while polling:
+                    polling = 0
+
+                    percent = 0
+
+                    time_remaining = -1
+                    for tid in stuff_to_poll:
+                        pending = server.rcd.system.poll_pending(tid)
+
+                        if pending["is_active"]:
+                            polling = 1
+
+                            percent = percent + pending["percent_complete"]
+
+                            if pending.has_key("remaining_sec"):
+                                time_remaining = max(time_remaining,
+                                                     pending["remaining_sec"])
+                    
+                    percent = percent / len(stuff_to_poll)
+                    
+                    msg = "Downloading... %.f%% complete" % percent
+                    if time_remaining >= 0:
+                        msg = msg + ", " + rcformat.seconds_to_str(time_remaining) + " remaining"
+
+                    rctalk.message_status(msg)
+
+                    if polling:
+                        time.sleep(0.4)
+
+                    rctalk.message_finished("Download complete")
+
+            except KeyboardInterrupt:
+
+                rctalk.message_finished("The download will finish in the background")
+                sys.exit(0)
 
 
 
