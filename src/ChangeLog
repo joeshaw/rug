@@ -1,3 +1,16 @@
+2003-09-09  Joe Shaw  <joe@ximian.com>
+
+	* rcmountcmds.py (MountCmd): Handle the invalid_service fault if
+	we can't mount the directory and print out the fault string as the
+	error message.
+
+	* rcservicecmds.py (ServiceListCmd): Add a "--show-ids" argument
+	to additionally show the service ID.  Add a new verbose output
+	which contains a lot more info, including the distro target and
+	contact email.
+	(ServiceRefreshCmd, ServiceActivateCmd): Allow the service number
+	shown in ServiceListCmd to be used for these commands too.
+
 2003-09-08  Joe Shaw  <joe@ximian.com>
  
         * rcmain.py (main): Move the protocol version check into the try

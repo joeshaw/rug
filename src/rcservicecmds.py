@@ -71,12 +71,27 @@ class ServiceListCmd(rccommand.RCCommand):
     def category(self):
         return "service"
 
+    def local_opt_table(self):
+        return [["", "show-ids", "", "Show service IDs"]]
+
     def execute(self, server, options_dict, non_option_args):
+
+        if options_dict.has_key("show-ids"):
+            show_ids = 1
+        else:
+            show_ids = 0
 
         services = get_services(server)
 
+        if options_dict.has_key("verbose"):
+            self.verbose_output(server, services)
+        else:
+            self.columned_output(server, services, show_ids)
+
+    def columned_output(self, server, services, show_ids=0):
         table = []
         row_no = 1
+
         for serv in services:
             if serv.has_key("is_invisible") and serv["is_invisible"]:
                 continue
@@ -85,17 +100,48 @@ class ServiceListCmd(rccommand.RCCommand):
                 name = serv["name"]
             else:
                 name = "(No name available)"
-            
-            row = [str(row_no), serv["id"], serv["url"], name]
+
+            if show_ids:
+                row = [str(row_no), serv["id"], serv["url"], name]
+            else:
+                row = [str(row_no), serv["url"], name]
+                
             table.append(row)
 
             row_no = row_no + 1
 
         if table:
-            rcformat.tabular(["#", "Service ID", "Service URI", "Name"], table)
+            if show_ids:
+                headers = ["#", "Service ID", "Service URI", "Name"]
+            else:
+                headers = ["#", "Service URI", "Name"]
+
+            rcformat.tabular(headers, table)
         else:
             rctalk.message("*** No services are mounted ***")
 
+    def verbose_output(self, server, services):
+        for serv in services:
+            if serv.has_key("is_invisible") and serv["is_invisible"]:
+                continue
+
+            rctalk.message("       Service ID: %s" % serv["id"])
+            rctalk.message("     Service Name: %s" % serv["name"])
+            rctalk.message("      Service URI: %s" % serv["url"])
+
+            if serv.has_key("distro_name"):
+                rctalk.message("Distribution type: %s %s (%s)" %
+                               (serv["distro_name"], serv["distro_version"],
+                                serv["distro_target"]))
+
+            if serv.has_key("contact_email"):
+                rctalk.message("    Contact email: %s" % serv["contact_email"])
+
+            if serv.has_key("premium_service"):
+                rctalk.message("  RCX/RCE Service: %s" %
+                               ((serv["premium_service"] and "yes") or "no"))
+                
+            rctalk.message("")
 
 class ServiceAddCmd(rccommand.RCCommand):
 
@@ -337,8 +383,15 @@ class ServiceRefreshCmd(rccommand.RCCommand):
             self.usage()
             sys.exit(1)
 
+        services = get_services(server)
+        s = find_service(services, non_option_args[0])
+
+        if not s:
+            rctalk.error("No service matches '%s'" % non_option_args[0])
+            sys.exit(1)
+
         if non_option_args:
-            rcchannelutils.refresh_channels(server, non_option_args[0])
+            rcchannelutils.refresh_channels(server, s)
         else:
             rcchannelutils.refresh_channels(server)
 
@@ -379,7 +432,15 @@ class ServiceActivateCmd(rccommand.RCCommand):
             activation_info["email"] = non_option_args[1]
 
         if options_dict.has_key("service"):
-            activation_info["service"] = options_dict["service"]
+            services = get_services()
+            s = find_service(services, options_dict["service"])
+
+            if not s:
+                rctalk.error("No service matches '%s'" %
+                             options_dict["service"])
+                sys.exit(1)
+            
+            activation_info["service"] = s
 
         if options_dict.has_key("alias"):
             activation_info["alias"] = options_dict["alias"]
