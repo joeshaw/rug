@@ -15,6 +15,7 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ###
 
+import os
 import string
 import sys
 import time
@@ -1317,11 +1318,13 @@ class PackageForFileCmd(rccommand.RCCommand):
         error_flag = 0
         for filename in non_option_args:
 
+            full_fn = os.path.abspath(filename)
+
             try:
-                plist = server.rcd.packsys.find_package_for_file(filename)
+                plist = server.rcd.packsys.find_package_for_file(full_fn)
             except ximian_xmlrpclib.Fault, f:
                 if f.faultCode == rcfault.package_not_found:
-                    rctalk.error("No package owns file '%s'" % filename)
+                    rctalk.error("No package owns file '%s'" % full_fn)
                     error_flag = 1
                     continue
                 else:
@@ -1329,7 +1332,7 @@ class PackageForFileCmd(rccommand.RCCommand):
 
             prefix = ""
             if len(non_option_args) > 1:
-                prefix = "%s: " % filename
+                prefix = "%s: " % full_fn
 
             for p in plist:
                 if options_dict.has_key("no-abbrev"):

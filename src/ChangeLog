@@ -1,5 +1,11 @@
 2004-02-17  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageForFileCmd.execute): Get the absolute
+	path of the passed in filenames so absolute paths work.  Fixes
+	#54341.
+
+2004-02-17  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageForFileCmd.execute): Handle multiple
 	files being passed in.  Patch originally from Jon Trowbridge
 	<trow@ximian.com> with a minor change by me.  Fixes #54345.

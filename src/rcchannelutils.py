@@ -178,6 +178,7 @@ def refresh_channels(server, service=None):
     if stuff_to_poll:
         try:
             polling = 1
+            message_offsets = {}
             while polling:
                 polling = 0
                 percent = 0
@@ -185,6 +186,15 @@ def refresh_channels(server, service=None):
                 time_remaining = -1
                 for tid in stuff_to_poll:
                     pending = server.rcd.system.poll_pending(tid)
+
+                    if not message_offsets.has_key(tid):
+                        message_offsets[tid] = 0
+
+                    message_len = len(pending["messages"])
+                    if message_len > message_offsets[tid]:
+                        for m in pending["messages"][message_offsets[tid]:]:
+                            rctalk.message_finished(m)
+                        message_offsets[tid] = message_len
 
                     if pending.get("is_active", 0):
                         polling = 1
