@@ -1,5 +1,12 @@
 2002-07-02  Joe Shaw  <joe@ximian.com>
 
+	* rcmain.py (hexstr): Function to convert the 16-byte md5 string
+	to a 32-byte hexadecimal string.
+	(main): Send the password over as an MD5 hash to provide some
+	security.
+
+2002-07-02  Joe Shaw  <joe@ximian.com>
+
 	* ximian_xmlrpclib.py: Replace this with the version included in
 	Python 2.2.  Forward-ported my HTTP Basic auth and unix domain
 	socket patches.
