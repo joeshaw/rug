@@ -1,3 +1,8 @@
+2002-07-22  Jon Trowbridge  <trow@ximian.com>
+
+	* rcusercmds.py (UserAddCmd.is_hidden): Should be
+	os.getuid() != 0, not os.getuid != 0.
+
 2002-07-22  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackagesCmd.execute): If the user specified

@@ -146,7 +146,7 @@ class UserAddCmd(rccommand.RCCommand):
         return "user-add"
 
     def is_hidden(self):
-        return os.getuid != 0
+        return os.getuid() != 0
 
     def arguments(self):
         return "<UserName> <Privilege> <Privilege> ..."
