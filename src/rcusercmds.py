@@ -26,13 +26,13 @@ import rcformat
 import rccommand
 
 
-def get_password():
+def get_password(msg="Password"):
     p1, p2 = "foo", "bar"
 
     while p1 != p2:
 
         try:
-            p1 = getpass.getpass("Password: ")
+            p1 = getpass.getpass("%s: " % msg)
         except KeyboardInterrupt:
             p1 = ""
                 
@@ -40,7 +40,7 @@ def get_password():
             return ""
 
         try:
-            p2 = getpass.getpass("Confirm Password: ")
+            p2 = getpass.getpass("Confirm %s: " % msg)
         except KeyboardInterrupt:
             p2 = ""
                 
@@ -254,11 +254,65 @@ class UserDeleteCmd(rccommand.RCCommand):
                 rctalk.warning("Attempt to delete user '" + username + "' failed")
             else:
                 rctalk.message("User '" + username + "' deleted.")
-            
 
+
+class UserEditCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "user-edit"
+
+    def aliases(self):
+        return ["ue"]
+
+    def arguments(self):
+        return "<username>"
+
+    def description_short(self):
+        return "Edit an existing user"
+
+    def category(self):
+        return "user"
+
+    def local_opt_table(self):
+        return [["p", "change-password", "", "Change the user's password"]]
+
+    def execute(self, server, options_dict, non_option_args):
+
+        if not non_option_args:
+            rctalk.error("No user specified.")
+            sys.exit(1)
+
+        username = non_option_args[0]
+        # Damn you, python 1.5.x.  I want my lexical closures!
+        matching = filter(lambda x,y=username:x[0] == y,
+                          server.rcd.users.get_all())
+
+        if not matching:
+            rctalk.error("Unknown user '%s'" % username)
+            sys.exit(1)
+
+        new_password = "-*-unchanged-*-"
+        if options_dict.has_key("change-password"):
+            new_password = get_password("New Password")
+            
+        user = matching[0]
+        current_privs = string.split(user[1], ", ")
+
+        valid_privs = map(string.lower,
+                          server.rcd.users.get_valid_privileges())
+        new_privs = get_privileges(current_privs, valid_privs)
+        new_privs_str = string.join(new_privs, ", ")
+
+        rctalk.message("")
+
+        if server.rcd.users.update(username, new_password, new_privs_str):
+            rctalk.message("Saved changes to user '%s'" % username)
+        else:
+            rctalk.warning("Couldn't save changes to user '%s'" % username)
 
 
 rccommand.register(UserListCmd)
 rccommand.register(UserAddCmd)
 rccommand.register(UserDeleteCmd)
+rccommand.register(UserEditCmd)
 

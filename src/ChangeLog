@@ -1,5 +1,7 @@
 2002-10-15  Jon Trowbridge  <trow@ximian.com>
 
+	* rcusercmds.py: Added the long-lost user-edit command.
+
 	* Makefile.am (rcsupport_DATA): Added rcmountcmds.py.
 
 2002-10-15  Joe Shaw  <joe@ximian.com>
