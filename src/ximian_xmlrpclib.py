@@ -415,6 +415,67 @@ class SlowParser:
         except TypeError:
             xmllib.XMLParser.__init__(self) # pre-2.0
 
+#
+# HTTP helper functions
+#
+# it is very lame this isn't in httplib.
+
+def parse_http_list(s):
+    """Parse lists as described by RFC 2068 Section 2.
+
+    In particular, parse comman-separated lists where the elements of
+    the list may include quoted-strings.  A quoted-string could
+    contain a comma.
+    """
+    # XXX this function could probably use more testing
+
+    list = []
+    end = len(s)
+    i = 0
+    inquote = 0
+    start = 0
+    while i < end:
+        cur = s[i:]
+        c = string.find(cur, ',')
+        q = string.find(cur, '"')
+        if c == -1:
+            list.append(s[start:])
+            break
+        if q == -1:
+            if inquote:
+                raise ValueError, "unbalanced quotes"
+            else:
+                list.append(s[start:i+c])
+                i = i + c + 1
+                continue
+        if inquote:
+            if q < c:
+                list.append(s[start:i+c])
+                i = i + c + 1
+                start = i
+                inquote = 0
+            else:
+                i = i + q
+        else:
+            if c < q:
+                list.append(s[start:i+c])
+                i = i + c + 1
+                start = i
+            else:
+                inquote = 1
+                i = i + q + 1
+    return map(lambda x:string.strip(x), list)
+
+def parse_keqv_list(l):
+    """Parse list of key=value strings where keys are not duplicated."""
+    parsed = {}
+    for elt in l:
+        k, v = string.split(elt, '=', 1)
+        if v[0] == '"' and v[-1] == '"':
+            v = v[1:-1]
+        parsed[k] = v
+    return parsed
+
 # --------------------------------------------------------------------
 # XML-RPC marshalling and unmarshalling code
 
@@ -832,6 +893,9 @@ class Transport:
     # client identifier (may be overridden)
     user_agent = "xmlrpclib.py/%s (by www.pythonware.com)" % __version__
 
+    __auth_data = None
+    tried_once = 0
+
     def request(self, host, handler, request_body, verbose=0,
                 username=None, password=None):
         # issue XML-RPC request
@@ -843,11 +907,22 @@ class Transport:
         self.send_request(h, handler, request_body)
         self.send_host(h, host)
         self.send_user_agent(h)
-        if username and password:
-            self.send_auth(h, username, password)
+        if self.__auth_data:
+            self.send_auth(h)
+            
+        #if username and password:
+        #    self.send_auth(h, username, password)
         self.send_content(h, request_body)
 
         errcode, errmsg, headers = h.getreply()
+
+        if errcode == 401 and not self.tried_once:
+            auth = headers.getheader("WWW-Authenticate")
+            if auth and username and password:
+                if self.generate_auth(auth, handler, username, password):
+                    self.tried_once = 1
+                    return self.request(host, handler, request_body, verbose,
+                                        username, password)
 
         if errcode != 200:
             raise ProtocolError(
@@ -878,19 +953,65 @@ class Transport:
     def send_user_agent(self, connection):
         connection.putheader("User-Agent", self.user_agent)
 
-    def send_auth(self, connection, username, password):
-        import base64
-        
-        userpass = username + ":" + password
-        enc_userpass = string.strip(base64.encodestring(userpass))
-        connection.putheader("Authorization", "Basic " + enc_userpass)
-
     def send_content(self, connection, request_body):
         connection.putheader("Content-Type", "text/xml")
         connection.putheader("Content-Length", str(len(request_body)))
         connection.endheaders()
         if request_body:
             connection.send(request_body)
+
+    def send_auth(self, connection):
+        connection.putheader("Authorization", self.__auth_data)
+
+    def generate_auth(self, auth, handler, username, password):
+        type, auth_data = string.split(auth, None, 1)
+        if type == "Digest":
+            auth_fn = self.generate_digest
+        elif type == "Basic":
+            auth_fn = self.generate_basic
+        else:
+            return 0
+
+        auth_fn(auth_data, handler, username, password)
+        return 1
+
+    def generate_basic(self, auth, handler, username, password):
+        import base64
+
+        userpass = username + ":" + password
+        enc_userpass = string.strip(base64.encodestring(userpass))
+        self.__auth_data = "Basic %s" % enc_userpass
+
+    def generate_digest(self, auth, handler, username, password):
+        import md5
+        import rcutil
+        import os
+
+        # FIXME: This only does the MD5 algorithm (not MD5-sess) and
+        # only the "auth" qop (quality of protection), not "auth-int"
+
+        auth_info = parse_keqv_list(parse_http_list(auth))
+
+        A1 = rcutil.hexstr(md5.new(username + ":" +
+                                   auth_info["realm"] + ":" +
+                                   password).digest())
+        A2 = rcutil.hexstr(md5.new("POST:" + handler).digest())
+
+        cnonce = rcutil.hexstr(md5.new(
+            "%s:%s:%s" % (str(self),
+                          str(os.getpid()),
+                          str(time.time()))).digest())
+        
+        response = rcutil.hexstr(md5.new(A1 + ":" + auth_info["nonce"] +
+                                         ":00000001:" + cnonce +
+                                         ":auth:" + A2).digest())
+
+        self.__auth_data = 'Digest username="%s", realm="%s", nonce="%s", ' \
+                           'cnonce="%s", nc=00000001, qop=auth, uri="%s", ' \
+                           'response="%s"' % (username, auth_info["realm"],
+                                              auth_info["nonce"], cnonce,
+                                              handler, response)
+        
 
     def parse_response(self, f):
         # read response from input file, and parse it
