@@ -722,6 +722,9 @@ class PackageInfoCmd(rccommand.RCCommand):
     def name(self):
         return "info"
 
+    def is_basic(self):
+        return 1
+
     def aliases(self):
         return ["if"]
 
