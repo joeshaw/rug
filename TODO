@@ -10,3 +10,7 @@ since he knows about words and stuff.
 Do we do anything in the way of checks to make sure that there is
 enough disk space to download the packages?  If not, we need to add
 this!  (libredcarpet should be doing this stuff!)
+
+Need to check through all the source files and check to make sure
+the license is GPL v2 only.  (not "at your option, any later version")
+
