@@ -304,7 +304,12 @@ class PackagesCmd(rccommand.RCCommand):
 ###
 
 def pkg_to_key(p):
-    return p["name"]+":"+str(p["epoch"])+":"+p["version"]+":"+p["release"]
+    ch = p["channel"] or p.get("channel_guess", 0);
+    return "%d:%s:%d:%s:%s" % \
+           (ch, p["name"], p["epoch"], p["version"], p["release"])
+
+def pkg_to_full_key(p):
+    return "%s:%s" % (p["channel"] or p["channel_guess"], pkg_to_key(p))
 
 class PackageSearchCmd(rccommand.RCCommand):
 
@@ -388,7 +393,7 @@ class PackageSearchCmd(rccommand.RCCommand):
         in_channel = {}
         if not options_dict.has_key("channel"):
             for p in packages:
-                if p["channel"] and p["installed"]:
+                if p["installed"]:
                     in_channel[pkg_to_key(p)] = 1
 
         package_table = []

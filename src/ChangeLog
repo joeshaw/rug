@@ -1,3 +1,14 @@
+2002-09-13  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (pkg_to_key): Include the channel or channel
+	guess in the key string that we construct.
+	(PackageSearchCmd.execute): When walking across our list of
+	packages to build up the in_channel dictionary, look at all
+	installed packages -- not just those that have an explicit channel.
+	This, along with the previous change, allows us to filter out
+	a duplicate search result if we have multiple packages with the
+	same name installed. (Bug #30194)
+	
 2002-09-11  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (TransactCmd.transact): Filter out duplicates
