@@ -1244,6 +1244,9 @@ class PackageInstallCmd(TransactCmd):
     def name(self):
         return "install"
 
+    def is_basic(self):
+        return 1
+
     def aliases(self):
         return ["in"]
 
@@ -1332,6 +1335,9 @@ class PackageRemoveCmd(TransactCmd):
     def name(self):
         return "remove"
 
+    def is_basic(self):
+        return 1
+
     def category(self):
         return "package"
 
@@ -1379,6 +1385,9 @@ class PackageUpdateCmd(TransactCmd):
 
     def name(self):
         return "update"
+
+    def is_basic(self):
+        return 1
 
     def category(self):
         return "package"
