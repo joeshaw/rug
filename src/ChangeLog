@@ -1,5 +1,8 @@
 2002-12-06  Joe Shaw  <joe@ximian.com>
 
+	* rcsystemcmds.py (ActivateCmd): Mention that the activation code
+	or email address are invalid.
+
 	* rcprefscmds.py (PrefsListCmd): Sort the prefs alphabetically by
 	name.
 

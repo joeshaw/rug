@@ -162,7 +162,7 @@ class ActivateCmd(rccommand.RCCommand):
                 rcchannelutils.refresh_channels(server, [])
             
         else:
-            rctalk.warning("System could not be activated")
+            rctalk.warning("System could not be activated: Invalid activation code or email address")
             sys.exit(1)
 
 rccommand.register(ActivateCmd)
