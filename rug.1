@@ -126,8 +126,9 @@ remove (rm, erase) [packagename]
 Remove packages. Accepts the flag \fI\-y\fR or \fI\-\-no\-confirmation\fR, to perform the actions with no confirmation. To allow removals that accompany installs, use \fBrug install\fR with both the \fI\-y\fR and the \fI\-r\fR (\fI\-\-allow\-removal\fR) flags.
 
 .TP 
-rollback (ro) [options] [packagename]
-Downgrade to the previous version of a package. To use this command you must use "rug set" to set the "repackage" variable in the [System] section of rcd.conf to "true" (see rcd.conf(5) for more information). Caveats: this feature only works on systems using RPM version 4.0.4 or greater,  will cause upgrades and removals to be slower than otherwise, and uses more disk space than usual. It does not store complete copies of every removed or upgraded package, however; the resulting version must be available from a Red Carpet Enterprise server. Accepts the following flags:
+rollback (ro) [options] [time]
+Roll back package transactions to the time and date you specify. The time to which you roll back must be a time after you set the "rollback" option to "true" using \fBrug set\fR (see rcd.conf(5) for more information).  Rollback works only on RPM\-based systems. Versions to which you downgrade must be available on your Red Carpet Enterprise server.
+
 .IP 
 \-N, \-\-dry\-run
 .br 
@@ -141,13 +142,16 @@ Do not ask for confirmation when downgrading. Removal of software that is not be
 .br 
 Permit removal of software without confirmation
 
+\-d, \-\-download\-only
+.br 
+Download, but do not install, any software required for the downgrade.
 
 .TP 
 search [querystring]
 Search for the query string in the list of packages. Accepts the following options:
 
 .IP 
-\fISeach String Options:\fI
+\fISeach String Options:\fR
 .br 
 \-\-match\-all
 .br 
@@ -278,7 +282,7 @@ Unsubscribe from a channel.  You may use the full channel name or its alias. Use
 
 .TP 
 dangling\-requires
-This command takes no arguments or options, and designed more for administrators to check the coherence of shipped software. It walks across all packages in all channels on the server, to see if there are any dependencies that are not provided by something else on the server. 
+Walks across all packages in all channels on the server, to see if there are any dependencies that are not provided by something else on the server. This command takes no arguments or options. It is typically used by Red Carpet Enterprise server administrators who wish to check the coherence of software available to a particular client machine.
 
 .TP 
 info\-conflicts (ic) [packagename]
@@ -294,7 +298,7 @@ List the software that must be present before the package can be installed.
 
 .TP 
 solvedeps (solve) [string]
-Install or remove software to meet package, application, or library, and can include version numbers or ranges. The ! operator is used to indicate removal.  For example, the command rug solvedeps "!rpm\-python" "rpm404\-python" will remove the rpm\-python package, and replace it with the rpm404\-python package.
+Install or remove software to meet package, application, or library, and can include version numbers or ranges. The ! operator is used to indicate removal.  For example, the command \fBrug solvedeps "!rpm\-python" "rpm404\-python"\fR will remove the rpm\-python package, and replace it with the rpm404\-python package.
 
 .TP 
 what\-conflicts (wc) [packagename]
@@ -380,33 +384,45 @@ Display the value of the preference token you name. If you do not provide a toke
 set\-prefs (set) [token] [value]  
 Set the preference variable \fItoken\fR to the value \fIvalue\fR. Options are normally stored in the rcd.conf file (see rcd.conf(5) for more information), and can be changed by editing that file directly. However, additional Red Carpet modules can create additional settings which are not necessarily kept in rcd.conf but which are still set with the rug set.  The base set of options is:
 .IP                                             
-.IP      
-\fBproxy\-url:\fR URL for the proxy server, if any.
+
 .IP 
-\fBproxy\-username:\fR Username for the proxy, if any.
+\fBbind\-ip:\fR For systems using more than one IP address, selects the address at which rcd will bind. Leave empty to bind to all addresses.                     
 .IP 
-\fBproxy\-password:\fR Password for the proxy, if any.                             
+\fBcache\-cleanup\-enabled:\fR Delete packages from the cache when it gets too large or too old. Default is True.
 .IP 
-\fBhttp\-1.0:\fR Use the HTTP/1.0 protocol for communications with the server. Defaults to False.
+\fBcache\-directory:\fR The directory where cached data are stored. Default is /var/cache/redcarpet. 
 .IP 
 \fBcache\-enabled:\fR If True, cache downloaded packages and metadata. Defaults is True.
-.IP 
-\fBcache\-directory:\fR The directory where cached data are stored. Default is /var/cache/redcarpet.
-.IP 
-\fBcache\-cleanup\-enabled:\fR Delete old packages from the cache. Default is True. 
 .IP 
 \fBcache\-max\-age\-in\-days:\fR The number of days to leave packages in the cache (if cache\-cleanup\-enabled is true). Default is 30.
 .IP 
 \fBcache\-max\-size\-in\-mb:\fR Maximum size of the cache before cleanup (if cleanup is enabled). Default is 300.
 .IP 
-\fBrequire\-signatures:\fR Require packages be signed before installing.         
+\fBdebug\-level:\fR Sets the amount of debugging output to stderr. Values may be from 0 (none) to 6 (lots). The default is 4.
 .IP 
-\fBheartbeat\-interval:\fR The interval in seconds between automatic refreshes of server data (in seconds). The default is 21600.
+\fBheartbeat\-interval:\fR The interval in seconds between automatic refreshes of channel and package data. The default is 21600. Note that this does not affect the transaction polling interval, which is set with the server\-poll\-interval token. 
+.IP 
+\fBhttp\-1.0:\fR Use the HTTP/1.0 protocol for communications with the server. Defaults to False.
 .IP 
 \fBmax\-downloads:\fR Maximum number of concurrent package downloads. Default value is 5.
 .IP 
-\fBdebug\-level:\fR Sets the amount of debugging output to stderr. Values may be from 0 (none) to 6 (lots). The default is 4.
+\fBproxy\-password:\fR Password for the proxy, if any.        
+.IP      
+\fBproxy\-url:\fR URL for the proxy server, if any.
 .IP 
+\fBproxy\-username:\fR Username for the proxy, if any.    
+.IP 
+\fBremote\-enabled:\fR Allow clients to connect to this daemon remotely.
+.IP 
+\fBremote\-port:\fR Port used for connections of remote clients. Defaults to 504.
+.IP 
+\fBrequire\-signatures:\fR Require packages be signed before installing.     
+.IP 
+\fBrequire\-verified\-certificates:\fR Verify SSL certificates from server. Red Carpet Enterprise users should set this to false unless they have purchased an SSL certificate.
+.IP 
+\fBrollback:\fR Store more detailed transaction history, enabling rollback feature.
+.IP 
+\fBserver\-poll\-interval:\fR Interval, in seconds, to check for changes to transaction information. Note that this does not affect the channel and package refresh interval, which is set with the heartbeat\-interval token.
 \fBsyslog\-level:\fR Sets the amount of logging output saved in syslog. Values may be from 0 (none) to 6 (lots). The default is 4.
 .IP 
 \fBNote:\fR as of rug 2.0, the "host" option is no longer present; servers are defined with the \fBrug service\-add\fR command instead. The "enable\-premium" option has also been removed; premium servers are now detected automatically.
