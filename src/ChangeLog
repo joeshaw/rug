@@ -1,5 +1,11 @@
 2002-07-11  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageSolveCmd): Added.  Takes a list of deps
+	("gtkhtml", "libgal.so.20", etc.) and does a dependency resolution
+	on them.
+
+2002-07-11  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py: Oops, I need to call extract_packages() on all
 	the dep_install and dep_remove lists so transactions work.
 

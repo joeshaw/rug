@@ -876,8 +876,8 @@ class PackageInstallCmd(rccommand.RCCommand):
             dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == -604:
-                rctalk.error (f.faultString);
-                sys.exit(1);
+                rctalk.error(f.faultString)
+                sys.exit(1)
             else:
                 raise
 
@@ -952,8 +952,8 @@ class PackageRemoveCmd(rccommand.RCCommand):
             dep_install, dep_remove = server.rcd.packsys.resolve_dependencies([], packages_to_remove)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == -604:
-                rctalk.error (f.faultString);
-                sys.exit(1);
+                rctalk.error(f.faultString)
+                sys.exit(1)
             else:
                 raise
 
@@ -1019,8 +1019,8 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
             dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == -604:
-                rctalk.error (f.faultString);
-                sys.exit(1);
+                rctalk.error(f.faultString)
+                sys.exit(1)
             else:
                 raise
 
@@ -1080,8 +1080,8 @@ class PackageVerifyCmd(rccommand.RCCommand):
             dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == -604:
-                rctalk.error (f.faultString);
-                sys.exit(1);
+                rctalk.error(f.faultString)
+                sys.exit(1)
             else:
                 raise
 
@@ -1107,6 +1107,80 @@ class PackageVerifyCmd(rccommand.RCCommand):
                           extract_packages(dep_install),
                           extract_packages(dep_remove),
                           dry_run)
+
+###
+### "solvedeps" command
+###
+
+class PackageSolveCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "solvedeps"
+
+    def aliases(self):
+        return ["solve"]
+
+    def arguments(self):
+        return "<package-dep>"
+
+    def execute(self, server, options_dict, non_option_args):
+        if options_dict.has_key("dry-run"):
+            dry_run = 1
+        else:
+            dry_run = 0
+
+        dlist = []
+
+        for d in non_option_args:
+            dep = {}
+            dep["name"] = d
+            dep["relation"] = "(any)"
+            dep["has_epoch"] = 0
+            dep["epoch"] = 0
+            dep["version"] = "foo"
+            dep["release"] = "bar"
+
+            dlist.append(dep)
+
+        try:
+            dep_install, dep_remove = server.rcd.packsys.solve_dependencies(dlist)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -604:
+                rctalk.error(f.faultString)
+                sys.exit(1)
+            else:
+                raise
+
+        if not dep_install and not dep_remove:
+            rctalk.message("Those dependencies are already satisfied on the system")
+            sys.exit(0)
+
+        if dep_install:
+            rctalk.message("The following packages must be installed:")
+            format_dependencies(server, dep_install)
+
+        if dep_remove:
+            rctalk.message("The following packages must be REMOVED:")
+            format_dependencies(server, dep_remove)
+
+        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+            confirm = raw_input("Do you want to continue? [Y/n] ")
+            if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Aborted.")
+                sys.exit(0)
+
+        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
+            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
+            sys.exit(1)
+
+        transact_and_poll(server,
+                          extract_packages(dep_install),
+                          extract_packages(dep_remove),
+                          dry_run)
+
+###
+### "debug" command
+###
 
 class PackageDebugCmd(rccommand.RCCommand):
 
@@ -1139,8 +1213,8 @@ class PackageDebugCmd(rccommand.RCCommand):
         if my_open:
             f.close()
 
-        rctalk.message("Dump finished.");
-
+        rctalk.message("Dump finished.")
+        
 ###
 ### Don't forget to register!
 ###
@@ -1155,3 +1229,4 @@ rccommand.register(PackageRemoveCmd)
 rccommand.register(PackageUpdateAllCmd)
 rccommand.register(PackageVerifyCmd)
 rccommand.register(PackageDebugCmd)
+rccommand.register(PackageSolveCmd)
