@@ -1,3 +1,8 @@
+2003-10-29  Joe Shaw  <joe@ximian.com>
+
+	* rug.1: Remove references to --sort-by-{name|channel} on the
+	list-updates command.
+
 2003-10-06  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.5.90
