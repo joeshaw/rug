@@ -199,6 +199,9 @@ class RefreshChannelCmd(rccommand.RCCommand):
     def name(self):
         return "refresh"
 
+    def aliases(self):
+        return ["ref"]
+
     def category(self):
         return "system"
 

@@ -1,3 +1,11 @@
+2002-11-08  Joe Shaw  <joe@ximian.com>
+
+	* rcchannelcmds.py (RefreshChannelCmd): Added "ref" as an alias.
+
+	* rcmountcmds.py (MountCmd): Call os.path.abspath() instead of
+	os.path.normpath() so relative paths work.  Get the return code to
+	see if it was successful.
+
 2002-11-06  Joe Shaw  <joe@ximian.com>
 
 	* rclockcmds.py (LockAddCmd.execute): Show the command usage if no

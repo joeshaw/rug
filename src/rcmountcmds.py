@@ -49,7 +49,7 @@ class MountCmd(rccommand.RCCommand):
             rctalk.error("No path specified.")
             sys.exit(1)
 
-        path = os.path.normpath(non_option_args[0])
+        path = os.path.abspath(non_option_args[0])
         path_base = os.path.basename(path)
 
         aliases = map(rcchannelutils.get_channel_alias,
@@ -74,15 +74,18 @@ class MountCmd(rccommand.RCCommand):
 
         name = options_dict.get("name", path)
         try:
-            server.rcd.packsys.mount_directory(path, name, alias)
+            success = server.rcd.packsys.mount_directory(path, name, alias)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.undefined_method:
                 rctalk.error("Server does not support mount.")
                 sys.exit(1)
             else:
                 raise
-
-        rctalk.message("Mounted '%s' as a channel." % path)
+        else:
+            if success:
+                rctalk.message("Mounted '%s' as a channel." % path)
+            else:
+                rctalk.error("Could not mount '%s' as a channel." % path)
 
 class UnmountCmd(rccommand.RCCommand):
 
@@ -120,17 +123,11 @@ class UnmountCmd(rccommand.RCCommand):
                 sys.exit(1)
             else:
                 raise
-
-        if retval:
-            results = "succeeded"
         else:
-            results = "failed"
-
-        rctalk.message("Unmount of channel %s %s." %
-                       (channel["name"], results))
-
-                    
-
+            if retval:
+                rctalk.message("Unmounted channel '%s'" % channel["name"])
+            else:
+                rctalk.error("Unmount of channel '%s' failed" % channel["name"])
 
 rccommand.register(MountCmd)
 rccommand.register(UnmountCmd)
