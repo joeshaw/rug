@@ -311,7 +311,7 @@ class LockDeleteCmd(rccommand.RCCommand):
         return "<lock #>"
 
     def description_short(self):
-        return "Remove a package log rule"
+        return "Remove a package lock rule"
 
     def category(self):
         return "lock"
