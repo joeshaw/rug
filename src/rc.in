@@ -1,0 +1,142 @@
+#!/usr/bin/python
+
+import sys
+import string
+import xmlrpclib
+import getopt
+
+import rccommand
+import rcchannelcmds
+
+rc_version = "0.0"
+rc_name = "Red Carpet Command Line Client " + rc_version
+rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
+
+###
+### Grab the option list and extract the first non-option argument that
+### looks like a command.  This could get weird if someone passes the name
+### of a command as the argument to an option.
+###
+
+argv = sys.argv[1:]
+
+if "--version" in argv:
+    print
+    print rc_name
+    print rc_copyright
+    print
+    sys.exit(0)
+
+command = None
+found_name = 0
+i = 0
+while i < len(argv) and not command:
+    if argv[i][0] != "-":
+        found_name = 1
+        command = rccommand.construct(argv[i])
+        if command:
+            argv.pop(i)
+    i = i + 1
+
+if not found_name:
+    print "No command found on command line."
+    print
+    rccommand.usage()
+    sys.exit(1)
+
+if not command:
+    print "Unknown command."
+    print
+    rccommand.usage()
+    sys.exit(1)
+
+###
+### Build up a table of command-line options, consisting of both our global
+### options and of the command-specific options.
+###
+
+default_opt_table = [["u", "user",     "username", "User Name"],
+                     ["p", "password", "password", "Password"],
+                     ["h", "host",     "hostname", "Contact daemon on specified host"],
+                     ["n", "dry-run",  "",         "Don't perform operation"],
+                     ["v", "verbose",  "",         "Verbose output"],
+                     ["",  "version",  "",         "Print client version and exit"],
+                     ["t", "terse",    "",         "Terse output"],
+                     ["",  "batch",    "",         "Run in batch mode"],
+                     ["",  "debug",    "",         "Debugging output"],
+                     ["?", "help",     "",         "Get help on a specific command"]]
+
+opt_table = default_opt_table + command.opt_table()
+
+###
+### Now compile our list of arguments into something that getopt can understand,
+### call getopt on argv, and then assemble the stuff returned by getopt into a nice
+### dictionary of option-value pairs.
+###
+
+short_opt_getopt = ""
+long_opt_getopt  = []
+
+short2long_dict = {}
+
+for o in opt_table:
+    
+    short_opt = o[0]
+    long_opt  = o[1]
+    opt_desc  = o[2]
+
+    if short_opt:
+
+        if short2long_dict.has_key(short_opt):
+            print "Short option collision!"
+            print "-" + short_opt + ", --" + long_opt
+            print "  vs."
+            print "-" + short_opt + ", --" + short2long_dict[short_opt]
+            sys.exit(1)
+            
+        short2long_dict[short_opt] = long_opt
+        short_opt_getopt = short_opt_getopt + short_opt
+        if opt_desc:
+            short_opt_getopt = short_opt_getopt + ":"
+
+    if opt_desc:
+        long_opt_getopt.append(long_opt + "=")
+    else:
+        long_opt_getopt.append(long_opt)
+
+
+optlist, args = getopt.getopt(argv, short_opt_getopt, long_opt_getopt)
+
+opt_dict = {}
+
+for key, value in optlist:
+    if key[0:2] == "--":
+        opt_dict[key[2:]] = value
+    else:
+        opt_dict[short2long_dict[key[1:]]] = value
+
+
+###
+### Open a connection to the server.
+###
+
+if opt_dict.has_key("host"):
+    host = opt_dict["host"]
+else:
+    host = "localhost"
+
+if string.find(host, ":") == -1:
+    host = host + ":5505"
+
+server = xmlrpclib.Server("http://" + host + "/RPC2")
+
+# FIXME: check for error here.  Maybe we should ping the server
+# before going further?
+
+###
+### Execute the command
+###
+
+command.execute(server, opt_dict, args)
+
+# FIXME: we should probably check for error conditions here
