@@ -58,3 +58,16 @@ class PingCmd(rccommand.RCCommand):
 
 rccommand.register(PingCmd)
 
+class ShutdownCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "shutdown"
+
+    def description_short(self):
+        return "Shut down the server"
+
+    def execute(self, server, options_dict, non_option_args):
+        server.rcd.system.shutdown()
+
+rccommand.register(ShutdownCmd)
+
