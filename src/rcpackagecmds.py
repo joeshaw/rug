@@ -1356,6 +1356,10 @@ class TransactCmd(rccommand.RCCommand):
                     if f.faultCode == rcfault.undefined_method:
                         rctalk.error("Server does not support rollback.")
                         sys.exit(1)
+                    elif f.faultCode == rcfault.package_not_found:
+                        # String sent back from the server is fine
+                        rctalk.error(f.faultString)
+                        sys.exit(1)
                     else:
                         raise
 
