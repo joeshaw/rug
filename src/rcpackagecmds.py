@@ -247,7 +247,7 @@ class PackagesCmd(rccommand.RCCommand):
                     if rcchannelutils.validate_channel_list(a, clist):
                         query = map(lambda c:["channel", "=", str(c["id"])], clist)
                         if options_dict.has_key("installed-only"):
-                            query.append(["package-installed", "=", "true"])
+                            query.append(["name-installed", "=", "true"])
                         elif options_dict.has_key("uninstalled-only"):
                             query.append(["package-installed", "=", "false"])
 
