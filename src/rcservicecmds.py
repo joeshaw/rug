@@ -22,40 +22,9 @@ import rcchannelutils
 import rccommand
 import rcfault
 import rcformat
+import rcserviceutils
 import rctalk
 import ximian_xmlrpclib
-
-cached_services = None
-
-def get_services(server):
-    global cached_services
-    
-    if cached_services is not None:
-        return cached_services
-
-    cached_services = server.rcd.service.list()
-
-    return cached_services
-
-def find_service(services, match):
-
-    match = string.lower(match)
-
-    index = 1
-    for s in services:
-        # Can't mess with invisible services.
-        if s["is_invisible"]:
-            continue
-
-        if str(index) == match:
-            return s
-
-        for sub in ("id", "url", "name"):
-            if string.lower(s[sub]) == match:
-                return s
-
-        index = index + 1
-
 
 class ServiceListCmd(rccommand.RCCommand):
 
@@ -81,7 +50,7 @@ class ServiceListCmd(rccommand.RCCommand):
         else:
             show_ids = 0
 
-        services = get_services(server)
+        services = rcserviceutils.get_services(server)
 
         if options_dict.has_key("verbose"):
             self.verbose_output(server, services)
@@ -162,7 +131,7 @@ class ServiceAddCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        services = get_services(server)
+        services = rcserviceutils.get_services(server)
 
         for o in non_option_args:
             for s in services:
@@ -201,10 +170,10 @@ class ServiceDeleteCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        services = get_services(server)
+        services = rcserviceutils.get_services(server)
 
         for o in non_option_args:
-            s = find_service(services, o)
+            s = rcserviceutils.find_service(services, o)
 
             if not s:
                 rctalk.error("No service matches '%s'" % o)
@@ -247,8 +216,8 @@ class ServiceMirrorsCmd(rccommand.RCCommand):
             self.usage()
             sys.exit(1)
 
-        services = get_services(server)
-        service = find_service(services, non_option_args[0])
+        services = rcserviceutils.get_services(server)
+        service = rcserviceutils.find_service(services, non_option_args[0])
 
         if not service:
             rctalk.error("No service matches '%s'" % non_option_args[0])
@@ -384,8 +353,8 @@ class ServiceRefreshCmd(rccommand.RCCommand):
             sys.exit(1)
 
         if non_option_args:
-            services = get_services(server)
-            s = find_service(services, non_option_args[0])
+            services = rcserviceutils.get_services(server)
+            s = rcserviceutils.find_service(services, non_option_args[0])
 
             if not s:
                 rctalk.error("No service matches '%s'" % non_option_args[0])
@@ -430,8 +399,8 @@ class ServiceActivateCmd(rccommand.RCCommand):
         activation_info["email"] = non_option_args[1]
 
         if options_dict.has_key("service"):
-            services = get_services(server)
-            s = find_service(services, options_dict["service"])
+            services = rcserviceutils.get_services(server)
+            s = rcserviceutils.find_service(services, options_dict["service"])
 
             if not s:
                 rctalk.error("No service matches '%s'" %

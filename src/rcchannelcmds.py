@@ -22,6 +22,7 @@ import rcfault
 import rcformat
 import rccommand
 import rcchannelutils
+import rcserviceutils
 import ximian_xmlrpclib
 
 class ListChannelsCmd(rccommand.RCCommand):
@@ -47,7 +48,7 @@ class ListChannelsCmd(rccommand.RCCommand):
     def local_opt_table(self):
         return [["s", "subscribed", "", "Only list subscribed channels"],
                 ["u", "unsubscribed", "", "Only list unsubscribed channels"],
-                ["m", "mounted", "", "Only list channels from mounted directories"],
+                ["", "service", "service", "Only list channels in this service"],
                 ["", "show-ids", "", "Show channel IDs"]]
 
     def local_orthogonal_opts(self):
@@ -57,6 +58,13 @@ class ListChannelsCmd(rccommand.RCCommand):
 
         channels = rcchannelutils.get_channels(server)
         channel_table = []
+
+        if options_dict.has_key("service"):
+            services = rcserviceutils.get_services(server)
+            service = rcserviceutils.find_service(services,
+                                                  options_dict["service"])
+            channels = filter(lambda c,s=service:c.get("service") == s["id"],
+                              channels)
 
         headers = ["subd?", "Alias", "Name"]
         if options_dict.has_key("show-ids"):
@@ -95,8 +103,6 @@ class ListChannelsCmd(rccommand.RCCommand):
                 rctalk.message("--- No unsubscribed channels ---")
             elif options_dict.has_key("subscribed"):
                 rctalk.message("--- No subscribed channels ---")
-            elif options_dict.has_key("mounted"):
-                rctalk.message("--- No mounted channels ---")
             else:
                 rctalk.warning("--- No channels available ---")
 

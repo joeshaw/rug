@@ -1,5 +1,17 @@
 2003-09-17  Joe Shaw  <joe@ximian.com>
 
+	* Makefile.am: Add rcserviceutils.py.
+
+	* rcchannelcmds.py (ListChannelsCmd): Add a --service argument
+	which filters down listed channels by service.
+
+	* rcservicecmds.py (get_services, find_service): Split these out
+	of this file.
+
+	* rcserviceutils.py: And into this new one.
+
+2003-09-17  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageInfoCmd): Use get() instead of
 	has_key() for file_size and installed_size, so we don't show sizes
 	of 0.

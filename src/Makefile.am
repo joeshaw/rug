@@ -9,6 +9,7 @@ rugsupport_DATA = 		\
 	rcformat.py		\
 	rcmain.py		\
 	rcpackageutils.py	\
+	rcserviceutils.py	\
 	rctalk.py		\
 	rcutil.py		\
 	ximian_xmlrpclib.py
