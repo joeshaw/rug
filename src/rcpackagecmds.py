@@ -1368,15 +1368,15 @@ class PackageDebugCmd(rccommand.RCCommand):
             f = sys.stdout
             my_open = 0
 
-        rctalk.message("Getting a dump of the system.  Note: This could take several moments.")
-
+        sys.stderr.write("Getting a dump of the system.  Note: This could take several moments.\n")
+        
         f.write(zlib.decompress(server.rcd.packsys.dump().data))
         f.flush()
 
         if my_open:
             f.close()
 
-        rctalk.message("Dump finished.")
+        sys.stderr.write("Dump finished.\n")
         
 ###
 ### Don't forget to register!

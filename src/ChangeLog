@@ -1,3 +1,11 @@
+2002-07-29  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageDebugCmd.execute): Send the "Getting a
+	dump of the system..." and "Dump finished." messages directly to
+	stderr instead using our rctalk commands.  This allows you to just
+	do a 'rc debug > foo' and not have crap at the beginning and end
+	of the XML file.
+	
 2002-07-28  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (find_package_in_channel): Print an "Unable to
