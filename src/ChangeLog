@@ -1,3 +1,9 @@
+2003-03-31  Jon Trowbridge  <trow@ximian.com>
+
+	* rcprefscmds.py (PrefsListCmd): Added.  Implements the "mirrors"
+	command, allowing the list of mirrors to be viewed and a mirror to
+	be selected.
+
 2003-03-24  Jon Trowbridge  <trow@ximian.com>
 
 	* rclockcmds.py (LockAddCmd.execute): In Python, there is a
