@@ -1,5 +1,12 @@
 2003-12-02  Tambet Ingo  <tambet@ximian.com>
 
+	* ximian_xmlrpclib.py (Marshaller.dump_boolean): Implement. Without
+	it xmlrpclib was unable to marshal BooleanType (python 2.3).
+
+	* rcmountcmds.py (MountCmd.execute): In python 2.3 dict.has_key()
+	returns boolean type, rcd.packsys.mount_directory() expectd integer
+	as last argument. Always send 0 or 1.
+
 	* rcsystemcmds.py (RestartCmd.execute): Fix a typo.
 
 2003-11-20  Joe Shaw  <joe@ximian.com>

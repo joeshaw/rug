@@ -74,7 +74,10 @@ class MountCmd(rccommand.RCCommand):
                            (old_alias, alias))
 
         name = options_dict.get("name", path)
-        recursive = options_dict.has_key("recurse")
+        if options_dict.has_key("recurse"):
+            recursive = 1
+        else:
+            recursive = 0
 
         try:
             server.rcd.packsys.mount_directory(path, name, alias, recursive)

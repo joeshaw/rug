@@ -418,6 +418,15 @@ class Marshaller:
         else:
             f(self, value)
 
+    def dump_boolean(self, value):
+        self.write("<value><boolean>%d</boolean></value>\n" % value)
+
+    try:
+        dispatch[BooleanType] = dump_boolean
+    except NameError:
+        ## Boolean type is only present in 2.3+
+        pass
+
     def dump_int(self, value):
         # in case ints are > 32 bits
         if value > MAXINT or value < MININT:
