@@ -625,6 +625,96 @@ class PackageVerifyCmd(TransactCmd):
                       [], install_deps,
                       [], remove_deps)
 
+def date_converter(date_str):
+    try:
+        time.gmtime(int(date_str))
+    except (ValueError, TypeError):
+        # Not a valid time_t
+        pass
+    else:
+        return int(date_str)
+    
+    # Ugh.  This sucks.
+    formats_to_try = (
+        "%x",                      # locale-specific date representation
+        "%X",                      # locale-specific time representation
+        "%x %X",                   # locale-specific date, then time.
+        "%X %x",                   # locale-specific time, then date.
+        "%a %b %d %H:%M:%S %Y",    # Thu May 29 13:28:47 2003
+        "%a %b %d %H:%M:%S %Z %Y", # Thu May 29 13:28:47 EDT 2003
+        "%d %b %Y",                # 29 May 2003
+        "%d %b %Y %H:%M:%S",       # 29 May 2003 13:28:47
+        "%d %b %Y %H:%M:%S %Z",    # 29 May 2003 13:28:47 EDT
+        "%y-%m-%d",                # 03-05-29
+        "%Y-%m-%d",                # 2003-05-29
+        "%y-%m-%d %H:%M:%S",       # 03-05-29 13:28:47
+        "%Y-%m-%d %H:%M:%S",       # 2003-05-29 13:28:47
+        "%H:%M:%S",                # 13:28:47
+        "%H:%M",                   # 13:28
+        "%I:%M:%S %p",             # 1:28:47 PM
+        "%I:%M %p",                # 1:28 PM
+    )
+
+    date = None
+    for format in formats_to_try:
+        try:
+            date = time.strptime(date_str, format)
+        except ValueError:
+            # no dice.
+            continue
+        else:
+            # disco.
+            break
+
+    if date:
+        return time.mktime(date)
+        
+    time_dict = {
+        "second" : 1,
+        "minute" : 60,
+        "hour"   : 3600,
+        "day"    : 86400,
+        "week"   : 604800,
+        "month"  : 2592000, # FIXME: 30 days, inexact
+        "year"   : 31536000 # FIXME: 365 days, inexact
+    }
+
+    date_str = string.lower(date_str)
+
+    if string.find(date_str, "ago") != -1:
+        r = re.compile("^(\d+)(?:\s+)(.+)(?:\s+)(?:ago)$")
+        match = r.match(date_str)
+
+        if not match:
+            raise ValueError, "Unknown date '%s'" % date_str
+
+        val = int(match.group(1))
+        time_spec = match.group(2)
+        if time_dict.has_key(time_spec):
+            mult = time_dict[time_spec]
+        elif time_dict.has_key(time_spec[:-1]):
+            mult = time_dict[time_spec[:-1]]
+        else:
+            raise ValueError, "Unknown unit of time '%s'" % time_spec
+
+        return time.time() - (val * mult)
+    elif string.find(date_str, "last") != -1:
+        r = re.compile("^(?:last)(?:\s+)(.+)$")
+        match = r.match(date_str)
+
+        if not match:
+            raise ValueError, "Unknown date '%s'" % date_str
+
+        time_spec = match.group(1)
+        if not time_dict.has_key(time_spec):
+            raise ValueError, "Unknown unit of time '%s'" % time_spec
+
+        return time.time() - time_dict[time_spec]
+    elif string.find(date_str, "yesterday") != -1:
+        return time.time() - time_dict["day"]
+    else:
+        raise ValueError, "Unknown date '%s'" % date_str
+
 class PackageRollbackCmd(TransactCmd):
 
     def name(self):
@@ -642,15 +732,30 @@ class PackageRollbackCmd(TransactCmd):
     def description_short(self):
         return "Rollback transactions to a specified time"
 
+    def local_opt_table(self):
+        opts = TransactCmd.local_opt_table(self)
+
+        opts.append(["d", "download-only", "", "Only download packages, don't install them"])
+
+        return opts
+
     def execute(self, server, options_dict, non_option_args):
-        if len(non_option_args) != 1:
+        if len(non_option_args) < 1:
             self.usage()
             sys.exit(1)
 
-        when = int(non_option_args[0])
-        
+        try:
+            when = int(date_converter(string.join(non_option_args, " ")))
+        except ValueError, e:
+            rctalk.error("Unable to rollback: %s" % e)
+            return 1
+
         install_packages, remove_packages = \
                           server.rcd.packsys.get_rollback_actions(when)
+
+        if not install_packages and not remove_packages:
+            rctalk.message("--- Nothing to rollback ---")
+            return
 
         self.display(server, options_dict,
                      install_packages, [],
@@ -660,13 +765,17 @@ class PackageRollbackCmd(TransactCmd):
 
         if options_dict.has_key("dry-run"):
             flags = DRY_RUN
+        elif options_dict.has_key("download-only"):
+            flags = DOWNLOAD_ONLY
         else:
             flags = 0
 
-        transact_and_poll(server,
-                          extract_packages(install_packages),
-                          extract_packages(remove_packages),
-                          flags)
+        download_id, transact_id, step_id = \
+                     server.rcd.packsys.rollback(when, flags,
+                                                 rcmain.rc_name,
+                                                 rcmain.rc_version)
+
+        self.poll_transaction(server, download_id, transact_id, step_id)
 
 ###
 ### "solvedeps" command

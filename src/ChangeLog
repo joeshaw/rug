@@ -1,3 +1,14 @@
+2003-05-29  Joe Shaw  <joe@ximian.com>
+
+	* rctransactcmds.py (PackageRollbackCmd): Add a -d/--download-only
+	flag since we download packages to rollback now.  Make it accept a
+	variety of date formats, and to correctly output text when there's
+	nothing to rollback, and call the rollback RPC method itself and
+	pass its pending IDs off to the poll_transaction() function.
+	(date_converter): Write a function for parsing all sorts
+	of time and date formats and handle CVS-like things like "2 weeks
+	ago", "yesterday", "last month" and the like.
+
 2003-05-23  Joe Shaw  <joe@ximian.com>
 
 	* rctransactcmds.py: Fix cut-and-paste error in which we'd pass
