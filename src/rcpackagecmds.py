@@ -779,10 +779,17 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
     def name(self):
         return "info-provides"
 
+    def arguments(self):
+        return "<package>"
+
     def description_short(self):
         return "List a package's provides"
 
     def execute(self, server, options_dict, non_option_args):
+
+        if len(non_option_args) != 1:
+            self.usage()
+            sys.exit(1)
         
         pkg_specifier = non_option_args[0]
         pkg = find_package(server, pkg_specifier, 1)
@@ -909,10 +916,17 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
     def name(self):
         return "info-conflicts"
 
+    def arguments(self):
+        return "<package>"
+
     def description_short(self):
         return "List a package's conflicts"
 
     def execute(self, server, options_dict, non_option_args):
+
+        if len(non_option_args) != 1:
+            self.usage()
+            sys.exit(1)
 
         pkg_specifier = non_option_args[0]
         pkg = find_package(server, pkg_specifier, 1)
