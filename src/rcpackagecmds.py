@@ -595,6 +595,10 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
                 rctalk.message("No updates are available in the specified channels.")
             else:
                 rctalk.message("No updates are available.")
+
+                if not filter(lambda x:x["subscribed"], rcchannelutils.get_channels(server)):
+                    rctalk.message("")
+                    rctalk.warning("Updates are only visible when you are subscribed to a channel.")
             sys.exit(0)
 
         if rctalk.show_verbose:
