@@ -37,3 +37,5 @@ cant_refresh           = -611
 no_icon                = -612
 cant_activate          = -613
 not_supported          = -614
+license_not_found      = -615
+cant_set_preference    = -616

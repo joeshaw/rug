@@ -78,6 +78,8 @@ class PrefsSetCmd(rccommand.RCCommand):
             if f.faultCode == rcfault.type_mismatch:
                 # FIXME: This error message sucks
                 rctalk.error("Can't set preference: " + f.faultString)
+            elif f.faultCode == rcfault.cant_set_preference:
+                rctalk.error(f.faultString)
             else:
                 raise
 
