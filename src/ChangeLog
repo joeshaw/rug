@@ -1,3 +1,9 @@
+2003-09-17  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageDanglingRequiresCmd): If we don't match
+	any channel, print "(none)" instead of nothing.
+	(PackageForFileCmd): We receive an array of matching packages now.
+
 2003-09-16  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoConflictsCmd): Clean this up a bit

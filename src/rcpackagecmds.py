@@ -1212,6 +1212,8 @@ class PackageDanglingRequiresCmd(rccommand.RCCommand):
             pkg = d[0]["name"]
             cid = d[0].get("channel", d[0].get("channel_guess", 0))
             channel = rcchannelutils.channel_id_to_name(server, cid)
+            if not channel:
+                channel = "(none)"
             for r in d[1:]:
                 table.append([pkg, channel, rcformat.dep_to_str(r)])
                 pkg = ""
@@ -1307,22 +1309,24 @@ class PackageForFileCmd(rccommand.RCCommand):
             self.usage()
             sys.exit(1)
 
+        filename = non_option_args[0]
+
         try:
-            p = server.rcd.packsys.find_package_for_file(non_option_args[0])
+            plist = server.rcd.packsys.find_package_for_file(filename)
         except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.undefined_method:
-                rctalk.error("Daemon does not support this command")
-                sys.exit(1)
-            elif f.faultCode == rcfault.package_not_found:
-                rctalk.error("No package owns file '%s'" % non_option_args[0])
+            if f.faultCode == rcfault.package_not_found:
+                rctalk.error("No package owns file '%s'" % filename)
                 sys.exit(1)
             else:
                 raise
 
-        if options_dict.has_key("no-abbrev"):
-            rctalk.message("%s %s" % (p["name"], rcformat.evr_to_str(p)))
-        else:
-            rctalk.message("%s %s" % (p["name"], rcformat.evr_to_abbrev_str(p)))
+        for p in plist:
+            if options_dict.has_key("no-abbrev"):
+                rctalk.message("%s %s" % (p["name"],
+                                          rcformat.evr_to_str(p)))
+            else:
+                rctalk.message("%s %s" % (p["name"],
+                                          rcformat.evr_to_abbrev_str(p)))
         
 ###
 ### Don't forget to register!
