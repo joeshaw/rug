@@ -1,3 +1,10 @@
+2003-08-27  Tambet Ingo  <tambet@ximian.com>
+
+	* rctransactcmds.py (TransactCmd.transact): Fix fixme.
+
+	* rcsystemcmds.py (ActivateCmd.execute): Print out hosts where
+	activation succeeded.
+
 2003-08-26  Joe Shaw  <joe@ximian.com>
 
 	* rctransactcmds.py: The signature for the transact and rollback
