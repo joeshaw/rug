@@ -1,4 +1,8 @@
+2002-12-03  Joe Shaw  <joe@ximian.com>
 
+	* rc.1: Note that doing "rc packages" will list all installed
+	packages, not all packages.
+	
 2002-12-02 Aaron Weber <aaron@ximian.com>
 
 	* rc.1: added lock feature.
