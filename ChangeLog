@@ -1,5 +1,9 @@
 2004-11-03  James Willcox  <james@ximian.com>
 
+	* configure.in: Bump to 2.4.3
+
+2004-11-03  James Willcox  <james@ximian.com>
+
 	* configure.in: Bump to 2.4.2
 
 2004-09-22  James Willcox  <james@ximian.com>
