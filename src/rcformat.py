@@ -127,6 +127,11 @@ def pending_to_str(p):
     pc = p["percent_complete"]
     msg = str(int(pc)) + "% complete"
 
+    if p.has_key("completed_size") and p.has_key("total_size"):
+        cs = p["completed_size"]
+        ts = p["total_size"]
+        msg = msg + " (" + str(cs) + "/" + str(ts) + ")"
+
     status = p["status"]
 
     if status in ("pre_begin", "blocking", "running"):

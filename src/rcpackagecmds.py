@@ -188,6 +188,65 @@ class PackageListCmd(rccommand.RCCommand):
         else:
             rctalk.message("--- No packages found ---")
 
+class PackagesCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "frobnicate"
+
+    def local_opt_table(self):
+        return [["", "match-all", "",              "Require packages to match all search strings (default)"],
+                ["", "match-any", "",              "Allow packages to match any search string"],
+                ["", "match-substrings", "",       "Match search strings against any part of the text"],
+                ["", "match-words",      "",       "Require search strings to match entire words"],
+                ["", "search-description", "",     "Look for search strings in package descriptions"],
+                ["", "installed-only",   "",       "Only show installed packages"],
+                ["", "uninstalled-only", "",       "Only show uninstalled packages"],
+                ["", "channel",         "channel", "Show packages from one specific channel"],
+                ["", "show-package-ids",   "",     "Show package IDs"],
+                ["", "no-abbrev", "",              "Don't abbreviate channel or version information"]]
+
+    def execute(self, server, options_dict, non_option_args):
+
+        if options_dict.has_key("search-descriptions"):
+            key = "name" ## should be name_or_desc
+        else:
+            key = "name"
+
+        if options_dict.has_key("match-words"):
+            op = "contains" ## should be contains_word
+        else:
+            op = "contains"
+
+        query = []
+        for str in non_option_args:
+            query.append([key, op, str])
+
+        if query and options_dict.has_key("match-any"):
+            query.insert(0, ["", "begin-or", ""])
+            query.append(["", "end-or", ""])
+
+        if options_dict.has_key("installed-only"):
+            query.append(["installed", "=", "true"])
+        elif options_dict.has_key("uninstalled-only"):
+            query.append(["installed", "=", "false"])
+
+        if options_dict.has_key("channel"):
+            query.append(["channel", "=", options_dict["channel"]])
+
+        packages = server.rcd.packsys.search(query)
+
+        package_table = []
+        no_abbrev = options_dict.has_key("no-abbrev")
+        
+        for p in packages:
+            append_to_table(server, package_table, p, 1, no_abbrev)
+
+        if package_table:
+            sort_and_format_table(package_table, 1)
+        else:
+            rctalk.message("--- No packages found ---")
+        
+
 class PackageSearchCmd(rccommand.RCCommand):
 
     def name(self):
@@ -207,8 +266,7 @@ class PackageSearchCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        package_table = [];
-
+        package_table = []
         no_abbrev = options_dict.has_key("no-abbrev")
 
         search_type = "name"
@@ -559,6 +617,9 @@ class PackageUpdateCmd(rccommand.RCCommand):
 
 rccommand.register(PackageListCmd,    "List the packages in a channel")
 rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")
+
+rccommand.register(PackagesCmd,       "Experimental searching command")
+
 rccommand.register(PackageUpdatesCmd, "List pending updates")
 rccommand.register(PackageInfoCmd,    "Show info on a package")
 rccommand.register(PackageInstallCmd, "Install a package")

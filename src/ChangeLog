@@ -1,3 +1,13 @@
+2002-06-26  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackagesCmd): Added.  An implementation of my
+	new interface for the "packages" command.  This is still
+	experimental: it still isn't totally clear what the right
+	interface for this command should be.
+
+	* rcformat.py (pending_to_str): Use the completed_size and
+	total_size information if it is available.
+
 2002-06-25  Joe Shaw  <joe@ximian.com>
 
 	* rc.in: Remove "--rc-profile" from the argv, not "--profile"
