@@ -1,9 +1,9 @@
-.\" Copyright (C) Ximian, Inc. 2002. 
+.\" Copyright (C) Ximian, Inc. 2002-2003. 
 .\" Please visit bugzilla.ximian.com to report problems with the software or its documentation.
-.TH "rc" "1" "1.0" "Aaron Weber <aaron@ximian.com>" "System tools"
+.TH "rc" "1" "1.0" "Aaron Weber <aaron@ximian.com>" "Ximian Red Carpet Software Management Tools"
 .SH "NAME"
 .LP 
-rc \- rc is the command\-line interface to the Ximian Red Carpet daemon rcd.
+rc \- rc is the command\-line interface to the Ximian Red Carpet Daemon, rcd.
 .SH "SYNTAX"
 .LP 
 rc \fI[\-\-global\-options]\fR <command> \fI[\-\-command\-options]\fR <arguments>
@@ -211,16 +211,21 @@ Unmount a directory that has been mounted as a channel.
 .LP 
 \fBUser management commands:\fR 
 .TP 
-user\-add
-Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly. This command can also be used to grant administration access to non\-root local users.
+user\-add [username] [privileges]
+Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly. This command can also be used to grant administration access to non\-root local users. You may provide the username and the names of privileges to be granted as arguments. If you do not, you will be prompted for them. After adding the user, it starts the user\-update tool to set privileges. To quit, press \fBEnter\fR on a blank line. See the EXAMPLES section for an example of how to use this command.
 
 .TP 
 user\-delete  \fI<username>\fR
 Delete a specific user.
 
 .TP 
+user\-edit\fI<username>\fR
+Display a list of the user's privileges. This command is interactive: it will first list the privileges, then offer you a prompt. Enter the plus (+) or minus (\-) symbol and then the name of the privilege, then press \fBEnter\fR. For example, to permit the user to install software, you would type \fB+install\fR.  To save and quit, press \fBEnter\fR on a blank line. 
+
+.TP 
 user\-list
-List the users that may update your system software.
+List the users known to the daemon.
+
 
 .LP 
 \fBOther commands:\fR 
@@ -471,11 +476,6 @@ Output Options:
 .B \fI\-s, \-\-strict\fR: Fail if attempting to unsubscribe from a channel to which you are not subscribed.
 
 .TP 
-\fBrc user\-add\fR
-.B \fI\-P\fR: Specify the password for this user.
-.B \fI\-U\fR: Specify the user name for this user.
-
-.TP 
 \fBrc verify\fR
 .B \fI\-d, \-\-allow\-removals\fR: Permit rc to remove software without confirmation.
 .br 
@@ -548,12 +548,16 @@ Displays the functionality provided by the "mypackage" software from "mychannel.
 .TP 
 \fBrc install rc*\fR
 Installs all packages that are in subscribed channels whose names begin with "rc".
+
+.TP 
+\fBrc ua donald install\fR
+Adds a user named "donna" with the install privilege. After entering this command, you will be prompted to create and confirm a password for donna, and then to confirm or change the privileges granted to her.
 .SH "AUTHORS"
 .LP 
-Copyright (C) 2002 Ximian, Inc.
+Copyright (C) 2002\-2003 Ximian, Inc.
 http://www.ximian.com/
 .SH "SEE ALSO"
 .LP 
-rcd(8), rcd.conf(5), rcman(1), rcreports, rcmirror(1)
+rcd(8), rcd.conf(5), rcman(1), rcreports(1), rcmirror(1)
 .LP 
 The graphical Red Carpet client, red\-carpet, has a manual accessible through the GNOME help system; select items from the Help menu within the application to read it. Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian. To report problems with this software or its documentation, visit http://bugzilla.ximian.com.
