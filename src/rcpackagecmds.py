@@ -1254,16 +1254,17 @@ def exclude_list():
             # remove the trailing newline
             line = string.strip(line)
 
+            # skip empty lines
+            if not line:
+                break
+
             # strip out comments
             hash_pos = string.find(line, "#")
             if hash_pos >= 0:
                 line = line[0:hash_pos]
 
-            # skip empty lines
-            if not line:
-                break
-
-            exclude.append(line)
+            if line:
+                exclude.append(line)
         rcexclude.close()
     except IOError:
         # Can't open the file, just continue.

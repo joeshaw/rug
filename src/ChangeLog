@@ -1,3 +1,8 @@
+2002-10-15  Ian Peters  <itp@ximian.com>
+
+	* rcpackagecmds.py (exclude_list): don't break the loop when we
+	find a line with # as the first character
+
 2002-10-15  Jon Trowbridge  <trow@ximian.com>
 
 	* rcusercmds.py: Added the long-lost user-edit command.
