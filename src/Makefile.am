@@ -26,7 +26,7 @@ rugcmds_DATA = 			\
 	rcsystemcmds.py		\
 	rctransactcmds.py	\
 	rcusercmds.py		\
-	rcwhatcmds.py		\
+	rcwhatcmds.py
 
 EXTRA_DIST = $(rugsupport_DATA) $(rugcmds_DATA)
 

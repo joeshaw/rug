@@ -1,3 +1,8 @@
+2003-09-01  Tambet Ingo  <tambet@ximian.com>
+
+	* Makefile.am (rugcmds_DATA): Remove trailing '\' from the last
+	line.
+
 2003-08-29  Joe Shaw  <joe@ximian.com>
 
 	* rccommand.py (RCCommand): Add a is_local() method which
