@@ -432,7 +432,7 @@ class ServiceActivateCmd(rccommand.RCCommand):
             activation_info["email"] = non_option_args[1]
 
         if options_dict.has_key("service"):
-            services = get_services()
+            services = get_services(server)
             s = find_service(services, options_dict["service"])
 
             if not s:

@@ -1,3 +1,8 @@
+2003-09-10  Joe Shaw  <joe@ximian.com>
+
+	* rcservicecmds.py (ServiceActivateCmd): Add in a missing argument
+	to get_services()
+
 2003-09-09  Joe Shaw  <joe@ximian.com>
 
 	* rcmountcmds.py (MountCmd): Handle the invalid_service fault if
