@@ -100,12 +100,11 @@ class PackageListCmd(rccommand.RCCommand):
 
         if non_option_args:
             for a in non_option_args:
-                c = rcchannelcmds.get_channel_by_id(server, a)
-                if not c:
-                    rctalk.warning("Invalid channel: '" + a + "'")
-                else:
-                    packages = get_packages(server, c)
-                    
+
+                clist = rcchannelcmds.get_channels_by_name(server, a)
+
+                if rcchannelcmds.validate_channel_list(a, clist):
+                    packages = get_packages(server, clist[0])
                     for p in packages:
                         append_to_table(server, package_table, p, multi)
         else:

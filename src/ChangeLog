@@ -1,3 +1,8 @@
+2002-06-11  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageListCmd.execute): Allow channels to be
+	specified by name, not just by ID.
+
 2002-06-10  Jon Trowbridge  <trow@ximian.com>
 
 	* rcchannelcmds.py: Support --dry-run.
