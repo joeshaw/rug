@@ -1,3 +1,8 @@
+2003-09-19  Joe Shaw  <joe@ximian.com>
+
+	* rcmountcmds.py (UnmountCmd): Don't worry about undefined method
+	faults anymore, since this will always be there on 2.0 daemons.
+
 2003-09-18  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelcmds.py (ListChannelsCmd): Add back in the -m/--mounted

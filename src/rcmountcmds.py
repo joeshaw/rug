@@ -118,19 +118,12 @@ class UnmountCmd(rccommand.RCCommand):
 
         channel = channels[0]
 
-        try:
-            retval = server.rcd.packsys.unmount_directory(channel["id"])
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.undefined_method:
-                rctalk.error("Server does not support unmount.")
-                sys.exit(1)
-            else:
-                raise
+        retval = server.rcd.packsys.unmount_directory(channel["id"])
+
+        if retval:
+            rctalk.message("Unmounted channel '%s'" % channel["name"])
         else:
-            if retval:
-                rctalk.message("Unmounted channel '%s'" % channel["name"])
-            else:
-                rctalk.error("Unmount of channel '%s' failed" % channel["name"])
+            rctalk.error("Unmount of channel '%s' failed" % channel["name"])
 
 rccommand.register(MountCmd)
 rccommand.register(UnmountCmd)
