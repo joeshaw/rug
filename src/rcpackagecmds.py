@@ -1492,8 +1492,8 @@ class PackageSolveCmd(TransactCmd):
                 dep["relation"] = "(any)"
                 dep["has_epoch"] = 0
                 dep["epoch"] = 0
-                dep["version"] = "foo"
-                dep["release"] = "bar"
+                dep["version"] = "*"
+                dep["release"] = "*"
 
             dups = filter(lambda x, d=dep:x["name"] == d["name"], dlist)
 

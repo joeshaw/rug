@@ -1,3 +1,12 @@
+2002-08-16  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageSolveCmd.execute): If we haven't
+	specified a version or release in a dep, set them to "*".  Since
+	our relation is "(any)", they are ignored and we can put whatever
+	we want there... but since the dep can now be displayed in an
+	error message, this looks a lot better than having them set to
+	"foo" and "bar" like before. :)
+
 2002-08-15  Jon Trowbridge  <trow@ximian.com>
 
 	* rctalk.py (stdout_is_file): Added a check to see if stdout has
