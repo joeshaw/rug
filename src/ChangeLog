@@ -1,3 +1,9 @@
+2004-02-17  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageForFileCmd.execute): Handle multiple
+	files being passed in.  Patch originally from Jon Trowbridge
+	<trow@ximian.com> with a minor change by me.  Fixes #54345.
+
 2004-01-08  Joe Shaw  <joe@ximian.com>
 
 	* rcpackageutils.py (find_local_package): Handle EPERM and EACCES

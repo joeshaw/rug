@@ -1310,28 +1310,39 @@ class PackageForFileCmd(rccommand.RCCommand):
         return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
 
     def execute(self, server, options_dict, non_option_args):
-        if len(non_option_args) != 1:
+        if len(non_option_args) == 0:
             self.usage()
             sys.exit(1)
 
-        filename = non_option_args[0]
+        error_flag = 0
+        for filename in non_option_args:
 
-        try:
-            plist = server.rcd.packsys.find_package_for_file(filename)
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.package_not_found:
-                rctalk.error("No package owns file '%s'" % filename)
-                sys.exit(1)
-            else:
-                raise
+            try:
+                plist = server.rcd.packsys.find_package_for_file(filename)
+            except ximian_xmlrpclib.Fault, f:
+                if f.faultCode == rcfault.package_not_found:
+                    rctalk.error("No package owns file '%s'" % filename)
+                    error_flag = 1
+                    continue
+                else:
+                    raise
 
-        for p in plist:
-            if options_dict.has_key("no-abbrev"):
-                rctalk.message("%s %s" % (p["name"],
-                                          rcformat.evr_to_str(p)))
-            else:
-                rctalk.message("%s %s" % (p["name"],
-                                          rcformat.evr_to_abbrev_str(p)))
+            prefix = ""
+            if len(non_option_args) > 1:
+                prefix = "%s: " % filename
+
+            for p in plist:
+                if options_dict.has_key("no-abbrev"):
+                    rctalk.message("%s%s %s" % (prefix,
+                                                p["name"],
+                                                rcformat.evr_to_str(p)))
+                else:
+                    rctalk.message("%s%s %s" % (prefix,
+                                                p["name"],
+                                                rcformat.evr_to_abbrev_str(p)))
+
+        if error_flag:
+            sys.exit(1)
         
 ###
 ### Don't forget to register!
