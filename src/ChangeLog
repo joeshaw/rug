@@ -1,3 +1,10 @@
+2002-12-19  Jon Trowbridge  <trow@ximian.com>
+
+	* rcchannelutils.py (get_channels_by_name): If we find multiple
+	matches, make a pass over the list of matches and look for exact
+	matches.  If we find an exact match, drop the other matches.
+	This fixes bug #35904.
+
 2002-12-16  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): sys.exit(1) on a couple of previously

@@ -76,6 +76,7 @@ def get_channels_by_name(server, in_str):
 
     s = string.lower(in_str)
 
+    # Make a first pass through the channels, looking for matches.
     for c in channels:
         match = 0
 
@@ -96,6 +97,17 @@ def get_channels_by_name(server, in_str):
            or chan_initials_alt == s \
            or s in string.split(chan_name):
             matches.append(c)
+
+    # If we found more than one match, make a second pass and look for
+    # exact matches on the name or alias.  If we find an exact match,
+    # drop the other matches and just use the exact match.
+    if len(matches) > 1:
+        for c in matches:
+            chan_name = string.lower(c["name"])
+            chan_alias = string.lower(get_channel_alias(c))
+            if s == chan_name or s == chan_alias:
+                matches = [c]
+                break
 
     return matches
 
