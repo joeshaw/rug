@@ -1317,6 +1317,7 @@ class PackageInstallCmd(TransactCmd):
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_install = []
+        packages_to_remove = []
         
         if options_dict.has_key("allow-unsubscribed"):
             allow_unsub = 1
@@ -1328,53 +1329,63 @@ class PackageInstallCmd(TransactCmd):
             channel = None
             package = None
 
-            p = find_local_package(server, a)
-            if not p:
-                off = string.find(a, ":")
-                if off != -1:
-                    channel = a[:off]
-                    package = a[off+1:]
-                else:
-                    package = a
+            if a[0] == "!" or a[0] == "~":
+                pn = a[1:]
+                p = find_package_on_system(server, pn)
 
-                if not channel:
-                    c = -1
-                else:
-                    clist = rcchannelutils.get_channels_by_name(server, channel)
-                    if not rcchannelutils.validate_channel_list(channel, clist):
-                        sys.exit(1)
-                    c = clist[0]["id"]
+                if not p:
+                    rctalk.error("Unable to find package '" + pn + "'")
+                    sys.exit(1)
 
-                p, inform = find_package_in_channel(server, c, package, allow_unsub)
+                packages_to_remove.append(p)
+            else:
+                p = find_local_package(server, a)
+                if not p:
+                    off = string.find(a, ":")
+                    if off != -1:
+                        channel = a[:off]
+                        package = a[off+1:]
+                    else:
+                        package = a
 
-                if inform:
-                    rctalk.message("Using " + p["name"] + " " +
-                                   rcformat.evr_to_str(p) + " from the '" +
-                                   rcchannelutils.channel_id_to_name(server, p["channel"]) +
-                                   "' channel")
+                    if not channel:
+                        c = -1
+                    else:
+                        clist = rcchannelutils.get_channels_by_name(server, channel)
+                        if not rcchannelutils.validate_channel_list(channel, clist):
+                            sys.exit(1)
+                        c = clist[0]["id"]
 
-            if not p:
-                sys.exit(1)
+                    p, inform = find_package_in_channel(server, c, package, allow_unsub)
 
-            if p["name"] in exclude_list():
-                rctalk.warning("Requesting excluded package '" +
-                               p["name"] + "'!")
-                              
+                    if inform:
+                        rctalk.message("Using " + p["name"] + " " +
+                                       rcformat.evr_to_str(p) + " from the '" +
+                                       rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                                       "' channel")
 
-            dups = filter(lambda x, pn=p:x["name"] == pn["name"],
-                          packages_to_install)
+                if not p:
+                    sys.exit(1)
 
-            if dups:
-                rctalk.error("Duplicate entry found: " + dups[0]["name"])
-                sys.exit(1)
-                
-            packages_to_install.append(p)
+                if p["name"] in exclude_list():
+                    rctalk.warning("Requesting excluded package '" +
+                                   p["name"] + "'!")
 
-        if not packages_to_install:
+
+                dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                              packages_to_install)
+
+                if dups:
+                    rctalk.error("Duplicate entry found: " + dups[0]["name"])
+                    sys.exit(1)
+
+                packages_to_install.append(p)
+
+        if not packages_to_install and not packages_to_remove:
             rctalk.message("--- No packages to install ---")
             sys.exit(0)
 
-        self.transact(server, options_dict, packages_to_install, [], [])
+        self.transact(server, options_dict, packages_to_install, packages_to_remove, [])
 
 ###
 ### "remove" command

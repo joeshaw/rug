@@ -1,5 +1,10 @@
 2002-08-28  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageInstallCmd): If "!" or "~" is prepended
+	to a package name, then add that package as a package to be removed.
+
+2002-08-28  Joe Shaw  <joe@ximian.com>
+
 	* rcmain.py: Check for socket.sslerror in the except clauses in a
 	much more sane and functionally correct manner.
 
