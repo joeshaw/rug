@@ -1,5 +1,11 @@
 2003-07-07  Joe Shaw  <joe@ximian.com>
 
+	* ximian_xmlrpclib.py (Transport.parse_response): Catch a
+	TypeError exception when feeding data to the unmarshaller so we
+	can more gracefully handle garbage data on the wire.
+
+2003-07-07  Joe Shaw  <joe@ximian.com>
+
 	* ximian_xmlrpclib.py: Use rcutil.hexstr() since we might be
 	running on python 1.5 which doesn't have md5.hexdigest().  Also
 	fix a potential fd leak.

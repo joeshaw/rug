@@ -1,6 +1,5 @@
 #
 # XML-RPC CLIENT LIBRARY
-# $Id$
 #
 # an XML-RPC client interface for Python.
 #
@@ -744,7 +743,15 @@ class Transport:
                 break
             if self.verbose:
                 print "body:", repr(response)
-            unmarshaller.feed(response, 0)
+
+            # FIXME: This is evil and wrong and papers over what appears
+            # to be a race in rcd.  Essentially there is garbage on the
+            # wire, including null bytes, and the unmarshaller will throw
+            # a TypeError if this happens.
+            try:
+                unmarshaller.feed(response, 0)
+            except TypeError:
+                break
 
         f.close()
         unmarshaller.feed("", 1)
