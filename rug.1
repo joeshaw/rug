@@ -143,8 +143,6 @@ List the system preferences that may be set.
 .TP 
 set\-prefs (set) \fI<key> <value>\fR         
 Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are normally stored in the rcd.conf file (see rcd.conf(5) for more information), and can be changed by editing that file directly. However, additional Red Carpet modules can create additional settings which are not necessarily kept in rcd.conf but which are still set with the rug set.  The base set of options is:
-.IP 
-\fBhost:\fR The URL of the Red Carpet Server you will be using.
 .IP                                             
 \fBenable\-premium:\fR If the value is true, the server is an Enterprise, CorporateConnect, or Express server.
 .IP      
@@ -175,6 +173,8 @@ Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are no
 \fBdebug\-level:\fR Sets the amount of debugging output to stderr. Values may be from 0 (none) to 6 (lots). The default is 4.
 .IP 
 \fBsyslog\-level:\fR Sets the amount of logging output saved in syslog. Values may be from 0 (none) to 6 (lots). The default is 4.
+.IP 
+\fBNote:\fR The "host" option is no longer present; use use the service\-add command instead.
 
 .LP 
 \fBSystem commands:\fR
@@ -200,12 +200,24 @@ ping \fI<servername>\fR
 Ping the rcd process on the server. If no server is specified, the current server will be pinged.
 
 .TP 
-refresh
+recurring (rec)
+Display information about recurring events, including both AutoPull and heartbeat (automatic channel refresh).  The command provides the label for the transaction, the total number of times it has occurred, and the date and time of the next and previous transactions. 
+
+.TP 
+refresh (ref)
 Refresh channel data for all channels.
 
 .TP 
-recurring
-Display information about recurring events, including both AutoPull and heartbeat (automatic channel refresh).  The command provides the label for the transaction, the total number of times it has occurred, and the date and time of the next and previous transactions. 
+service\-add (sa) \fI<url\-of\-server>\fR
+Add a server to those that the daemon will check for updates. You may add multiple servers, and the daemon will connect to each one during when it refreshes. Server information is stored in the file /var/lib/rcd/services.xml.  If you are upgrading from rug 1.4 and do not have a services.xml file, your host entry will be read from rcd.conf once and only once, and then stored in services.xml. Editing services.xml by hand is not recommended.
+
+.TP 
+service\-list (sl)
+List the servers which rcd will contact.
+
+.TP 
+service\-delete (sd) \fI<url\-of\-server>\fR
+Delete a server from the list of those that the daemon will check for updates. 
 
 .TP 
 shutdown
@@ -217,19 +229,19 @@ Unmount a directory that has been mounted as a channel.
 .LP 
 \fBUser management commands:\fR 
 .TP 
-user\-add [username] [privileges]
+user\-add (ua) [username] [privileges]
 Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly. This command can also be used to grant administration access to non\-root local users. You may provide the username and the names of privileges to be granted as arguments. If you do not, you will be prompted for them. After adding the user, it starts the user\-update tool to set privileges. To quit, press \fBEnter\fR on a blank line. See the EXAMPLES section for an example of how to use this command.
 
 .TP 
-user\-delete  \fI<username>\fR
+user\-delete (ud) \fI<username>\fR
 Delete a specific user.
 
 .TP 
-user\-edit\fI<username>\fR
+user\-edit (ue) \fI<username>\fR
 Display a list of the user's privileges. This command is interactive: it will first list the privileges, then offer you a prompt. Enter the plus (+) or minus (\-) symbol and then the name of the privilege, then press \fBEnter\fR. For example, to permit the user to install software, you would type \fB+install\fR.  To save and quit, press \fBEnter\fR on a blank line. 
 
 .TP 
-user\-list
+user\-list (ul)
 List the users known to the daemon.
 
 
@@ -542,8 +554,7 @@ If \fI.rugrc\fR does not exist, the older \fI.rcrc\fR file is accepted instead.
 .SH "ENVIRONMENT VARIABLES"
 .TP 
 \fBRUG_ARGS\fP
-This environment variable is prepended to any
-command line options that are passed to rug and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-env\fR flag in the \fIRUG_ARGS\fR variable; this is absurd.
+This environment variable is prepended to any command line options that are passed to rug and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-env\fR flag in the \fIRUG_ARGS\fR variable; this is absurd.
 
 .LP 
 If \fIRUG_ARGS\fR is not set, the \fIRC_ARGS\fR environment variable is accepted instead.
