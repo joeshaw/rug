@@ -6,7 +6,7 @@
 rug \- rug is the command\-line interface to the Ximian Red Carpet Daemon, rcd.
 .SH "SYNTAX"
 .LP 
-rug \fI[\-\-global\-options]\fR <command> \fI[\-\-command\-options]\fR <arguments>
+rug [\fB\-\-global\-options\fR] [command] [\fB\-\-command\-options\fR] [arguments]
 
 .br 
 
@@ -25,79 +25,249 @@ Red Carpet applications, including rug, use your operating system's native packa
 Note: Previous versions of this software were known as \fIrc\fR, but due to a conflict with another package the application has been renamed. Other related software names, such as rcd, rcman, and red\-carpet, have not been affected. The \fIrug\fR command now uses the \fI.rugrc\fR configuration file and the \fIRUG_ARGS\fR environment variable. The older \fI.rcrc\fR and \fIRC_ARGS\fR are accepted if the new forms are absent.
 .SH "COMMANDS"
 .LP 
-rug provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most commonly used is \fIrug update\fR which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
+rug provides a number of commands (shown as [\fIcommand\fR] in the SYNTAX section). Each command accepts the option flags listed in the GLOBAL OPTIONS section. In addition, many commands have specific option flags, which are listed here.
+.LP 
+The most commonly used command is \fIrug update\fR which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
 
 .LP 
 \fBPackage management commands:\fR
 .LP 
 Note that you may substitute standard shell wildcards in package names, although not in channel names.
 .TP 
-info \fI<packagename>\fR 
-Show detailed information about a package. Multiple packages may be listed, separated by spaces.
+info [packagename]
+Show detailed information about a package. Multiple packages may be listed, separated by spaces. Accepts the flag \fI\-u, \-\-allow\-unsubscribed\fR, to search in channels to which you are not subscribed, as well as subscribed channels.
 
 .TP 
-install \fI<packagename>\fR
-Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed.
+install (in) [packagename]
+Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed. Accepts the following option flags:
+.IP 
+\-d, \-\-download\-only
+.br 
+Downloads the packages, but does not install them. See also the \-N or \-\-dry\-run flag, which is available for all commands.
+
+\-y, \-\-no\-confirmation
+.br 
+Install without confirmation. Does not allow removal of conflicting packages without confirmation; to permit removal of conflicts without confirmation use \-r as well.
+
+r, \-\-allow\-removals
+.br 
+Permit software removal software without confirmation. Use care when combining with the \-y option. 
+
+\-u, \-\-allow\-unsubscribed
+.br 
+Allow required software to be pulled in from channels to which you are not subscribed.
+
+\-\-entire\-channel [channelname]
+.br 
+Install all packages in the channel specified. For example, \fBrug install \-\-entire\-channel ximian\-gnome\fR would install everything in the "ximian\-gnome" channel.
 
 .TP 
-lock\-add (la) \fI<options>\fR <packagename>  \fI[<relation> <version>]\fR
-Add a package lock rule. This prevents changes to the installation state of the package which are not specifically requested.  The package name can be specified individually, with wildcard patterns, or even with version number relations. For example, the command \fIrug lock\-add gnome*<2.0\fR would keep all GNOME packages below 2.0.
+lock\-add (la) [options] [packagename]  \fI[[relation] [version]]\fR
+Add a package lock rule. This prevents changes to the installation state of the package which are not specifically requested.  The package name can be specified individually, with wildcard patterns, or even with version number relations. For example, the command \fIrug lock\-add gnome*<2.0\fR would refuse to install any packages beginning with 'gnome' that had versions above 2.0. Accepts the following additional flags:
+.IP 
+\-c, \-\-channel=[channel]
+.br 
+Specify a channel to match.
+
+\-i, \-\-importance=[importance]
+.br 
+Set the minimum importance level for the lock. Packages less important than the importance level you specify will be blocked, and those that are at least as important will override the lock. Possible importance levels, from least to most important, are: minor, feature, suggested, urgent, and necessary.
 
 .TP 
-lock\-delete (ld) \fI<options>\fR <lock\-number>
-Delete the lock you specify by its number. You can find the numbers for each lock with the lock\-list (ll) command.
+lock\-delete (ld) [options] [lock\-number]
+Delete the lock you specify by its number. You can find the numbers for each lock with the lock\-list (ll) command. Accepts the flag \fI\-\-\-no\-confirmation\fR flag, to permit removals without confirmation.
 
 .TP 
-lock\-list (ll) \fI<options>\fR [<relation> <version>]
-List the locks that have been put in place. Locks are sorted by ID number.
+lock\-list (ll) [options]
+List the locks that have been put in place. Locks are sorted by ID number. Accepts the option flags:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel information.
+
+\-m, \-\-matches
+.br 
+Show information about matching packages.
 
 .TP 
-packages \fI<"channelname">\fR\fR
-List all packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
-<LI>
+packages (pa) [channelname]
+List all packages in a channel. If no channel is specified, all packages in all channels will be listed. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
+
 The output for this command is in three columns. The first column indicates the status, the second the name of the package, and the third the version of the package. The package status column will be empty if the package is not installed, and will show "i" if the package is installed, or "v" if the package is installed but is a different version from the one displayed in the list. If a package is locked (see the entries for the rug commands lock\-add, lock\-delete, and lock\-list), the status column will also display an L.
- 
+
+Accepts the following options:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
+
+\-i, \-\-installed\-only
+.br 
+Show only installed packages.
+
+\-u, \-\-uninstalled\-only
+.br 
+Show only uninstalled packages
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br 
+Sort packages by channel.
+
 .TP  
-remove (rm, erase) \fI<packagename>\fR
-Remove packages. Both \fIrm\fR and \fIerase\fR are equivalents.
+remove (rm, erase) [packagename]
+Remove packages. Accepts the flag \fI\-y\fR or \fI\-\-no\-confirmation\fR, to perform the actions with no confirmation. To allow removals that accompany installs, use \fBrug install\fR with both the \fI\-y\fR and the \fI\-r\fR (\fI\-\-allow\-removal\fR) flags.
 
 .TP 
-rollback (ro) \fI[options] <packagename>\fR
-Downgrade to the previous version of a package. To use this command you must use "rug set" to set the "repackage" variable in the [System] section of rcd.conf to "true" (see rcd.conf(5) for more information). Caveats: this feature only works on systems using RPM version 4.0.4 or greater,  will cause upgrades and removals to be very slow, and uses significant amounts of disk space.
+rollback (ro) [options] [packagename]
+Downgrade to the previous version of a package. To use this command you must use "rug set" to set the "repackage" variable in the [System] section of rcd.conf to "true" (see rcd.conf(5) for more information). Caveats: this feature only works on systems using RPM version 4.0.4 or greater,  will cause upgrades and removals to be slower than otherwise, and uses more disk space than usual. It does not store complete copies of every removed or upgraded package, however; the resulting version must be available from a Red Carpet Enterprise server. Accepts the following flags:
+.IP 
+\-N, \-\-dry\-run
+.br 
+Test, but do not actually perform, the requested actions.
+
+\-y, \-\-no\-confirmation
+.br 
+Do not ask for confirmation when downgrading. Removal of software that is not being downgraded will still require confirmation unless combined with the \fI\-r\fR flag.
+
+\-r, \-\-allow\-removals
+.br 
+Permit removal of software without confirmation
+
 
 .TP 
-search \fI<querystring>\fR
-Search for the query string in the list of packages.
+search [querystring]
+Search for the query string in the list of packages. Accepts the following options:
+
+.IP 
+\fISeach String Options:\fI
+.br 
+\-\-match\-all
+.br 
+Search only for a match for all search term (default).
+
+\-\-match\-any
+.br 
+Display results that match any search term.
+
+\-\-match substrings
+.br 
+Display results that match substrings against any part of a word (default).
+
+\-\-match\-words
+.br 
+Search only for a match on a complete word.
+
+\-\-search\-description
+.br 
+Search only in the package description, not in the package names.
+
+\-i, installed\-only
+.br 
+Search only in the installed packages.
+
+\-u, \-\-uninstalled\-only
+.br 
+Search only among packages which are not installed.
+
+\-c, \-\-channel=[channel]
+.br 
+Search only in the channel you specify.
+.IP 
+\fIOutput Options:\fR
+\-\-show\-package\-ids
+Show package IDs as well as package names.
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br 
+Sort packages by channel.
+
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
 
 .TP 
 summary (sum)
-Display a summary of available updates.
+Display a summary of available updates. Accepts one flag: \fI\-\-no\-abbrev\fR, meaning do not abbreviate channel names or importance levels.
 
 .TP 
 list\-updates (lu) [channelname] [channelname]
-List updates in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates.
+List updates in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates. Accepts the flags:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br 
+Sort packages by channel.
+
 
 .TP 
 update (up) [channelname] [channelname]
-Download and install updates.  With no arguments, this will get all updates for subscribed channels. To choose specific channels, list them as arguments, separated by spaces.  For single packages, use rug install. If you are not subscribed to a channel, it will never have updates available; you must subscribe to install updates. If you want to install or update software from a channel to which you are not subscribed, use rug install with the \-u option.
+Download and install updates.  With no arguments, this will get all updates for subscribed channels. To choose specific channels, list them as arguments, separated by spaces.  For single packages, use \fBrug install\fR instead. If you are not subscribed to a channel, it will never have updates available; you must subscribe to install updates. If you want to install or update software from a channel to which you are not subscribed, use \fBrug install \-u\fR.  Accepts the following option flags:
+.IP 
+\-N, \-\-dry\-run
+.br 
+Test and display, but do not actually perform, the requested actions.
+
+\-y, \-\-no\-confirmation
+.br 
+Install packages without confirmation. Will not permit removal of conflicting packages without confirmation; to allow removal without confirmation, use \-r as well. 
+
+\-i, \-\-importance=[importance]
+.br 
+Only install updates as or more important than the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
+
+\-r, \-\-allow\-removals
+.br 
+Allow software to be removed as necessary to complete the installation.
 
 .TP 
-verify
-Verify system dependencies. If the system dependencies are not satisfied, rug will suggest the removal or installation of packages necessary to resolve the conflicts.
+verify    
+.br 
+Verify system dependencies. If the system dependencies are not satisfied, rug will suggest the removal or installation of packages necessary to resolve the conflicts. Accepts the flags:
+.IP 
+\-r, \-\-allow\-removals
+.br 
+Permit rug to remove software without confirmation.
+
+\-y, \-\-no\-confirmation
+.br 
+Permit installation without confirmation. Use with \-r to permit all actions without confirmation.
 
 .LP 
 \fBChannel commands:\fR
 .TP 
 channels (ch) 
-List available channels. Output is in three columns: The first indicating whether you are subscribed to the channel, the second showing the short alias for the channel, and the third showing the full channel name.
+List available channels. Output is in three columns: The first indicating whether you are subscribed to the channel, the second showing the short alias for the channel, and the third showing the full channel name. Accepts the following extra flags:
+.IP 
+\-s, \-\-subscribed
+.br 
+List only channels to which you are subscribed.
+
+\-u, \-\-unsubscribed
+.br 
+List only channels to which you are not subscribed.
 
 .TP 
-subscribe (sub)\fI<channelname>\fR
-Subscribe to a channel. You may use the full channel name or the alias.
+subscribe (sub) [channelname]
+Subscribe to a channel. You may use the full channel name or the alias.  Use the \fI\-s\fR or \fI \-\-strict\fR flag to have the action fail if attempting to subscribe to a channel to which you already subscribe. 
 
 .TP 
-unsubscribe (unsub) \fI<channelname>\fR
-Unsubscribe from a channel.  You may use the full channel name or its alias.
+unsubscribe (unsub) [channelname]
+Unsubscribe from a channel.  You may use the full channel name or its alias. Use the \fI\-s\fR or \fI \-\-strict\fR flag to have the action fail if you were already unsubscribed.
 
 .LP 
 \fBDependency analysis commands:\fR 
@@ -107,44 +277,105 @@ dangling\-requires
 This command takes no arguments or options, and designed more for administrators to check the coherence of shipped software. It walks across all packages in all channels on the server, to see if there are any dependencies that are not provided by something else on the server. 
 
 .TP 
-info\-conflicts (ic) \fI<packagename>\fR
+info\-conflicts (ic) [packagename]
 List all packages that conflict with \fIpackagename.\fR
 
 .TP 
-info\-provides (ip)  \fI<packagename>\fR
-Display the functionality or libraries that a package provides. If you wish to specify a particular channel from which to get the package, use the syntax [channel alias + ':']<package name> as is described in the EXAMPLES section.
+info\-provides (ip)  [packagename]
+Display the functionality or libraries that a package provides. If you wish to specify a particular channel from which to get the package, use the syntax [channel alias + ':'][package name] as is described in the EXAMPLES section.
 
 .TP 
-info\-requirements (ir)  \fI<packagename>\fR
+info\-requirements (ir) [packagename]
 List the software that must be present before the package can be installed.  
 
 .TP 
-solvedeps (solve) \fI<string>\fR 
+solvedeps (solve) [string]
 Install or remove software to meet package, application, or library, and can include version numbers or ranges. The ! operator is used to indicate removal.  For example, the command rug solvedeps "!rpm\-python" "rpm404\-python" will remove the rpm\-python package, and replace it with the rpm404\-python package.
 
 .TP 
-what\-conflicts (wc) \fI<packagename>\fR
-List packages that conflict with the item you specify.
+what\-conflicts (wc) [packagename]
+List packages that conflict with the item you specify. Accepts the following option flags:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
+
+\-i, installed\-only
+.br 
+Search only in the installed packages.
+
+\-u, \-\-uninstalled\-only
+.br 
+Search only among packages which are not installed.
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br 
+Sort packages by channel.
 
 .TP 
-what\-provides (wp) \fI<querystring>\fR
-List packages that provide the library, program, or package that you specify.
+what\-provides (wp) [querystring]
+List packages that provide the library, program, or package that you specify.  Accepts the following option flags:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
+
+\-i, installed\-only
+.br 
+Search only in the installed packages.
+
+\-u, \-\-uninstalled\-only
+.br 
+Search only among packages which are not installed.
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br 
+Sort packages by channel.
+
 
 .TP 
-what\-requires (wr)  \fI<querystring>\fR       
-List packages that require the library, program, or package you specify.
+what\-requires (wr) [querystring]      
+List packages that require the library, program, or package you specify.  Accepts the following option flags:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
+
+\-i, installed\-only
+.br 
+Search only in the installed packages.
+
+\-u, \-\-uninstalled\-only
+.br 
+Search only among packages which are not installed.
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br 
+Sort packages by channel.
+
 
 .LP 
 \fBPreference management commands:\fR 
 .TP 
-get\-prefs (get, prefs)\fR   
-List the system preferences that may be set.
+get\-prefs (get, prefs) [token]
+Display the value of the preference token you name. If you do not provide a token, displays all preferences.
 
 .TP 
-set\-prefs (set) \fI<key> <value>\fR         
-Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are normally stored in the rcd.conf file (see rcd.conf(5) for more information), and can be changed by editing that file directly. However, additional Red Carpet modules can create additional settings which are not necessarily kept in rcd.conf but which are still set with the rug set.  The base set of options is:
+set\-prefs (set) [token] [value]  
+Set the preference variable \fItoken\fR to the value \fIvalue\fR. Options are normally stored in the rcd.conf file (see rcd.conf(5) for more information), and can be changed by editing that file directly. However, additional Red Carpet modules can create additional settings which are not necessarily kept in rcd.conf but which are still set with the rug set.  The base set of options is:
 .IP                                             
-\fBenable\-premium:\fR If the value is true, the server is an Enterprise, CorporateConnect, or Express server.
 .IP      
 \fBproxy\-url:\fR URL for the proxy server, if any.
 .IP 
@@ -174,29 +405,51 @@ Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are no
 .IP 
 \fBsyslog\-level:\fR Sets the amount of logging output saved in syslog. Values may be from 0 (none) to 6 (lots). The default is 4.
 .IP 
-\fBNote:\fR The "host" option is no longer present; use use the service\-add command instead.
+\fBNote:\fR as of rug 2.0, the "host" option is no longer present; servers are defined with the \fBrug service\-add\fR command instead. The "enable\-premium" option has also been removed; premium servers are now detected automatically.
 
 .LP 
 \fBSystem commands:\fR
 .br 
 .TP 
-activate (act) \fI<activation code> <email address>\fR
-Activates the machine for a premium server, allowing it access to private channels hosted there. If you use multiple servers, you must specify the server with the \fI\-s <service>\fR flag. You may specify the service by name, URL, or by number. Use \fBrug sl\fR to see a list of all available services.
+activate (act) [activation code] [email address]
+Activates the machine for a premium server, allowing it access to private channels hosted there.
+.IP 
+\-n, \-\-no\-refresh
+.br 
+Do not refresh the channel data after activation.
+
+\-s, \-\-service=
+If you are using multiple servers, use this flag to specify which one. Follow the flag with a space and the URL, name, or number of the service. Use \fBrug service\-list\fR to display the available services.
+
+\-a, \-\-alias
+.br 
+Specify the alias for this machine; the alias is displayed to the server administrator. This option is useful only with Red Carpet Enterprise servers.
 
 .TP 
 dump
 Get an XML dump of system information. Usually used for debugging purposes; the output of this command is best directed to a file and compressed.
 
 .TP 
-mount <path>
-Mount a directory as a channel, adding all packages within the directory to the channel. The platform for the channel is assumed to be the same as the platform of the server.
+mount [path]
+Mount a directory as a channel, adding all packages within the directory to the channel. The platform for the channel is assumed to be the same as the platform of the server. Uses the following options:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
+
+\-\-sort\-by\-name
+.br 
+Sort packages by name (default).
+
+\-\-sort\-by\-channel
+.br Sort packages by channel.
 
 .TP 
-mirrors \fI<service> <mirror\-number>
-Choose a mirror from a list of available mirrors. If you use multiple services, you must specify the service. Not all servers have mirrors; use the \-l option to check.
+mirrors [service] [mirror\-number]
+List available mirrors or select a mirror. If you use multiple services, you must specify the service as well. Not all servers have mirrors; use the \fI\-\-list\-only\fR or \-l option to see a list of which mirrors are available.
 
 .TP 
-ping \fI<servername>\fR 
+ping [servername]
 Ping the rcd process on the server. If no server is specified, the current server will be pinged.
 
 .TP 
@@ -208,7 +461,7 @@ refresh (ref)
 Refresh channel data for all channels.
 
 .TP 
-service\-add (sa) \fI<url\-of\-server>\fR
+service\-add (sa) \fI[url\-of\-server]\fR
 Add a server to those that the daemon will check for updates. You may add multiple servers, and the daemon will connect to each one during when it refreshes. Server information is stored in the file /var/lib/rcd/services.xml.  If you are upgrading from rug 1.4 and do not have a services.xml file, your host entry will be read from rcd.conf once and only once, and then stored in services.xml. Editing services.xml by hand is not recommended.
 
 .TP 
@@ -216,14 +469,14 @@ service\-list (sl)
 List the servers which rcd knows about and can contact.
 
 .TP 
-service\-delete (sd) \fI<server>\fR
+service\-delete (sd) [server]
 Delete a server from the list of those that the daemon will check for updates. You may specify the server by name, URL, or its number as displayed in \fBrug sl\fR.
 
 .TP 
 shutdown
 Halt the server's rcd process.
 .TP 
-unmount <channel>
+unmount [channel]
 Unmount a directory that has been mounted as a channel.
 
 .LP 
@@ -233,11 +486,11 @@ user\-add (ua) [username] [privileges]
 Create an account with the Red Carpet Daemon so that someone can manage software on your system without logging into it directly. This command can also be used to grant administration access to non\-root local users. You may provide the username and the names of privileges to be granted as arguments. If you do not, you will be prompted for them. After adding the user, it starts the user\-update tool to set privileges. To quit, press \fBEnter\fR on a blank line. See the EXAMPLES section for an example of how to use this command.
 
 .TP 
-user\-delete (ud) \fI<username>\fR
+user\-delete (ud) [username]
 Delete a specific user.
 
 .TP 
-user\-edit (ue) \fI<username>\fR
+user\-edit (ue) [username]
 Display a list of the user's privileges. This command is interactive: it will first list the privileges, then offer you a prompt. Enter the plus (+) or minus (\-) symbol and then the name of the privilege, then press \fBEnter\fR. For example, to permit the user to install software, you would type \fB+install\fR.  To save and quit, press \fBEnter\fR on a blank line. 
 
 .TP 
@@ -248,18 +501,64 @@ List the users known to the daemon.
 .LP 
 \fBOther commands:\fR 
 .TP 
-help \fI<command>\fR
+help [command]
 Get detailed help on a command. If no command is specified, displays a list of all of the available commands.
 
 .TP 
-history \fI<packagename>\fR     
-Search log entries for the package you specify.
+history [searchterm]
+Search log entries for the search term you specify. By default, searches package names for the search term, displaying the package version history. Use the following option flags to perform a different search:
+.IP 
+\-n, \-\-search\-name
+.br 
+Search logs by package name (default).
+
+\-a, \-\-search\-action
+.br 
+Search logs by action performed.
+
+\-\-search\-host
+.br 
+Search logs by host used.
+
+\-\-search\-user
+.br 
+Search by user performing actions.
+
+\-\-match\-all
+.br 
+Results must match all search strings (default).
+
+\-\-match\-any 
+.br 
+Results may match any search string.
+
+\-\-match\-substrings
+.br 
+Display results that match substrings against any part of a word.
+
+\-\-match\-word
+.br 
+Search only for a match on a complete word.
+
+\-d, \-\-days\-back=[number_of_days]
+Maximum number of days to look back in the logs (default is 30).
 
 .TP 
 news
 .br 
-Display the Red Carpet news.
+Display the Red Carpet news. Accepts these flags:
+.IP 
+\-c, \-\-channel=[channel]
 .br 
+Show news only for the channel you specify.
+
+\-s, \-\-subscribed\-only
+.br 
+Only show news related to subscribed channels.
+
+\-u, \-\-unsubscribed\-only
+.br 
+Show news only for channels to which you are not subscribed.
 .SH "GLOBAL OPTIONS"
 .LP 
 The following options can be applied to any rug transaction:
@@ -328,227 +627,6 @@ Verbose mode; displays extra information for the transaction, if any is availabl
 Displays the version number of the program and exits.
 
 
-.SH "COMMAND OPTIONS"
-.LP 
-Many rug commands have options which apply only to them.  They are listed here alphabetically.
-
-.TP 
-\fBrug activate (act)\fR
-.B \fI\-n, \-\-no\-refresh\fR: Do not refresh the channel data after activation.
-.br 
-.B \fI\-s, \-\-service\fR: If you are using multiple servers, use this flag to specify which one. Follow the flag with a space and the full URL of the server.
-.br 
-.B \fI\-a, \-\-alias\fR: Specify the alias for this machine; the alias is displayed to the server administrator. This option is useful only with Red Carpet Enterprise servers.
-
-.TP 
-\fBrug channels (ch)\fR
-.B \fI\-s, \-\-subscribed\fR: List only channels to which you are subscribed.
-.br 
-.B \fI\-u, \-\-unsubscribed\fR: List only channels to which you are not subscribed.
-
-.TP 
-\fBrug history\fR <\fIquerystring\fR>\fR
-.B \fI\-n, \-\-search\-name\fR: Search logs by package name (default).
-.br 
-.B \fI\-a, \-\-search\-action\fR: Search logs by action performed.
-.br 
-.B \fI\-\-search\-host\fR: Search logs by host used.
-.br 
-.B \fI\-\-search\-user\fR: Search by user performing actions.
-.br 
-.B \fI\-\-match\-all\fR: Results must match all search strings (default).
-.br 
-.B \fI\-\-match\-any\fR: Results may match any search string.
-.br 
-.B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word.
-.br 
-.B \fI\-\-match\-words\fR: Search only for a match on a complete word.
-.br 
-.B \fI\-d, \-\-days\-back=<number_of_days>\fR: Maximum number of days to look back in the logs (default is 30).
-.br 
-
-.TP 
-\fBrug info\fR <\fIpackagename\fR>\fR
-.B \fI\-u, \-\-allow\-unsubscribed\fR: Search in channels to which you are not subscribed, as well as subscribed channels.
-
-.TP 
-\fBrug install\fR <\fIpackagename\fR>
-.B \fI\-d, \-\-download\-only\fR: Downloads the packages, but does not install them. See also the \-N or \-\-dry\-run flag, which is available for all commands.
-.br 
-.B \fI\-y, \-\-no\-confirmation\fR: Install without confirmation. Does not allow removal of conflicting packages without confirmation; to permit removal of conflicts without confirmation use \-r as well.
-.br 
-.B \fI\-r, \-\-allow\-removals\fR: Permit rug to remove software without confirmation.
-.br 
-.B \fI\-r, \-\-allow\-removals\fR: Allow software to be removed as necessary to complete the installation..br 
-.br 
-.B \fI\-u, \-\-allow\-unsubscribed\fR: Allow required software to be pulled in from channels to which you are not subscribed.
-.br 
-.B \fI\-\-entire\-channel\fR<\fIpackagename\fR>: Install all packages in the channel specified. For example, \fIrug \-\-entire\-channel install ximian\-gnome\fR would install everything in the entire "ximian\-gnome" channel.
-
-.TP 
-\fBrug lock\-add\fR 
-.B \fI\-c, \-\-channel=<channel>\fR: Specify a channel to match.
-.br 
-.B \fI\-i, \-\-importance=<importance>\fR: Set the minimum importance level for the lock. Packages less important than the importance level you specify will be blocked, and those that are at least as important will be updated without the need to override. Possible importance levels, from least to most important, are: minor, feature, suggested, urgent, necessary.
-
-.TP 
-\fBrug lock\-delete\fR 
-.B \fI\-\-\-no\-confirmation: Permit removals without confirmation
-
-.TP 
-\fBrug lock\-list\fR 
-.B \fI\-\-no\-abbrev: Do not abbreviate channel information.
-.br 
-.B \fI\-m \-\-matches: Show information about matching packages.
-
-.TP 
-\fBrug news\fR \fR
-.B  \fI\-c, \-\-channel=<channel>\fR: Show news only for the channel you specify.
-.br 
-.B  \fI\-s, \-\-subscribed\-only\fR: Only show news related to subscribed channels.
-.br 
-.B  \fI\-u, \-\-unsubscribed\-only\fR: Show news only for channels to which you are not subscribed.
-
-.TP 
-\fBrug list\-updates (lu)\fR
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.br 
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-
-.TP 
-\fBrug mirrors\fR
-.B \fI\-l, \-\-list\-only\fR  List the available mirrors.
-
-.TP 
-\fBrug mount\fR
-.B \fI\-a, \-\-alias\fR: Alias for the new channel. If one is not provided, it will be the same as the name of the directory.
-.br 
-.B \fI\-n, \-\-name\fR: Name for new channel. If one is not provided, it will be the same as the alias.
-
-.TP 
-\fBrug packages\fR <\fIchannelname\fR>
-
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.br 
-.B \fI\-i, \-\-installed\-only \fR:   Show only installed packages. This is the default behavior if no channel is specified.
-.br 
-.B \fI\-u, \-\-uninstalled\-only\fR:  Show only uninstalled packages
-.br 
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-
-.TP 
-\fBrug remove\fR <\fIpackagename\fR>
-.B \fI\-y, \-\-no\-confirmation\fR: Perform the actions with no confirmation.
-
-.TP 
-\fBrug rollback\fR <\fIpackagename\fR>
-.B \fI\-N, \-\-dry\-run\fR: Do not actually perform requested actions
-.br 
-.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmations
-.br 
-.B \fI\-d, \-\-allow\-removals\fR: Permit removal of software without confirmation
-
-.TP 
-\fBrug search\fR <\fIquerystring\fR>
-.TP 
-Seach String Options:
-.B \fI\-\-match\-all\fR: Search only for a match for all search strings (default).
-.br 
-.B \fI\-\-match\-any\fR: Display results that match any search string.
-.br 
-.B \fI\-\-match substrings\fR: Display results that match substrings against any part of a word (default).
-.br 
-.B \fI\-\-match\-words\fR: Search only for a match on a complete word.
-
-.br 
-.TP 
-Search Data Options:
-.B \fI\-\-search\-description\fR: Search only in the package description, not in the package names.
-.br 
-.B \fI\-i, installed\-only\fR: Search only in the installed packages.
-.br 
-.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
-.br 
-.B \fI\-c, \-\-channel=<channel>\fR: Search only in the channel you specify.
-.TP 
-Output Options:
-.B \fI\-show\-package\-ids\fR: Show package IDs.
-.br 
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-.br 
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.br 
-
-.TP 
-\fBrug subscribe (sub)\fR <\fIchannel>\fR
-.B \fI\-s, \-\-strict\fR: Fail if attempting to subscribe to a channel to which you already subscribe.
-
-.TP 
-\fBrug summary (sum)\fR
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel names or importance levels.
-
-.TP 
-\fBrug update (up)\fR <\fIchannel\fR>
-.B \fI\-N, \-\-dry\-run\fR: Do not actually perform requested actions
-.br 
-.B \fI\-y, \-\-no\-confirmation\fR: Install packages without confirmation. Will not remove packages without confirmation; to allow removal without confirmation, use \-r as well. 
-.br 
-.B \fI\-i, \-\-importance=<importance>\fR: Only install updates as or more important than the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
-.br 
-.B \fI\-r, \-\-allow\-removals\fR: Allow software to be removed as necessary to complete the installation..br 
-
-.TP 
-\fBrug unsubscribe (unsub)\fR <\fIchannel\fR>
-.B \fI\-s, \-\-strict\fR: Fail if attempting to unsubscribe from a channel to which you are not subscribed.
-
-.TP 
-\fBrug verify\fR
-.B \fI\-d, \-\-allow\-removals\fR: Permit rug to remove software without confirmation.
-.br 
-.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmation.
-
-.TP 
-\fBrug what\-conflicts\fR <\fIpackagename\fR>
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.br 
-.B \fI\-i, installed\-only\fR: Search only in the installed packages.
-.br 
-.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
-.br 
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-
-.TP 
-\fBrug what\-provides\fR <\fIquerystring\fR>\fR 
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.br 
-.B \fI\-i, installed\-only\fR: Search only in the installed packages.
-.br 
-.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
-.br 
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-
-.TP 
-\fBrug what\-requires\fR <\fIquerystring\fR>\fR 
-.B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
-.br 
-.B \fI\-i, installed\-only\fR: Search only in the installed packages.
-.br 
-.B \fI\-u, \-\-uninstalled\-only\fR: Search only among packages which are not installed.
-.br 
-.B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
-.br 
-.B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
-
 .SH "FILES"
 .TP 
  \fI.rugrc\fR
@@ -590,7 +668,7 @@ Download and install all updates to currently installed package in currently sub
 Download and install all updates to currently installed package in currently subscribed channels, and remove any conflicting packages, without asking for confirmation. This is a convenient option, but should be used only with servers which you trust absolutely. This is the same as using the options \fI\-\-no\-confirmation\fR and \fI\-\-allow\-removals\fR.
 
 .TP 
-\fBrug \-Vu \-\-host=\fI<hostname>\fB install \fI<packagename>\fR
+\fBrug \-Vu \-\-host=[hostname] install [packagename]
 This will operate in verbose mode and contact the rcd daemon on the specified host to install the specified package, regardless of whether it is in a channel to which the user is subscribed.
 
 .TP 
@@ -602,7 +680,7 @@ Activates this machine against the Red Carpet Enterprise server hosted at my.rc.
 Installs the package that provides \fIlibrary.so.1\fR and a version of \fIapplication\fR lower than 1.2.
 
 .TP 
-\fBrug info\-provides mychannel:mypackage</fR>
+\fBrug info\-provides mychannel:mypackage\fR
 Displays the functionality provided by the "mypackage" software from "mychannel."
 
 .TP 
