@@ -2,8 +2,12 @@
 
 import sys
 import string
-import xmlrpclib
+import ximian_xmlrpclib
 import getopt
+
+# For exception handling.
+import socket
+import cgiwrap
 
 import rccommand
 import rcchannelcmds
@@ -120,16 +124,42 @@ for key, value in optlist:
 ### Open a connection to the server.
 ###
 
-if opt_dict.has_key("host"):
-    host = opt_dict["host"]
+if opt_dict.has_key("host") or opt_dict.has_key("user"):
+    local = 0
 else:
-    host = "localhost"
+    local = 1
 
-if string.find(host, ":") == -1:
-    host = host + ":5505"
+username = None
+password = None
 
-server = xmlrpclib.Server("http://" + host + "/RPC2")
+if not local:
+    if opt_dict.has_key("host"):
+        host = opt_dict["host"]
+    else:
+        host = "localhost"
 
+    if string.find(host, ":") == -1:
+        host = host + ":5505"
+        
+    url = "http://" + host + "/RPC2"
+
+    if (opt_dict.has_key("user")):
+        username = opt_dict["user"]
+
+    if (opt_dict.has_key("password")):
+        password = opt_dict["password"]
+else:
+    url = "/tmp/rcd"
+
+try:
+    server = ximian_xmlrpclib.Server(url,
+                                     auth_username=username,
+                                     auth_password=password)
+except:
+    print "Unable to connect to the daemon."
+    print
+    sys.exit(1)
+    
 # FIXME: check for error here.  Maybe we should ping the server
 # before going further?
 
@@ -137,6 +167,16 @@ server = xmlrpclib.Server("http://" + host + "/RPC2")
 ### Execute the command
 ###
 
-command.execute(server, opt_dict, args)
+try:
+    command.execute(server, opt_dict, args)
+except socket.error:
+    print "Unable to connect to the daemon.  Please ensure that the service is running."
+    print
+    sys.exit(1)
+except (cgiwrap.ProtocolError, ximian_xmlrpclib.Fault):
+    print "Unable to authenticate with the daemon.  You may need to use the --user and"
+    print "--password options."
+    print
+    sys.exit(1)
 
 # FIXME: we should probably check for error conditions here
