@@ -103,6 +103,9 @@ def main(rc_version):
 
         if (opt_dict.has_key("user")):
             username = opt_dict["user"]
+        else:
+            username = getpass.getuser()
+        
 
         if (opt_dict.has_key("password")):
             password = rcutil.md5ify_password(opt_dict["password"])

@@ -1,5 +1,8 @@
 2002-08-02  Joe Shaw  <joe@ximian.com>
 
+	* rcmain.py: If -U isn't specified, use getpass.getuser() to get
+	the current username for remote connections.
+
 	* rcpackagecmds.py (transact_and_poll): Replace "Abort" with
 	"Cancel".
 
