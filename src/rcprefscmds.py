@@ -65,8 +65,10 @@ class PrefsSetCmd(rccommand.RCCommand):
             except ValueError:
                 value = non_option_args[1]
 
+        success = 0
         try:
             server.rcd.prefs.set_pref(non_option_args[0], value)
+            success = 1
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.type_mismatch:
                 # FIXME: This error message sucks
@@ -74,7 +76,8 @@ class PrefsSetCmd(rccommand.RCCommand):
             else:
                 raise
 
-        rctalk.message("Preference '" + non_option_args[0] + "' changed from '" + str(pref) + "' to '" + str(value) + "'")
+        if success:
+            rctalk.message("Preference '" + non_option_args[0] + "' changed from '" + str(pref) + "' to '" + str(value) + "'")
 
 class PrefsListCmd(rccommand.RCCommand):
 
