@@ -1,5 +1,9 @@
 2002-07-08  Joe Shaw  <joe@ximian.com>
 
+	* rcsystemcmds.py (PingCmd.execute): Show the distribution info.
+
+2002-07-08  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (find_package_in_channel): Fix the return value
 	when we can't find a package in the channel.
 	(PackageInfoCmd.execute, PackageInstallCmd.execute): Allow the

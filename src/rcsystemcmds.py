@@ -45,6 +45,11 @@ class PingCmd(rccommand.RCCommand):
             else:
                 rctalk.warning("Server did not return copyright information.")
 
+            if results.has_key("distro_info"):
+                rctalk.message("  System type: " + results["distro_info"])
+            else:
+                rctalk.warning("Server did not return system type information.")
+
             # Exit normally if we could ping the server
             sys.exit(0)
 
