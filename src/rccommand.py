@@ -33,8 +33,8 @@ default_opt_table = [
     ["",  "quiet",    "",         "Quiet output, print only error messages"],
     ["",  "read-from-file", "filename",   "Get args from file"],
     ["",  "read-from-stdin", "",  "Get args from stdin"],
-    ["",  "ignore-rc-file", "",   "Don't read rc's startup file (~/.rcrc)"],
-    ["",  "ignore-env", "",       "Ignore the RC_ARGS environment variable"],
+    ["",  "ignore-rc-file", "",   "Don't read rug's startup file (~/.rugrc)"],
+    ["",  "ignore-env", "",       "Ignore the RUG_ARGS environment variable"],
     ["?", "help",     "",         "Get help on a specific command"]
 ]
 
@@ -157,7 +157,7 @@ def print_command_list(commands, with_categories=0):
             rctalk.message(" " * desc_len + d)
 
 def usage_basic():
-    rctalk.message("Usage: rc <command> <options> ...")
+    rctalk.message("Usage: rug <command> <options> ...")
     rctalk.message("")
 
     keys = command_dict.keys()
@@ -175,14 +175,14 @@ def usage_basic():
 
         rctalk.message("")
         rctalk.message("For a more complete list of commands and important options,")
-        rctalk.message("run \"rc help\".")
+        rctalk.message("run \"rug help\".")
         rctalk.message("")
 
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")
 
 def usage_full():
-    rctalk.message("Usage: rc <command> <options> ...")
+    rctalk.message("Usage: rug <command> <options> ...")
     rctalk.message("")
 
     rctalk.message("The following options are understood by all commands:")
@@ -201,7 +201,7 @@ def usage_full():
 
         rctalk.message("")
         rctalk.message("For more detailed information about a specific command,")
-        rctalk.message("run 'rc <command name> --help'.")
+        rctalk.message("run 'rug <command name> --help'.")
         rctalk.message("")
 
     else:
@@ -242,7 +242,7 @@ def extract_command_from_argv(argv):
     return command
 
 ###
-### Handle .rcrc and RC_ARGS
+### Handle .rugrc and RUG_ARGS
 ###
 
 def get_user_default_args(argv, command_name):
@@ -253,35 +253,49 @@ def get_user_default_args(argv, command_name):
     def join_args(arglist, argv):
         return map(string.strip, arglist + argv)
 
-    # Try to read the .rcrc file.  It basically works like a .cvsrc file.
+    # Try to read the .rugrc file.  It basically works like a .cvsrc file.
     if "--ignore-rc-file" not in argv:
-        try:
-            rcrc = open(os.path.expanduser("~/.rcrc"), "r")
-            while 1:
-                line = rcrc.readline()
+        rugrc_files = (os.path.expanduser("~/.rugrc"),
+                       os.path.expanduser("~/.rcrc"))
 
-                # strip out comments
-                hash_pos = string.find(line, "#")
-                if hash_pos >= 0:
-                    line = line[0:hash_pos]
+        rc_file = None
+        for f in rugrc_files:
+            if os.path.exists(f):
+                rc_file = f
+                break
 
-                # skip empty lines
-                if not line:
-                    break
-                
-                pieces = string.split(line)
-                if len(pieces) and pieces[0] == command_name:
-                    argv = join_args(pieces[1:], argv)
-            rcrc.close()
-            
-        except IOError:
-            # If we can't open the .rcrc file, that is fine... just
-            # continue as if nothing happened.
-            pass
+        if rc_file:
+            try:
+                rugrc = open(rc_file, "r")
+                while 1:
+                    line = rugrc.readline()
 
-    if "--ignore-env" not in argv and os.environ.has_key("RC_ARGS"):
-        args = string.split(os.environ["RC_ARGS"])
-        argv = join_args(args, argv)
+                    # strip out comments
+                    hash_pos = string.find(line, "#")
+                    if hash_pos >= 0:
+                        line = line[0:hash_pos]
+
+                    # skip empty lines
+                    if not line:
+                        break
+
+                    pieces = string.split(line)
+                    if len(pieces) and pieces[0] == command_name:
+                        argv = join_args(pieces[1:], argv)
+                rugrc.close()
+
+            except IOError:
+                # If we can't open the rc file, that is fine... just
+                # continue as if nothing happened.
+                pass
+
+    if "--ignore-env" not in argv:
+        if os.environ.has_key("RUG_ARGS"):
+            args = string.split(os.environ["RUG_ARGS"])
+            argv = join_args(args, argv)
+        elif os.environ.has_key("RC_ARGS"):
+            args = string.split(os.environ["RC_ARGS"])
+            argv = join_args(args, argv)
 
     return argv
 

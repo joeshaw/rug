@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-### Copyright 2002 Ximian, Inc.
+### Copyright 2002-2003 Ximian, Inc.
 ###
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License, version 2,
@@ -21,36 +21,36 @@ try:
     import sys
     import os
 
-    rc_dir = "@DDIR@/rc"
+    rug_dir = "@DDIR@/rc"
 
     # This is where we look for binary extensions (like the fast
     # unmarshaller).
-    rc_lib_dir = "@LIBDIR@/rc"
+    rug_lib_dir = "@LIBDIR@/rug"
 
-    rc_version = "@VERSION@"
+    rug_version = "@VERSION@"
 
-    # FIXME: This has a special check to allow us to run rc in-place
+    # FIXME: This has a special check to allow us to run rug in-place
     # without having done a "make install".  We might want to take this
     # out at some point.
 
     if not (os.path.isfile("./rcmain.py") \
             or (os.path.isdir(rc_dir) and os.path.isfile(rc_dir + "/rcmain.py"))):
-        print "ERROR: The Red Carpet Command Line Client doesn't appear to be"
+        print "ERROR: The Red Carpet Command Line Client (rug) doesn't appear to be"
         print "ERROR: installed properly.  Please check your installation."
         sys.exit(1)
 
 
-    sys.path.append(rc_dir)
-    sys.path.append(rc_lib_dir)
+    sys.path.append(rug_dir)
+    sys.path.append(rug_lib_dir)
     import rcmain
 
-    if "--rc-profile" in sys.argv:
+    if "--rug-profile" in sys.argv:
         import profile
         sys.stderr.write("*** Profiling Enabled ***\n")
-        sys.argv = filter(lambda x:x != "--rc-profile", sys.argv)
-        profile.run("rcmain.main(rc_version)")
+        sys.argv = filter(lambda x:x != "--rug-profile", sys.argv)
+        profile.run("rcmain.main(rug_version)")
     else:
-        rcmain.main(rc_version)
+        rcmain.main(rug_version)
 except KeyboardInterrupt:
     # Just quietly exit if we got a ^C
     print

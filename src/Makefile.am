@@ -1,8 +1,8 @@
-rcexecdir = $(bindir)
-rcexec_DATA = rc
+rugexecdir = $(bindir)
+rugexec_DATA = rug
 
-rcsupportdir = $(datadir)/rc
-rcsupport_DATA = 		\
+rugsupportdir = $(datadir)/rug
+rugsupport_DATA = 		\
 	rcchannelcmds.py	\
 	rcchannelutils.py	\
 	rccommand.py		\
@@ -24,7 +24,7 @@ rcsupport_DATA = 		\
 	rcmountcmds.py		\
 	ximian_xmlrpclib.py
 
-EXTRA_DIST = $(rcsupport_DATA)
+EXTRA_DIST = $(rugsupport_DATA)
 
 install-exec-hook:
-	chmod 0755 $(DESTDIR)$(rcexecdir)/$(rcexec_DATA)
+	chmod 0755 $(DESTDIR)$(rugexecdir)/$(rugexec_DATA)

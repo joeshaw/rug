@@ -1120,6 +1120,9 @@ class PackageDanglingRequiresCmd(rccommand.RCCommand):
     def name(self):
         return "dangling-requires"
 
+    def aliases(self):
+        return ["dr"]
+
     def description_short(self):
         return "Search for packages with requirements that are not provided " \
                "by any other package."

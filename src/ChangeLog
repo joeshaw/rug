@@ -1,3 +1,18 @@
+2003-05-19  Joe Shaw  <joe@ximian.com>
+	
+	* Rename to "rug".
+
+	* Makefile.am: replace "rc" with "rug" for binaries and paths.
+
+	* rc.in: Removed, replaced by rug.in.
+
+	* rccommand.py: Replace the few instances where we call ourselves
+	"rc" with "rug".
+	(get_user_default_args): Check both .rugrc and .rcrc and both
+	RUG_ARGS and RC_ARGS.  Prefer the new one if set.
+
+	* rcpackagecmds.py (PackageDanglingRequiresCmd): Add "dr" alias.
+
 2003-05-19  Frank Belew  <frb@ximian.com>
 
 	* rcusercmds.py (get_privileges): silly frb, python doesn't have ++
