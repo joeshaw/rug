@@ -1,3 +1,7 @@
+2003-05-18  Frank Belew  <frb@ximian.com>
+
+	* rcusercmds.py (get_privileges): silly joe, python doesn't have +=
+
 2003-05-16  Joe Shaw  <joe@ximian.com>
 
 	* rcusercmds.py (get_privileges): Handle spaces between "+"/"-"

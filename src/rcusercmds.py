@@ -100,11 +100,11 @@ def get_privileges(initial, in_legal):
             # If "+" or "-" is by itself and not the last thing on the line
             if changes[i] in ("+", "-") and i+1 < max:
                 filter.append(changes[i] + changes[i+1])
-                i += 1
+                i++
             else:
                 filter.append(changes[i])
 
-            i += 1
+            i++
 
         changes = filter
         
