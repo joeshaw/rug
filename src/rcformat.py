@@ -74,7 +74,7 @@ def linebreak(in_str, width):
 
 def evr_to_str(package):
     version = ""
-    
+
     if package["has_epoch"]:
         version = version + str(package["epoch"]) + ":"
 
@@ -98,6 +98,22 @@ def evr_to_abbrev_str(package):
                    (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5))
         
     return evr_to_str(package)
+
+
+## Assemble package specs/deps to strings
+
+def rel_str(dep):
+    rel = dep["relation"]
+    if rel == "(any)":
+        return ""
+    else:
+        return rel + " "
+
+def dep_to_str(dep):
+    return dep["name"] +  " " + rel_str(dep) + evr_to_str(dep)
+
+def dep_to_abbrev_str(dep):
+    return dep["name"] + " " + rel_str(dep) + evr_to_abbrev_str(dep)
 
 
 ## Shorten channel names in a semi-coherent way

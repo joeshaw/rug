@@ -1,3 +1,14 @@
+2002-07-19  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py: Added very preliminary implementations
+	of three new commands --- info-provides, info-requirements
+	and info-conflicts.
+
+	* rcformat.py (dep_to_str): Added.  Stringify RCPackageDep-like
+	objects.
+	(dep_to_abbrev_str): Added.  Stringify RCPackageDep-like objects
+	gracefully.
+
 2002-07-18  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelcmds.py (RefreshChannelCmd.execute): Check for a lock

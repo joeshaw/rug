@@ -119,6 +119,46 @@ def find_local_package(server, package):
         
     return p
 
+
+def find_package(server, str, allow_unsub):
+
+    channel = None
+    package = None
+
+    p = find_local_package(server, str)
+
+    if not p:
+        off = string.find(str, ":")
+        if off != -1:
+            channel = str[:off]
+            package = str[off+1:]
+        else:
+            package = str
+
+        if not channel:
+            p = find_package_on_system(server, package)
+
+            if not p:
+                p, inform = find_package_in_channel(server, -1, package, allow_unsub)
+
+                if inform:
+                    rctalk.message("Using " + p["name"] + " " +
+                                   rcformat.evr_to_str(p) + " from the '" +
+                                   rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                                   "' channel")
+                    
+        else:
+            clist = rcchannelutils.get_channels_by_name(server, channel)
+            if not rcchannelutils.validate_channel_list(channel, clist):
+                sys.exit(1)
+
+            c = clist[0]
+            p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
+
+    return p
+
+
+
 def get_updates(server, non_option_args):
     up = server.rcd.packsys.get_updates()
 
@@ -652,36 +692,7 @@ class PackageInfoCmd(rccommand.RCCommand):
             channel = None
             package = None
 
-            p = find_local_package(server, a)
-
-            if not p:
-                off = string.find(a, ":")
-                if off != -1:
-                    channel = a[:off]
-                    package = a[off+1:]
-                else:
-                    package = a
-
-                if not channel:
-                    p = find_package_on_system(server, package)
-
-                    if not p:
-                        p, inform = find_package_in_channel(server, -1, package, allow_unsub)
-
-                        if inform:
-                            rctalk.message("Using " + p["name"] + " " +
-                                           rcformat.evr_to_str(p) + " from the '" +
-                                           rcchannelutils.channel_id_to_name(server, p["channel"]) +
-                                           "' channel")
-
-                else:
-                    clist = rcchannelutils.get_channels_by_name(server, channel)
-                    if not rcchannelutils.validate_channel_list(channel, clist):
-                        sys.exit(1)
-
-                    c = clist[0]
-                    p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
-
+            p = find_package(server, a, allow_unsub)
             if not p:
                 sys.exit(1)
 
@@ -737,6 +748,151 @@ class PackageInfoCmd(rccommand.RCCommand):
 
                     if pkg_str:
                         rctalk.message(time_str + " " + action_str + " " + pkg_str)
+
+
+###
+### "info-provides" command
+###
+
+### FIXME: this barely works
+
+class PackageInfoProvidesCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "info-provides"
+
+    def description_short(self):
+        return "List a package's provides"
+
+    def execute(self, server, options_dict, non_option_args):
+        
+        pkg_specifier = non_option_args[0]
+        pkg = find_package(server, pkg_specifier, 1)
+
+        dep_info = server.rcd.packsys.package_dependency_info(pkg)
+
+        if not dep_info.has_key("provides"):
+            sys.exit(1)
+
+        for dep in dep_info["provides"]:
+            rctalk.message(rcformat.dep_to_str(dep))
+            
+
+###
+### "info-requirements" command
+###
+
+### FIXME: a very preliminary implementation
+
+class PackageInfoRequirementsCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "info-requires"
+
+    def description_short(self):
+        return "List a packages requirements"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        pkg_specifier = non_option_args[0]
+        pkg = find_package(server, pkg_specifier, 1)
+
+        dep_info = server.rcd.packsys.package_dependency_info(pkg)
+
+        if not dep_info.has_key("requires"):
+            sys.exit(1)
+
+        table = []
+
+        for dep in dep_info["requires"]:
+            providers = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+            prov_dict = {}
+
+            name = rcformat.dep_to_str(dep)
+            status = "*"
+            for prov in providers:
+                if prov["installed"]:
+                    status = ""
+
+            count = 0
+            for prov in providers:
+                row = rcformat.package_to_row(server, prov, 0, ["name", "installed", "channel"])
+                key = string.join(row)
+                if not prov_dict.has_key(key):
+                    table.append([status, name] + row)
+                    prov_dict[key] = 1
+                    status = ""
+                    name = ""
+                    count = count + 1
+
+            if count == 0:
+                table.append(["*", name, "** Unknown **", "", ""])
+            elif count > 1:
+                table.append(["", "", "", "", ""])
+
+        rcformat.tabular(["!", "Requirement", "Provided By", "S", "Channel"], table)
+
+        
+###
+### "info-conflicts" command
+###
+
+### FIXME: a very preliminary implementation
+
+class PackageInfoConflictsCmd(rccommand.RCCommand):
+    
+    def name(self):
+        return "info-conflicts"
+
+    def description_short(self):
+        return "List a package's conflicts"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        pkg_specifier = non_option_args[0]
+        pkg = find_package(server, pkg_specifier, 1)
+
+        dep_info = server.rcd.packsys.package_dependency_info(pkg)
+
+        if not dep_info.has_key("conflicts"):
+            sys.exit(1)
+
+        table = []
+
+        for dep in dep_info["conflicts"]:
+            conflictors = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+            conf_dict = {}
+
+            name = rcformat.dep_to_str(dep)
+            status = ""
+            for conf in conflictors:
+                if conf["installed"]:
+                    status = "*"
+
+            count = 0
+            for conf in conflictors:
+                row = rcformat.package_to_row(server, conf, 0, ["name", "installed", "channel"])
+                key = string.join(row)
+                if not conf_dict.has_key(key):
+                    table.append([status, name] + row)
+                    conf_dict[key] = 1
+                    status = ""
+                    name = ""
+                    count = count + 1
+
+            if count == 0:
+                table.append(["", name, "", "", ""])
+            elif count > 1:
+                table.append(["", "", "", "", ""])
+
+        rcformat.tabular(["!", "Conflict", "Conflicts With", "S", "Channel"], table)
+
+                
+
+
+###
+### Transacting commands 
+###
 
 def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
     tid = server.rcd.packsys.transact(packages_to_install,
@@ -1133,6 +1289,9 @@ rccommand.register(PackageSearchCmd)
 rccommand.register(PackageUpdatesCmd)
 rccommand.register(SummaryCmd)
 rccommand.register(PackageInfoCmd)
+rccommand.register(PackageInfoProvidesCmd)
+rccommand.register(PackageInfoRequirementsCmd)
+rccommand.register(PackageInfoConflictsCmd)
 rccommand.register(PackageInstallCmd)
 rccommand.register(PackageRemoveCmd)
 rccommand.register(PackageUpdateAllCmd)
