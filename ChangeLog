@@ -1,3 +1,7 @@
+2003-03-10  Joe Shaw  <joe@ximian.com>
+
+	* configure.in: Bump up version to 1.3.0
+
 2003-02-25  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.2.1
