@@ -1,3 +1,7 @@
+2003-09-11  Frank Belew <frb@ximian.com>
+
+	* rug.in: use @PYTHON@ instead of hardcoding /usr/bin/python
+
 2003-09-10  Joe Shaw  <joe@ximian.com>
 
 	* rcservicecmds.py (ServiceActivateCmd): Add in a missing argument
