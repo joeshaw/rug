@@ -5,9 +5,3 @@ Activation/registration.
 Implements "preferences" command.
 
 Need docs and a man page.
-
-Port our local changes to xmlrpclib (currently in ximian_xmlrpclib) to
-the python 2.2 xmlrpclib.  ximian_xmlrpclib is currently based on the
-1.5.2 xmlrpclib, and is incompatible with 2.x.  However, the python
-2.2 xmlrpclib is backwards-compatible and will work under 1.5.2 --- or
-at least it claims to be able to.
