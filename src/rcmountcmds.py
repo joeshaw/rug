@@ -20,7 +20,7 @@ import sys
 import string
 import rcutil
 import rctalk
-import rcformat, rcchannelutils
+import rcformat, rcchannelutils, rcchannelcmds
 import rccommand
 import rcfault
 import ximian_xmlrpclib
@@ -46,8 +46,10 @@ class MountCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
 
         if len(non_option_args) == 0:
-            rctalk.error("No path specified.")
-            sys.exit(1)
+            # list mounted channels
+            cmd = rcchannelcmds.ListChannelsCmd()
+            cmd.execute(server, {"mounted": 1}, [])
+            return
 
         path = os.path.abspath(non_option_args[0])
         path_base = os.path.basename(path)

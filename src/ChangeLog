@@ -1,3 +1,12 @@
+2003-01-24  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmountcmds.py (MountCmd.execute): By popular demand: If no path
+	is passed in to the mount command, list the currently-mounted
+	channels.  Basically, 'rc mount' is now equivalent to 'rc ch -m'.
+
+	* rcchannelcmds.py (ListChannelsCmd.execute): By popular demand:
+	Added a --mounted argument, to only list mounted channels.
+
 2003-01-20  Jon Trowbridge  <trow@ximian.com>
 
 	* rcchannelcmds.py (ListChannelsCmd.execute): Added --show-ids

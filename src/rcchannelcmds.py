@@ -45,8 +45,9 @@ class ListChannelsCmd(rccommand.RCCommand):
         return "List available channels"
 
     def local_opt_table(self):
-        return [["s", "subscribed", "", "List only subscribed channels"],
-                ["u", "unsubscribed", "", "List only unsubscribed channels"],
+        return [["s", "subscribed", "", "Only list subscribed channels"],
+                ["u", "unsubscribed", "", "Only list unsubscribed channels"],
+                ["m", "mounted", "", "Only list channels from mounted directories"],
                 ["", "show-ids", "", "Show channel IDs"]]
 
     def local_orthogonal_opts(self):
@@ -64,6 +65,9 @@ class ListChannelsCmd(rccommand.RCCommand):
         for c in channels:
 
             show = 1
+
+            if options_dict.has_key("mounted") and not c["transient"]:
+                    show = 0
 
             if c["subscribed"]:
                 if rctalk.be_terse:
@@ -91,6 +95,8 @@ class ListChannelsCmd(rccommand.RCCommand):
                 rctalk.message("--- No unsubscribed channels ---")
             elif options_dict.has_key("subscribed"):
                 rctalk.message("--- No subscribed channels ---")
+            elif options_dict.has_key("mounted"):
+                rctalk.message("--- No mounted channels ---")
             else:
                 rctalk.warning("--- No channels available ---")
 
