@@ -35,7 +35,7 @@ class PrefsSetCmd(rccommand.RCCommand):
         return "<pref name> <value>"
 
     def description_short(self):
-        return "Set a system preference"
+        return "Set a preference variable"
 
     def execute(self, server, options_dict, non_option_args):
         if len(non_option_args) < 2:
@@ -83,7 +83,7 @@ class PrefsListCmd(rccommand.RCCommand):
         return "<pref name> <pref name> ..."
 
     def description_short(self):
-        return "List system preferences"
+        return "List the system preferences that may be set"
 
     def execute(self, server, options_dict, non_option_args):
         headers = ["Name", "Value"]

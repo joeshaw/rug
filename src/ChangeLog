@@ -1,3 +1,13 @@
+2002-07-11  Aaron Weber  <aaron@ximian.com>
+
+	* rcprefscmds.py (PrefsListCmd.description_short): improve description
+
+	* rcchannelcmds.py (RefreshChannelCmd.arguments): enhance descriptions.
+
+	* rcprefscmds.py: enhance descriptions
+
+	* rcpackagecmds.py (PackageInstallCmd.execute): enhance descriptions
+
 2002-07-11  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (get_updates): We don't need to filter out

@@ -37,8 +37,8 @@ class ListChannelsCmd(rccommand.RCCommand):
         return "List available channels"
 
     def local_opt_table(self):
-        return [["s", "subscribed", "", "Only list subscribed channels"],
-                ["u", "unsubscribed", "", "Only list unsubscribed channels"]]
+        return [["s", "subscribed", "", "List only subscribed channels"],
+                ["u", "unsubscribed", "", "List only unsubscribed channels"]]
 
     def local_orthogonal_opts(self):
         return [["subscribed", "unsubscribed"]]

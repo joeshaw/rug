@@ -139,7 +139,7 @@ class WhatProvidesCmd(WhateverCmd):
         return "what-provides"
 
     def description_short(self):
-        return "List packages that provide a given dependency"
+        return "List packages that provide the item you specify"
 
     def query_fn(self, server):
         return server.rcd.packsys.what_provides
@@ -155,7 +155,7 @@ class WhatRequiresCmd(WhateverCmd):
         return "what-requires"
 
     def description_short(self):
-        return "List packages that require a given dependency"
+        return "List packages that require the item you specify"
 
     def query_fn(self, server):
         return server.rcd.packsys.what_requires
@@ -171,7 +171,7 @@ class WhatConflictsCmd(WhateverCmd):
         return "what-conflicts"
 
     def description_short(self):
-        return "List packages that conflict with a given dependency"
+        return "List packages that conflict with the item you specify"
 
     def query_fn(self, server):
         return server.rcd.packsys.what_conflicts

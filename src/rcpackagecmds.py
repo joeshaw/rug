@@ -224,13 +224,13 @@ class PackageSearchCmd(rccommand.RCCommand):
 
     def local_opt_table(self):
         return [["", "match-all", "",              "Require packages to match all search strings (default)"],
-                ["", "match-any", "",              "Allow packages to match any search string"],
+                ["", "match-any", "",              "Allow packages to match any of the search strings"],
                 ["", "match-substrings", "",       "Match search strings against any part of the text"],
                 ["", "match-words",      "",       "Require search strings to match entire words"],
-                ["", "search-description", "",     "Look for search strings in package descriptions"],
-                ["i", "installed-only",   "",      "Only show installed packages"],
-                ["u", "uninstalled-only", "",      "Only show uninstalled packages"],
-                ["c", "channel",        "channel", "Show packages from one specific channel"],
+                ["", "search-description", "",     "Search only in the descriptions of packages and not their names"],
+                ["i", "installed-only",   "",      "Show only packages that are already installed"],
+                ["u", "uninstalled-only", "",      "Show only packages that are not currently installed"],
+                ["c", "channel",        "channel", "Show only the packages from the channel you specify"],
                 ["", "show-package-ids",   "",     "Show package IDs"],
                 ["", "sort-by-name",     "",       "Sort packages by name (default)"],
                 ["", "sort-by-channel",  "",       "Sort packages by channel"],
@@ -785,9 +785,9 @@ class PackageInstallCmd(rccommand.RCCommand):
         return "Install packages"
 
     def local_opt_table(self):
-        return [["d", "allow-removals", "", "Allow removals with no confirmation"],
-                ["y", "no-confirmation", "", "Perform the actions without confirmation"],
-                ["u", "allow-unsubscribed", "", "Search in unsubscribed channels as well"]]
+        return [["d", "allow-removals", "", "Permit removal of software without confirmation"],
+                ["y", "no-confirmation", "", "Permit all actions without confirmations"],
+                ["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"]]
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_install = []
