@@ -16,6 +16,7 @@
 ###
 
 import sys
+import rctalk
 import rcformat
 import rccommand
 import rcchannelcmds
@@ -50,7 +51,7 @@ class PackageListCmd(rccommand.RCCommand):
         for a in non_option_args:
             c = rcchannelcmds.get_channel_by_id(server, a)
             if not c:
-                print "Invalid channel: '" + a + "'"
+                rctalk.warning("Invalid channel: '" + a + "'")
             else:
                 packages = get_packages(server, c);
 
@@ -61,6 +62,55 @@ class PackageListCmd(rccommand.RCCommand):
             package_table.sort(lambda x, y:cmp(x[2],y[2]))
             rcformat.tabular(["S", "Channel", "Name", "Version"], package_table)
         else:
-            print "--- No packages found ---"
+            rctalk.message("--- No packages found ---")
+
+class PackageSearchCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "search"
+
+    def local_opt_table(self):
+        return [["n", "search-name", "", "Search name (default)"],
+                ["s", "search-summary", "", "Search summary"],
+                ["d", "search-description", "", "Search description"],
+                ["v", "search-version", "", "Search version"],
+                ["u", "search-updates", "", "Search updates"],
+                ["p", "show-package-ids", "", "Show package IDs for each package"],
+                ["c", "channel", "channel id", "Search in a specific channel"]]
+
+    def execute(self, server, options_dict, non_option_args):
+
+        package_table = [];
+
+        search_type = "name"
+        if options_dict.has_key("search-summary"):
+            search_type = "summary"
+        elif options_dict.has_key("search-description"):
+            search_type = "description"
+        elif options_dict.has_key("search-version"):
+            search_type = "version"
+        elif options_dict.has_key("search-updates"):
+            search_type = "needs_upgrade"
+
+        # FIXME: Handle -c
+        if search_type == "needs_upgrade":
+            packages = server.rcd.packsys.query([[search_type, "is", "true"]])
+        else:
+            if not non_option_args:
+                self.usage()
+                sys.exit(1)
+
+            packages = server.rcd.packsys.query([[search_type, "contains", non_option_args[0]]])
+        
+        # FIXME: Check for -p
+        for p in packages:
+            package_table.append([install_indicator(server, p), str(p["channel"]), p["name"], p["version"] + "-" + p["release"]])
+
+        if package_table:
+            package_table.sort(lambda x, y:cmp(x[2],y[2]))
+            rcformat.tabular(["S", "Channel", "Name", "Version"], package_table)
+        else:
+            rctalk.message("--- No packages found ---")
 
 rccommand.register(PackageListCmd, "List the packages in a channel")
+rccommand.register(PackageSearchCmd, "Search for packages matching criteria")

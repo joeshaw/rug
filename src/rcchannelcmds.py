@@ -228,7 +228,7 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
             for c in to_do:
                 if c and server.rcd.packsys.refresh_channel(int(c["id"])):
-                    print "Refreshing channel "+channel_to_str(c)
+                    rctalk.message("Refreshing channel "+channel_to_str(c))
 
 rccommand.register(ListChannelsCmd, "List available channels")
 rccommand.register(SubscribeCmd, "Subscribe to a channel")

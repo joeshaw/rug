@@ -1,3 +1,12 @@
+2002-06-10  Joe Shaw  <joe@ximian.com>
+
+	* rcchannelcmds.py: Change a print to an rctalk.message
+
+	* rccommand.py: Change the --dry-run shortcut from -n to -N and
+	verbose's -v to -V so they don't conflict with other options.
+
+	* rcpackagecmds.py: Use rctalk, add a first-cut PackageSearchCmd.
+
 2002-06-10  Jon Trowbridge  <trow@ximian.com>
 
 	* rcchannelcmds.py: Added smarter name-based channel matching,
