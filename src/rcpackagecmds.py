@@ -666,7 +666,11 @@ class PackageInfoCmd(rccommand.RCCommand):
                 # Reverse chronological order
                 log_entries.sort(lambda x,y:cmp(y["timestamp"], x["timestamp"]))
 
-                act_len = apply(max, map(lambda x:len(x["action"]), log_entries))
+                act_len_list = map(lambda x:len(x["action"]), log_entries)
+                if len(act_len_list) > 1:
+                    act_len = apply(max, act_len_list)
+                else:
+                    act_len = act_len_list[0]
                 
                 rctalk.message("\nHistory:")
                                 

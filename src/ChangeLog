@@ -1,3 +1,15 @@
+2002-07-08  Jon Trowbridge  <trow@ximian.com>
+
+	* rccommand.py (usage): Stupidly, the max function fails if you
+	pass it a single argument; this means that apply(max, foo)
+	generates an error if len(foo) is 1.  While that case would
+	probably never come up in this bit of code, it seems imprudent not
+	to work around it.
+
+	* rcpackagecmds.py (PackageInfoCmd.execute): Also changed to work
+	around the max-needs-two-args bug... but in this case it can
+	actually happen, so the fix is more than just pedantry.
+
 2002-07-07  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Catch ximian_xmlrpclib.ProtocolError, not

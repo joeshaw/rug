@@ -91,7 +91,7 @@ def usage():
     if keys:
         keys.sort()
         cmd_list = []
-        max_len = apply(max,map(len, keys))
+        max_len = 0
         for k in keys:
             name = k
             description = command_dict[k][0]
@@ -99,8 +99,8 @@ def usage():
             if aliases:
                 name = name + " (" + string.join(aliases, ", ") + ")"
             cmd_list.append([name, description])
+            max_len = max(max_len, len(name))
 
-        max_len = apply(max, map(lambda c:len(c[0]), cmd_list))
         for c in cmd_list:
             rctalk.message("  " + string.ljust(c[0], max_len) + "  " + c[1])
             
