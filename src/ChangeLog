@@ -1,5 +1,13 @@
 2002-06-07  Joe Shaw  <joe@ximian.com>
 
+	* rc: Handle cases like "rc -U channels refresh 20001" in which
+	"channels" could get picked up as the action instead of "refresh".
+
+	* rcchannelcmds.py: Pulled the default_opt_table out of the
+	RCCommand class so we could walk it, for the above.
+
+2002-06-07  Joe Shaw  <joe@ximian.com>
+
 	* All files: Change the license to explicitly require version 2 of
 	the GPL.
 

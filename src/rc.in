@@ -57,6 +57,19 @@ while i < len(argv) and not command:
         command = rccommand.construct(argv[i])
         if command:
             argv.pop(i)
+    else:
+        takes_arg = 0
+        for o in rccommand.default_opt_table:
+            if not (argv[i][1:] == o[0] or argv[i][2:] == o[1]):
+                continue
+
+            if o[2] != "":
+                takes_arg = 1
+                break
+
+        if takes_arg and string.find(argv[i], "=") == -1:
+            i = i + 1
+
     i = i + 1
 
 if not found_name:

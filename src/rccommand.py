@@ -65,6 +65,18 @@ def usage():
     else:
         print "<< No commands found --- something is wrong! >>"
 
+default_opt_table = [
+    ["U", "user",     "username", "Specify user name"],
+    ["P", "password", "password", "Specify password"],
+    ["h", "host",     "hostname", "Contact daemon on specified host"],
+    ["n", "dry-run",  "",         "Don't perform operation"],
+    ["",  "version",  "",         "Print client version and exit"],
+    ["v", "verbose",  "",         "Verbose output"],
+    ["t", "terse",    "",         "Terse output"],
+    ["",  "debug",    "",         "Debugging output"],
+    ["",  "batch",    "",         "Run in batch mode"],
+    ["?", "help",     "",         "Get help on a specific command"]
+]
 
 class RCCommand:
 
@@ -72,17 +84,7 @@ class RCCommand:
         return "Unknown!"
 
     def default_opt_table(self):
-        return [["U", "user",     "username", "Specify user name"],
-                ["P", "password", "password", "Specify password"],
-                ["h", "host",     "hostname", "Contact daemon on specified host"],
-                ["n", "dry-run",  "",         "Don't perform operation"],
-                ["",  "version",  "",         "Print client version and exit"],
-                ["v", "verbose",  "",         "Verbose output"],
-                ["t", "terse",    "",         "Terse output"],
-                ["",  "debug",    "",         "Debugging output"],
-                ["",  "batch",    "",         "Run in batch mode"],
-                ["?", "help",     "",         "Get help on a specific command"]]
-
+        return default_opt_table;
 
     def local_opt_table(self):
         return [];
