@@ -1,5 +1,8 @@
 2003-09-18  Joe Shaw  <joe@ximian.com>
 
+	* rcchannelcmds.py (ListChannelsCmd): Add back in the -m/--mounted
+	flag.
+
 	* rctransactcmds.py (date_converter): Accept days of the week for
 	rollback.  Split some stuff out into separate functions because
 	python 1.5.2 is lame.
