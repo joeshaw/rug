@@ -1,5 +1,11 @@
 2002-06-10  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageListCmd): If no channels are specified,
+	list the system packages.  Only show the "channel" field if there
+	is more than one channel specified.
+
+2002-06-10  Joe Shaw  <joe@ximian.com>
+
 	* rcchannelcmds.py: Change a print to an rctalk.message
 
 	* rccommand.py: Change the --dry-run shortcut from -n to -N and

@@ -26,18 +26,48 @@ cached_system_packages = {}
 def get_packages(server, channel):
     return server.rcd.packsys.query([["channel","is",str(channel["id"])]])
 
-def install_indicator(server, package):
+def get_system_packages(server):
     global cached_system_packages
     if not cached_system_packages:
         system_packages = server.rcd.packsys.query([["installed","is","true"]])
         for a in system_packages:
             cached_system_packages[a["name"]] = a
+    else:
+        system_packages = cached_system_packages.values();
+
+    return system_packages;
+
+def install_indicator(server, package):
+    global cached_system_packages
+    if not cached_system_packages:
+        get_system_packages(server)
 
     if cached_system_packages.has_key(package["name"]):
         return "i"
     else:
         return ""
 
+def append_to_table(server, package_table, p, multi):
+    row = [install_indicator(server, p),
+           str(p["channel"]),
+           p["name"],
+           p["version"] + "-" + p["release"]];
+
+    if multi:
+        package_table.append(row)
+    else:
+        package_table.append(row[:1]+row[2:])
+
+def sort_and_format_table(package_table, multi):
+    header = ["S", "Channel", "Name", "Version"]
+
+    if multi:
+        package_table.sort(lambda x, y:cmp(x[2],y[2]))
+        rcformat.tabular(header, package_table)
+    else:
+        package_table.sort(lambda x, y:cmp(x[1],y[1]))
+        rcformat.tabular(header[:1]+header[2:], package_table)
+                         
 class PackageListCmd(rccommand.RCCommand):
 
     def name(self):
@@ -48,19 +78,28 @@ class PackageListCmd(rccommand.RCCommand):
         packages = [];
         package_table = [];
 
-        for a in non_option_args:
-            c = rcchannelcmds.get_channel_by_id(server, a)
-            if not c:
-                rctalk.warning("Invalid channel: '" + a + "'")
-            else:
-                packages = get_packages(server, c);
+        if len(non_option_args) > 1:
+            multi = 1
+        else:
+            multi = 0
 
-                for p in packages:
-                    package_table.append([install_indicator(server, p), str(p["channel"]), p["name"], p["version"] + "-" + p["release"]])
-
+        if non_option_args:
+            for a in non_option_args:
+                c = rcchannelcmds.get_channel_by_id(server, a)
+                if not c:
+                    rctalk.warning("Invalid channel: '" + a + "'")
+                else:
+                    packages = get_packages(server, c)
+                    
+                    for p in packages:
+                        append_to_table(server, package_table, p, multi)
+        else:
+            packages = get_system_packages(server)
+            for p in packages:
+                append_to_table(server, package_table, p, 0)
+            
         if package_table:
-            package_table.sort(lambda x, y:cmp(x[2],y[2]))
-            rcformat.tabular(["S", "Channel", "Name", "Version"], package_table)
+            sort_and_format_table(package_table, multi)
         else:
             rctalk.message("--- No packages found ---")
 
