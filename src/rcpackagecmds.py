@@ -330,7 +330,7 @@ class PackageInstallCmd(rccommand.RCCommand):
                 sys.exit(1)
 
             if inform:
-                rctalk.message("Using " + p["name"] + " " + rcformat.display_version(p) + " from the '" + rcchannelcmds.channel_id_to_name(server, p["channel"]) + "' channel")
+                rctalk.message("Using " + p["name"] + " " + rcformat.evr_to_str(p) + " from the '" + rcchannelcmds.channel_id_to_name(server, p["channel"]) + "' channel")
                 
             packages_to_install.append(p)
 
