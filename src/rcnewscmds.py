@@ -75,8 +75,8 @@ class NewsCmd(rccommand.RCCommand):
             sys.exit(0)
 
         for n in news:
-            if n.has_key("server"):
-                rctalk.message("[%s]" % n["server"])
+            if n.has_key("service_name"):
+                rctalk.message("[%s]" % n["service_name"])
             if n.has_key("title"):
                 rctalk.message(textify_entities(n["title"]))
             if n.has_key("time_str"):

@@ -1,3 +1,7 @@
+2003-09-02  Joe Shaw  <joe@ximian.com>
+
+	* rcnewscmds.py (NewsCmd.execute): Change "server" to "service_name"
+
 2003-09-01  Tambet Ingo  <tambet@ximian.com>
 
 	* Makefile.am (rugcmds_DATA): Remove trailing '\' from the last
