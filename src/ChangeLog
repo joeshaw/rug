@@ -1,3 +1,9 @@
+2002-12-04  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (find_package_on_system_exactly): Removed.
+	(PackageRollbackCmd): If the current version on the system and the
+	rollbackable version are the same, don't show it.
+
 2002-12-03  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (find_latest_package): If the search returns no

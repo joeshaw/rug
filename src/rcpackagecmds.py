@@ -109,17 +109,6 @@ def find_package_on_system(server, package):
 
     return plist
 
-def find_package_on_system_exactly(server, package):
-    plist = find_package_on_system(server, package)
-
-    # We need exactly one match
-    if not plist or len(plist) > 1:
-        return None
-    else:
-        p = plist[0]
-
-    return p
-
 def find_remote_package(server, package):
     try:
         import urllib
@@ -1496,8 +1485,9 @@ class TransactCmd(rccommand.RCCommand):
         else:
             flags = 0
 
-        # Kind of an icky hack.  If rollback is set, install_packages should
-        # be empty.
+        # Kind of an icky hack.  install_packages contains just the names of
+        # the packages to be installed, not the actual packages... they're
+        # actually in dep_install.  So empty out install_packages here.
         if rollback:
             install_packages = []
 
@@ -1760,16 +1750,27 @@ class PackageRollbackCmd(TransactCmd):
             for p in packages:
                 row = rcformat.package_to_row(server, p, no_abbrev,
                                               ["name", "version"])
-                newp = find_package_on_system_exactly(server, p["name"])
 
-                if newp:
+                # This'll only use the first match if there are multiple
+                # packages with the same name, but it's no big deal.
+                plist = find_package_on_system(server, p["name"])
+
+                if plist:
+                    newp = plist[0]
+
+                    if p["version"] == newp["version"] \
+                       and p["release"] == newp["release"]:
+                        # We can't rollback to the same version we have
+                        # installed.
+                        continue
+                    
                     if no_abbrev:
                         row.append(rcformat.evr_to_str(newp))
                     else:
                         row.append(rcformat.evr_to_abbrev_str(newp))
                 else:
                     row.append("")
-                
+
                 package_table.append(row)
 
             if package_table:
