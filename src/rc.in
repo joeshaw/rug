@@ -26,6 +26,7 @@ import getopt
 import socket
 import cgiwrap
 
+import rctalk
 import rccommand
 import rcchannelcmds
 import rcpackagecmds
@@ -74,13 +75,11 @@ while i < len(argv) and not command:
     i = i + 1
 
 if not found_name:
-    print "No command found on command line."
-    print
+    rctalk.warning("No command found on command line.")
     rccommand.usage()
     sys.exit(1)
 
 if not command:
-    print
     rccommand.usage()
     sys.exit(1)
 
@@ -112,10 +111,10 @@ for o in opt_table:
     if short_opt:
 
         if short2long_dict.has_key(short_opt):
-            print "Short option collision!"
-            print "-" + short_opt + ", --" + long_opt
-            print "  vs."
-            print "-" + short_opt + ", --" + short2long_dict[short_opt]
+            rctalk.error("Short option collision!")
+            rctalk.error("-" + short_opt + ", --" + long_opt)
+            rctalk.error("  vs.")
+            rctalk.error("-" + short_opt + ", --" + short2long_dict[short_opt])
             sys.exit(1)
             
         short2long_dict[short_opt] = long_opt
@@ -176,12 +175,25 @@ try:
                                      auth_username=username,
                                      auth_password=password)
 except:
-    print "Unable to connect to the daemon."
-    print
+    rctalk.error("Unable to connect to the daemon.")
     sys.exit(1)
     
 # FIXME: check for error here.  Maybe we should ping the server
 # before going further?
+
+###
+### Control verbosity
+###
+
+if opt_dict.has_key("debug"):
+    rctalk.show_debug = 1
+
+if opt_dict.has_key("quiet"):
+    rctalk.show_messages = 0
+    rctalk.show_warnings = 0
+
+if opt_dict.has_key("verbose"):
+    rctalk.show_verbose = 1
 
 ###
 ### Execute the command
@@ -190,13 +202,12 @@ except:
 try:
     command.execute(server, opt_dict, args)
 except socket.error:
-    print "Unable to connect to the daemon.  Please ensure that the service is running."
-    print
+    rctalk.error("Unable to connect to the daemon.")
+    rctalk.error("Please ensure that the service is running.")
     sys.exit(1)
 except (cgiwrap.ProtocolError, ximian_xmlrpclib.Fault):
-    print "Unable to authenticate with the daemon.  You may need to use the --user and"
-    print "--password options."
-    print
+    rctalk.error("Unable to authenticate with the daemon.")
+    rctalk.error("You may need to use the --user and --password options.")
     sys.exit(1)
 
 # FIXME: we should probably check for error conditions here

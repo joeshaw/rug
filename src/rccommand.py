@@ -73,6 +73,7 @@ default_opt_table = [
     ["",  "version",  "",         "Print client version and exit"],
     ["v", "verbose",  "",         "Verbose output"],
     ["t", "terse",    "",         "Terse output"],
+    ["",  "quiet",    "",         "Quiet output, print only error messages"],
     ["",  "debug",    "",         "Debugging output"],
     ["",  "batch",    "",         "Run in batch mode"],
     ["?", "help",     "",         "Get help on a specific command"]

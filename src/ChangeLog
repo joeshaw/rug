@@ -1,9 +1,25 @@
+2002-06-10  Jon Trowbridge  <trow@ximian.com>
+
+	* rcchannelcmds.py: Added smarter name-based channel matching,
+	replace prints with rctalk functions.
+
+	* rc: Implement the --debug, --quiet, --verbose options.  Replace
+	a bunch of prints with calls to rctalk.message, rctalk.warning,
+	etc.
+
+	* rccommand.py (default_opt_table): Added --quiet option.
+
+	* rcformat.py (linebreak): Added.
+
+	* rctalk.py: Added.  An interface for printing messages, which we
+	should use instead of littering the code with prints.
+
 2002-06-10  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (install_indicator): Get the system packages
 	from the daemon so we can show if each package is installed on the
 	system.
-	
+
 2002-06-07  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py: Added.  Supports listing of packages in a channel.

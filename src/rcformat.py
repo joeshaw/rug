@@ -41,6 +41,32 @@ def stutter(str, N):
     return str + stutter(str, N-1)
 
 
+def linebreak(in_str, width):
+
+    str = string.strip(in_str)
+
+    if not str:
+        return []
+
+    if len(str) <= width:
+        return [str]
+    
+    if width < len(str) and str[width] == " ":
+        n = width
+    else:
+        n = string.rfind(str[0:width], " ")
+
+    lines = []
+    
+    if n == -1:
+        lines.append(str)
+    else:
+        lines.append(str[0:n])
+        lines = lines + linebreak(str[n+1:], width)
+
+    return lines
+
+
 ###
 ### Code that actually does something.
 ###

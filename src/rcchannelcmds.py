@@ -16,6 +16,8 @@
 ###
 
 import sys
+import string
+import rctalk
 import rcformat
 import rccommand
 
@@ -39,6 +41,50 @@ def get_channel_by_id(server, id):
     for c in channels:
         if str(c["id"]) == str(id):
             return c
+
+def get_channels_by_name(server, in_str):
+    channels = get_channels(server)
+    matches = []
+
+    s = string.lower(in_str)
+
+    for c in channels:
+        match = 0
+
+        chan_name = string.lower(c["name"])
+        chan_initials = reduce(lambda x,y:x+y,
+                               map(lambda x:x[0],
+                                   string.split(string.replace(chan_name, ".", " "))))
+
+        if str(c["id"]) == s \
+           or string.find(chan_name, s) == 0 \
+           or chan_initials == s \
+           or s in string.split(chan_name):
+            matches.append(c)
+
+    return matches
+
+# Given a string and a list of channels returned by get_channels_by_name,
+# print appropriate messages if our list has anything other than a single
+# item that closely matches the string.
+def validate_channel_list(name, chan_list):
+
+    if len(chan_list) == 0:
+        rctalk.warning("Invalid channel: '" + name + "'")
+        return 0
+    elif len(chan_list) > 1:
+        rctalk.warning("Ambiguous channel: '" + name + "' matches")
+        for c in chan_list:
+            rctalk.warning("  " + c["name"])
+        return 0
+
+    cname = chan_list[0]["name"]
+    if string.lower(name) != string.lower(cname) \
+       and name != str(chan_list[0]["id"]):
+        rctalk.message("'" + name + "' matches '" + cname + "'")
+
+    return 1
+
 
 def channel_id_to_name(server, id):
     channels = get_channels(server)
@@ -86,11 +132,11 @@ class ListChannelsCmd(rccommand.RCCommand):
             rcformat.tabular(["subd?", "ID", "Name"], channel_table)
         else:
             if options_dict.has_key("unsubscribed"):
-                print "--- No unsubscribed channels ---"
+                rctalk.message("--- No unsubscribed channels ---")
             elif options_dict.has_key("subscribed"):
-                print "--- No subscribed channels ---"
+                rctalk.message("--- No subscribed channels ---")
             else:
-                print "--- No channels available ---"
+                rctalk.warning("--- No channels available ---")
 
 
 class SubscribeCmd(rccommand.RCCommand):
@@ -104,22 +150,24 @@ class SubscribeCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
 
         failed = 0
+        to_do = []
         for a in non_option_args:
-            c = get_channel_by_id(server, a)
-            if not c:
-                print "Invalid channel: '" + a + "'"
+            clist = get_channels_by_name(server, a)
+            if not validate_channel_list(a, clist):
                 failed = 1
-            elif options_dict.has_key("strict") and c["subscribed"]:
-                print "Already subscribed to channel "+channel_to_str(c)
-                failed = 1
+            else:
+                c = clist[0]
+                to_do.append(c)
+                if options_dict.has_key("strict") and c["subscribed"]:
+                    rctalk.error("Already subscribed to channel "+channel_to_str(c))
+                    failed = 1
 
         if failed:
             sys.exit(1)
 
-        for a in non_option_args:
-            c = get_channel_by_id(server, a)
-            if c and server.rcd.packsys.subscribe(int(a)):
-                print "Subscribed to channel "+channel_to_str(c)
+        for c in to_do:
+            if c and server.rcd.packsys.subscribe(c["id"]):
+                rctalk.message("Subscribed to channel "+channel_to_str(c))
 
 
 class UnsubscribeCmd(rccommand.RCCommand):
@@ -134,22 +182,24 @@ class UnsubscribeCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
 
         failed = 0
+        to_do = []
         for a in non_option_args:
-            c = get_channel_by_id(server, a)
-            if not c:
-                print "Invalid channel id: '" + a + "'"
+            clist = get_channels_by_name(server, a)
+            if not validate_channel_list(a, clist):
                 failed = 1
-            elif options_dict.has_key("strict") and not c["subscribed"]:
-                print "Not subscribed to channel "+channel_to_str(c)
-                failed = 1
+            else:
+                c = clist[0]
+                to_do.append(c)
+                if options_dict.has_key("strict") and not c["subscribed"]:
+                    rctalk.error("Not subscribed to channel "+channel_to_str(c))
+                    failed = 1
 
         if failed:
             sys.exit(1)
 
-        for a in non_option_args:
-            c = get_channel_by_id(server, a)
-            if c and server.rcd.packsys.unsubscribe(int(a)):
-                print "Unsubscribed from channel "+channel_to_str(c)
+        for c in to_do:
+            if c and server.rcd.packsys.unsubscribe(c["id"]):
+                rctalk.message("Unsubscribed from channel "+channel_to_str(c))
 
 
 class RefreshChannelCmd(rccommand.RCCommand):
@@ -161,16 +211,23 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
         if not non_option_args:
             server.rcd.packsys.refresh_all_channels()
-            print "Refreshing all channels"
+            rctalk.message("Refreshing all channels")
         else:
+            failed = 0
+            to_do = []
+            
             for a in non_option_args:
-                if not get_channel_by_id(server, a):
-                    print "Invalid channel id: " + a
-                    sys.exit(1)
+                clist = get_channels_by_name(server, a)
+                if not validate_channel_list(a, clist):
+                    failed = 1
+                else:
+                    to_do.append(clist[0])
 
-            for a in non_option_args:
-                c = get_channel_by_id(server, a)
-                if c and server.rcd.packsys.refresh_channel(int(a)):
+            if failed:
+                sys.exit(1)
+
+            for c in to_do:
+                if c and server.rcd.packsys.refresh_channel(int(c["id"])):
                     print "Refreshing channel "+channel_to_str(c)
 
 rccommand.register(ListChannelsCmd, "List available channels")
