@@ -8,7 +8,9 @@ rcsupport_DATA = 		\
 	rcformat.py		\
 	rclogcmds.py		\
 	rcmain.py		\
+	rcnewscmds.py		\
 	rcpackagecmds.py	\
+	rcprefscmds.py		\
 	rcsystemcmds.py		\
 	rctalk.py		\
 	ximian_xmlrpclib.py
