@@ -169,7 +169,9 @@ class SubscribeCmd(rccommand.RCCommand):
             sys.exit(1)
 
         for c in to_do:
-            if c and server.rcd.packsys.subscribe(c["id"]):
+            if c and \
+               (options_dict.has_key("dry-run") or
+                server.rcd.packsys.subscribe(c["id"])):
                 rctalk.message("Subscribed to channel "+channel_to_str(c))
 
 
@@ -201,7 +203,9 @@ class UnsubscribeCmd(rccommand.RCCommand):
             sys.exit(1)
 
         for c in to_do:
-            if c and server.rcd.packsys.unsubscribe(c["id"]):
+            if c and \
+               (options_dict.has_key("dry-run") or \
+                server.rcd.packsys.unsubscribe(c["id"])):
                 rctalk.message("Unsubscribed from channel "+channel_to_str(c))
 
 
@@ -213,7 +217,8 @@ class RefreshChannelCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
 
         if not non_option_args:
-            server.rcd.packsys.refresh_all_channels()
+            if not options_dict.has_key("dry-run"):
+                server.rcd.packsys.refresh_all_channels()
             rctalk.message("Refreshing all channels")
         else:
             failed = 0
@@ -230,8 +235,12 @@ class RefreshChannelCmd(rccommand.RCCommand):
                 sys.exit(1)
 
             for c in to_do:
-                if c and server.rcd.packsys.refresh_channel(int(c["id"])):
+                if c and \
+                   (options_dict.has_key("dry-run") or \
+                    server.rcd.packsys.refresh_channel(int(c["id"]))):
                     rctalk.message("Refreshing channel "+channel_to_str(c))
+
+
 
 rccommand.register(ListChannelsCmd, "List available channels")
 rccommand.register(SubscribeCmd, "Subscribe to a channel")

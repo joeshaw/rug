@@ -1,5 +1,7 @@
 2002-06-10  Jon Trowbridge  <trow@ximian.com>
 
+	* rcchannelcmds.py: Support --dry-run.
+
 	* rcsystemcmds.py:  Added.  Currenly only contains the "ping"
 	command.
 
