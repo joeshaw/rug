@@ -366,10 +366,7 @@ class PackageSearchCmd(rccommand.RCCommand):
             query.append(["", "end-or", ""])
 
         if options_dict.has_key("installed-only"):
-            if options_dict.has_key("channel"):
-                query.append(["name-installed", "=", "true"])
-            else:
-                query.append(["installed", "=", "true"])
+            query.append(["name-installed", "=", "true"])
         elif options_dict.has_key("uninstalled-only"):
             query.append(["name-installed", "=", "false"])
 
@@ -384,10 +381,26 @@ class PackageSearchCmd(rccommand.RCCommand):
 
         packages = server.rcd.packsys.search(query)
 
+        # We need to do this post filtering because we do a "name-installed"
+        # search above.  If we do a search for "foobar", then "foobar 1.2"
+        # from channel A, "foobar 1.2" from channel B, and "foobar 0.9" from
+        # channel C will all match if any "foobar" package is installed.
+        #
+        # If we have version 1.2 installed, we want to show both A and B,
+        # but not C.  This filtering step takes care of C.
+        #
+        # Really, this is a workaround.  Just doing an "installed" search
+        # will give us a channel guess, but it'll only give us one, even
+        # if we match multiple channels.  This could probably be fixed in
+        # the daemon.
+        if options_dict.has_key("installed-only") and \
+               not options_dict.has_key("channel"):
+            packages = filter(lambda x:x["installed"], packages)
+
         # Keep track of all of the installed packages where
         # we know that it comes from a certain channel.
         # (It doesn't matter if we are doing a channel search,
-        # so we leave our dict empty in that case.)x
+        # so we leave our dict empty in that case.)
         in_channel = {}
         if not options_dict.has_key("channel"):
             for p in packages:

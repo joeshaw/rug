@@ -1,3 +1,10 @@
+2002-09-06  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd): Always do a name-installed
+	search when the --installed-only flag is set.  After we do our
+	search, if we were searching across all channels, filter out ones
+	that don't have the installed bit set.
+
 2002-09-05  Joe Shaw  <joe@ximian.com>
 
 	* ximian_xmlrpclib.py: Implement challenge/response
