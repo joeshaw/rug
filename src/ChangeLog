@@ -1,3 +1,8 @@
+2002-07-07  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Catch ximian_xmlrpclib.ProtocolError, not
+	cgiwrap.ProtocolError anymore.
+
 2002-07-05  Jon Trowbridge  <trow@ximian.com>
 
 	* rcchannelcmds.py (ListChannelsCmd.local_orthogonal_opts): Mark

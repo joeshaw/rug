@@ -147,7 +147,7 @@ def main(rc_version):
         rctalk.error("Unable to connect to the daemon.")
         rctalk.error("Please ensure that the service is running.")
         sys.exit(1)
-    except cgiwrap.ProtocolError, e:
+    except ximian_xmlrpclib.ProtocolError, e:
         if e.errcode == 401:
             rctalk.error("Unable to authenticate with the daemon.")
         else:
