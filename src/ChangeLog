@@ -1,5 +1,11 @@
 2003-09-17  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageInfoCmd): Use get() instead of
+	has_key() for file_size and installed_size, so we don't show sizes
+	of 0.
+
+2003-09-17  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageDanglingRequiresCmd): If we don't match
 	any channel, print "(none)" instead of nothing.
 	(PackageForFileCmd): We receive an array of matching packages now.

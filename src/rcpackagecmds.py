@@ -627,9 +627,9 @@ class PackageInfoCmd(rccommand.RCCommand):
             rctalk.message("Name: " + p["name"])
             rctalk.message("Version: " + p["version"])
             rctalk.message("Release: " + p["release"])
-            if pinfo.has_key("file_size"):
+            if pinfo.get("file_size", 0):
                 rctalk.message("Package size: " + str(pinfo["file_size"]))
-            if pinfo.has_key("installed_size"):
+            if pinfo.get("installed_size", 0):
                 rctalk.message("Installed size: " + str(pinfo["installed_size"]))
             rctalk.message("Summary: " + pinfo["summary"])
             rctalk.message("Description: ")
