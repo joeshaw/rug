@@ -16,6 +16,7 @@ rcsupport_DATA = 		\
 	rcsystemcmds.py		\
 	rctalk.py		\
 	rcutil.py		\
+	rcusercmds.py		\
 	rcwhatcmds.py		\
 	ximian_xmlrpclib.py
 
