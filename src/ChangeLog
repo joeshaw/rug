@@ -1,3 +1,8 @@
+2002-08-22  Joe Shaw  <joe@ximian.com>
+
+	* rcsystemcmds.py (PingCmd): Get server URL and whether it's an
+	enhanced/premium server from the ping response.
+
 2002-08-21  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageSearchCmd): Remove the

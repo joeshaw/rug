@@ -27,7 +27,7 @@ class PingCmd(rccommand.RCCommand):
         return "ping"
 
     def description_short(self):
-        return "Ping the server"
+        return "Ping the daemon"
 
     def category(self):
         return "system"
@@ -37,7 +37,7 @@ class PingCmd(rccommand.RCCommand):
         results = server.rcd.system.ping ()
 
         if results:
-            rctalk.message("Server identified itself as:")
+            rctalk.message("Daemon identified itself as:")
 
             if results.has_key("name"):
                 rctalk.message("  " + results["name"])
@@ -47,12 +47,25 @@ class PingCmd(rccommand.RCCommand):
             if results.has_key("copyright"):
                 rctalk.message("  " + results["copyright"])
             else:
-                rctalk.warning("Server did not return copyright information.")
+                rctalk.warning("Daemon did not return copyright information.")
 
             if results.has_key("distro_info"):
                 rctalk.message("  System type: " + results["distro_info"])
             else:
-                rctalk.warning("Server did not return system type information.")
+                rctalk.warning("Daemon did not return system type information.")
+
+            rctalk.message("")
+
+            if results.has_key("server_url"):
+                rctalk.message("  Server URL: " + results["server_url"])
+            else:
+                rctalk.warning("Daemon did not return server URL")
+
+            if results.has_key("server_premium"):
+                if results["server_premium"]:
+                    rctalk.message("  Server supports enhanced features.")
+            else:
+                rctalk.warning("Daemon did not return server type")
 
             # Exit normally if we could ping the server
             sys.exit(0)
