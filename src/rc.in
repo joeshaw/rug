@@ -20,13 +20,15 @@
 import sys
 import os
 import string
-import ximian_xmlrpclib
 import getopt
 
 # For exception handling.
 import socket
 import cgiwrap
 
+sys.path.append("@DDIR@/rc")
+
+import ximian_xmlrpclib
 import rctalk
 import rccommand
 import rcsystemcmds
@@ -34,7 +36,7 @@ import rcchannelcmds
 import rcpackagecmds
 import rclogcmds
 
-rc_version = "0.0"
+rc_version = "@VERSION@"
 rc_name = "Red Carpet Command Line Client " + rc_version
 rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
 
