@@ -1,5 +1,10 @@
 2002-07-03  Joe Shaw  <joe@ximian.com>
 
+	* rcprefscmds.py: Add a command for setting preferences, and try
+	to do some type mangling to make it all work out.
+
+2002-07-03  Joe Shaw  <joe@ximian.com>
+
 	* rcprefscmds.py: Added.  Commands for getting and setting
 	preferences.
 
