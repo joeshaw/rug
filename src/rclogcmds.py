@@ -108,11 +108,11 @@ def log_entries_list(entries):
 
         if item.has_key("pkg_initial") and item.has_key("pkg_final"):
             init = item["pkg_initial"]
-            rctalk.message(" Before: " + init["name"] + \
+            rctalk.message(" Before: " + init["name"] + " " + \
                            rcformat.evr_to_str(init))
 
             fin = item["pkg_final"]
-            rctalk.message("  After: " + fin["name"] + \
+            rctalk.message("  After: " + fin["name"] + " " + \
                            rcformat.evr_to_str(fin))
 
         else:
