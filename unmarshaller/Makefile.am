@@ -9,7 +9,7 @@ ximian_unmarshaller.so: setup.py unmarshaller.c
 	if [ ! -e unmarshaller.c ]; then	\
 		cp $(srcdir)/unmarshaller.c .;	\
 	fi
-	python $(srcdir)/setup.py build
+	$(PYTHON) $(srcdir)/setup.py build
 	mv build/lib.*/ximian_unmarshaller.so .
 
 EXTRA_DIST = setup.py unmarshaller.c
