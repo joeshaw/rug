@@ -1,3 +1,8 @@
+2002-07-15  Jon Trowbridge  <trow@ximian.com>
+
+	* rc.in: Base our "not installed properly" message on whether
+	PREFIX/share/rc and PREFIX/share/rc/rcmain.py exist.
+
 2002-07-12  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py: Removed hexstr, changed to use md5ify_password.

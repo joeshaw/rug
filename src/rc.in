@@ -26,16 +26,23 @@ import getopt
 import socket
 import cgiwrap
 
-sys.path.append("@DDIR@/rc")
+rc_dir = "@DDIR@/rc"
+rc_version = "@VERSION@"
 
-try:
-    import rcmain
-except ImportError:
+# FIXME: This has a special check to allow us to run rc in-place
+# without having done a "make install".  We might want to take this
+# out at some point.
+
+if not (os.path.isfile("./rcmain.py") \
+        or (os.path.isdir(rc_dir) and os.path.isfile(rc_dir + "/rcmain.py"))):
     print "ERROR: The Red Carpet Command Line Client doesn't appear to be"
     print "ERROR: installed properly.  Please check your installation."
     sys.exit(1)
 
-rc_version = "@VERSION@"
+
+sys.path.append(rc_dir)
+import rcmain
+
 
 if "--rc-profile" in sys.argv:
     import profile
