@@ -1452,7 +1452,7 @@ class TransactCmd(rccommand.RCCommand):
                 size_str = rcformat.bytes_to_str(total_size)
                 approx_str = ""
                 if approximate:
-                    approx_str = "at least"
+                    approx_str = "at least "
                 rctalk.message("This is %sa %s download." % (approx_str, size_str))
 
         if not options_dict.has_key("no-confirmation"):
