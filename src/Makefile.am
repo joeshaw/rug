@@ -6,6 +6,7 @@ rcsupport_DATA = 		\
 	rcchannelcmds.py	\
 	rcchannelutils.py	\
 	rccommand.py		\
+	rcfault.py		\
 	rcformat.py		\
 	rclogcmds.py		\
 	rcmain.py		\

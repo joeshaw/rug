@@ -1,4 +1,14 @@
-2002-07-11  Joe Shaw  <joe@ximian.com>
+2002-07-12  Joe Shaw  <joe@ximian.com>
+
+	* rcfault.py: Added.  A mapping of fault codes to something a
+	little more sane.
+
+	* rcmain.py, rcpackagecmds.py, rcprefscmds.py: Use rcfault.
+
+	* rcpackagecmds.py (find_package_in_channel): Move warning the
+	user to here, and handle the new package_is_newest fault.
+
+2002-07-12  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (TransactCmd): Added.  A base class for all of
 	the other transaction-based commands (install, remove, update-all,

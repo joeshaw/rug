@@ -23,6 +23,7 @@ import time
 import zlib
 
 import rctalk
+import rcfault
 import rcformat
 import rccommand
 import rcchannelutils
@@ -50,7 +51,17 @@ def find_package_in_channel(server, channel, package, allow_unsub):
             
             p = server.rcd.packsys.find_latest_version(package, b)
         except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -601:
+            if f.faultCode == rcfault.package_not_found:
+                if allow_unsub:
+                    rctalk.error("Unable to find package '" + package + "'")
+                else:
+                    rctalk.error("Unable to find package '" + package +"' in any subscribed channel")
+                p = None
+            elif f.faultCode == rcfault.package_is_newest:
+                if allow_unsub:
+                    rctalk.error("There is no newer version of '" + package + "'")
+                else:
+                    rctalk.error("There is no newer version of '" + package + "' in any subscribed channel")
                 p = None
             else:
                 raise
@@ -88,7 +99,10 @@ def find_local_package(server, package):
     try:
         server.rcd.packsys.query_file(package)
     except ximian_xmlrpclib.Fault, f:
-        if f.faultCode == -613:
+        if f.faultCode == rcfault.package_not_found:
+            return None
+        elif f.faultCode == rcfault.invalid_package_file:
+            rctalk.warning ("'" + package + "' is not a valid package file")
             return None
         else:
             raise
@@ -658,10 +672,6 @@ class PackageInfoCmd(rccommand.RCCommand):
                 p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
 
             if not p:
-                if allow_unsub:
-                    rctalk.error("Unable to find package '" + package + "' in any subscribed channel")
-                else:
-                    rctalk.error("Unable to find package '" + package + "'")
                 sys.exit(1)
 
             pinfo = server.rcd.packsys.package_info(p)
@@ -818,7 +828,7 @@ class TransactCmd(rccommand.RCCommand):
             else:
                 dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
         except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -604:
+            if f.faultCode == rcfault.failed_dependencies:
                 rctalk.error(f.faultString)
                 sys.exit(1)
             else:
@@ -925,10 +935,6 @@ class PackageInstallCmd(TransactCmd):
             if not p:
                 inform = 0
                 if not find_local_package(server, package):
-                    if allow_unsub:
-                        rctalk.error("Unable to find package '" + package + "'")
-                    else:
-                        rctalk.error("Unable to find package '" + package + "' in any subscribed channel")
                     sys.exit(1)
                 else:
                     p = package

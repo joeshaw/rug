@@ -18,6 +18,7 @@
 import string
 import sys
 import rctalk
+import rcfault
 import rcformat
 import rccommand
 import rcmain
@@ -45,7 +46,7 @@ class PrefsSetCmd(rccommand.RCCommand):
         try:
             pref = server.rcd.prefs.get_pref(non_option_args[0])
         except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == -630:
+            if f.faultCode == rcfault.invalid_preference:
                 rctalk.error("There is no preference named '" + non_option_args[0] + "'")
                 sys.exit(1)
             else:
@@ -64,8 +65,7 @@ class PrefsSetCmd(rccommand.RCCommand):
         try:
             server.rcd.prefs.set_pref(non_option_args[0], value)
         except ximian_xmlrpclib.Fault, f:
-            # Catch type mismatches
-            if f.faultCode == -501:
+            if f.faultCode == rcfault.type_mismatch:
                 # FIXME: This error message sucks
                 rctalk.error("Can't set preference: " + f.faultString)
             else:
@@ -97,7 +97,7 @@ class PrefsListCmd(rccommand.RCCommand):
                 try:
                     p = server.rcd.prefs.get_pref(a)
                 except ximian_xmlrpclib.Fault, f:
-                    if f.faultCode == -630:
+                    if f.faultCode == rcfault.invalid_preference:
                         rctalk.warning("There is no preference named '" + a + "'")
                     else:
                         raise

@@ -27,6 +27,7 @@ import cgiwrap
 import ximian_xmlrpclib
 import rctalk
 import rccommand
+import rcfault
 import rcsystemcmds
 import rcchannelcmds
 import rcpackagecmds
@@ -154,7 +155,7 @@ def main(rc_version):
         else:
             raise
     except ximian_xmlrpclib.Fault, f:
-        if f.faultCode == -610:
+        if f.faultCode == rcfault.permission_denied:
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
             raise
