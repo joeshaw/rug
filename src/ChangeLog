@@ -1,3 +1,8 @@
+2002-08-22  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Change the socket path from /tmp/rcd to
+	/var/run/rcd to conform to the FHS.
+
 2002-08-22  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py (main): As long as we are not in terse-mode, print

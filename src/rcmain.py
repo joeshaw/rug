@@ -123,7 +123,7 @@ def main(ver):
         if opt_dict.has_key("host"):
             url = opt_dict["host"]
         else:
-            url = "/tmp/rcd"
+            url = "/var/run/rcd"
 
     if os.environ.has_key("RC_TRANSPORT_DEBUG"):
         transport_debug = 1
