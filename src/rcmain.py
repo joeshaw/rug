@@ -199,8 +199,7 @@ def main(ver):
             rctalk.error("the hostname and protocol.")
             sys.exit(1)
         elif e.errcode == 401:
-            rctalk.error("Unable to authenticate with the daemon; you must")
-            rctalk.error("provide a username and password")
+            rctalk.error("Unable to authenticate your username and/or password")
             sys.exit(1)
         else:
             raise

@@ -1,5 +1,9 @@
 2003-01-28  Joe Shaw  <joe@ximian.com>
 
+	* rcmain.py (main): Slightly edit the text when we get a 401
+
+2003-01-28  Joe Shaw  <joe@ximian.com>
+
 	* rcusercmds.py (UserEditCmd.execute): Don't allow the user to
 	mess with privileges if they're not a superuser (we still show it
 	if the daemon doesn't have the has_privilege call for backward
