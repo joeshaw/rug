@@ -1551,6 +1551,7 @@ class PackageInstallCmd(TransactCmd):
 
         opts.append(["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"])
         opts.append(["d", "download-only", "", "Only download packages, don't install them"])
+        opts.append(["", "entire-channel", "", "Install all of the packages in the channels specified on the command line"])
 
         return opts
 
@@ -1563,37 +1564,71 @@ class PackageInstallCmd(TransactCmd):
         else:
             allow_unsub = 0
 
-        for a in non_option_args:
-            inform = 0
-            channel = None
-            package = None
+        if options_dict.has_key("entire-channel"):
 
-            if a[0] == "!" or a[0] == "~":
-                pn = a[1:]
-                plist = find_package_on_system(server, pn)
-
-                if not plist:
-                    rctalk.error("Unable to find package '" + pn + "'")
+            channel_list = []
+            for a in non_option_args:
+                matches = rcchannelutils.get_channels_by_name(server, a)
+                if not rcchannelutils.validate_channel_list(a, matches):
                     sys.exit(1)
+                channel_list.append(matches[0])
 
-                for p in plist:
-                    packages_to_remove.append(p)
-            else:
-                plist = find_package(server, a, allow_unsub, allow_system=0)
+            contributors = 0
+            for c in channel_list:
+                query = [["channel", "=", str(c["id"])],
+                         ["name-installed", "=", "false"]]
+                packages = server.rcd.packsys.search(query)
+                packages_to_install.extend(packages)
+                if len(packages) > 0:
+                    contributors = contributors + 1
+                msg = "Found %d uninstalled %s in channel '%s'" % \
+                      (len(packages),
+                       (len(packages) != 1 and "packages") or "package",
+                       c["name"])
+                rctalk.message(msg)
 
-                if not plist:
-                    sys.exit(1)
+            if contributors > 1:
+                msg = "Found a total of %d uninstalled %s" % \
+                      (len(packages_to_install),
+                       (len(packages_to_install) != 1 and "packages")
+                       or "package")
+                rctalk.message(msg)
 
-                for p in plist:
-                    dups = filter(lambda x, pn=p:x["name"] == pn["name"],
-                                  packages_to_install)
+            rctalk.message("")
 
-                    if dups:
-                        rctalk.error("Duplicate entry found: " +
-                                     dups[0]["name"])
+        else:
+            
+            for a in non_option_args:
+                inform = 0
+                channel = None
+                package = None
+
+                if a[0] == "!" or a[0] == "~":
+                    pn = a[1:]
+                    plist = find_package_on_system(server, pn)
+
+                    if not plist:
+                        rctalk.error("Unable to find package '" + pn + "'")
                         sys.exit(1)
 
-                    packages_to_install.append(p)
+                    for p in plist:
+                        packages_to_remove.append(p)
+                else:
+                    plist = find_package(server, a, allow_unsub, allow_system=0)
+
+                    if not plist:
+                        sys.exit(1)
+
+                    for p in plist:
+                        dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                                      packages_to_install)
+
+                        if dups:
+                            rctalk.error("Duplicate entry found: " +
+                                         dups[0]["name"])
+                            sys.exit(1)
+
+                        packages_to_install.append(p)
 
         if not packages_to_install and not packages_to_remove:
             rctalk.message("--- No packages to install ---")

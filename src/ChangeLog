@@ -2,6 +2,10 @@
 
 	* rcpackagecmds.py (TransactCmd.resolve_deps): Fixed a typo --
 	missing whitespace between 'least' and 'a'.
+	(PackageInstallCmd.local_opt_table): Added 'entire-channel'
+	option to opt table.
+	(PackageInstallCmd.execute): Added implementation of
+	entire-channel option for the install command.
 
 2002-12-19  Jon Trowbridge  <trow@ximian.com>
 
