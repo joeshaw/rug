@@ -20,7 +20,7 @@ import sys
 import string
 import rcutil
 import rctalk
-import rcformat, rcchannelutils, rcchannelcmds
+import rcformat, rcchannelutils
 import rccommand
 import rcfault
 import ximian_xmlrpclib
