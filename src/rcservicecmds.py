@@ -391,7 +391,7 @@ class ServiceRefreshCmd(rccommand.RCCommand):
             sys.exit(1)
 
         if non_option_args:
-            rcchannelutils.refresh_channels(server, s)
+            rcchannelutils.refresh_channels(server, s["id"])
         else:
             rcchannelutils.refresh_channels(server)
 
@@ -440,7 +440,7 @@ class ServiceActivateCmd(rccommand.RCCommand):
                              options_dict["service"])
                 sys.exit(1)
             
-            activation_info["service"] = s
+            activation_info["service"] = s["id"]
 
         if options_dict.has_key("alias"):
             activation_info["alias"] = options_dict["alias"]
