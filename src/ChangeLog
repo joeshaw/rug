@@ -1,3 +1,9 @@
+2003-06-03  Joe Shaw  <joe@ximian.com>
+
+	* rctransactcmds.py (PackageInstallCmd): Make --entire-channel
+	also upgrade the packages in the channel; this seems more
+	generally useful.
+
 2003-06-02  Joe Shaw  <joe@ximian.com>
 
 	* rccommand.py (extract_command_from_argv): Only display "Unknown

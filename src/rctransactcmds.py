@@ -394,19 +394,19 @@ class PackageInstallCmd(TransactCmd):
             contributors = 0
             for c in channel_list:
                 query = [["channel", "=", c["id"]],
-                         ["name-installed", "=", "false"]]
+                         ["package-installed", "=", "false"]]
                 packages = server.rcd.packsys.search(query)
                 packages_to_install.extend(packages)
                 if len(packages) > 0:
                     contributors = contributors + 1
-                msg = "Found %d uninstalled %s in channel '%s'" % \
+                msg = "Found %d %s in channel '%s'" % \
                       (len(packages),
                        (len(packages) != 1 and "packages") or "package",
                        c["name"])
                 rctalk.message(msg)
 
             if contributors > 1:
-                msg = "Found a total of %d uninstalled %s" % \
+                msg = "Found a total of %d %s" % \
                       (len(packages_to_install),
                        (len(packages_to_install) != 1 and "packages")
                        or "package")
