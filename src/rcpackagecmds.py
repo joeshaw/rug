@@ -1439,11 +1439,13 @@ class TransactCmd(rccommand.RCCommand):
             total_size = 0
             approximate = 0
             for p in install_packages:
+                p = extract_package(p)
                 sz = p.get("file_size", 0)
                 total_size = total_size + sz
                 if sz == 0:
                     approximate = 1
             for p in dep_install:
+                p = extract_package(p)
                 sz = p.get("file_size", 0)
                 total_size = total_size + sz
                 if sz == 0:

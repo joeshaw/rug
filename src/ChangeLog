@@ -1,3 +1,10 @@
+2003-03-20  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (TransactCmd.resolve_deps): Call
+	extract_package when computing the download size.  This fixes a
+	bug which was causing us to under-estimating the download size
+	in many cases.
+
 2003-03-20  Joe Shaw  <joe@ximian.com>
 
 	* rcprefscmds.py (PrefsSetCmd.execute): Accept yes/no and on/off
