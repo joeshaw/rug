@@ -2,6 +2,7 @@
 
 	* rcservicecmds.py (ServiceDeleteCmd.execute): If no args are
 	provided, print out the usage and exit.
+	(ServiceAddCmd.execute): Ditto.
 
 2003-10-09  Tambet Ingo  <tambet@ximian.com>
 
