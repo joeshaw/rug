@@ -1,7 +1,9 @@
 2002-07-22  Jon Trowbridge  <trow@ximian.com>
 
-	* rcusercmds.py (UserAddCmd.is_hidden): Should be
-	os.getuid() != 0, not os.getuid != 0.
+	* rcusercmds.py (UserAddCmd.is_hidden): Should be os.getuid() !=
+	0, not os.getuid != 0.
+	(UserDeleteCmd): Added.  A command that deletes users from
+	rc-passwd.
 
 2002-07-22  Joe Shaw  <joe@ximian.com>
 

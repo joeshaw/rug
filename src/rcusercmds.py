@@ -204,30 +204,48 @@ class UserAddCmd(rccommand.RCCommand):
     
 
 ###
-### "user-update" command
+### "user-delete" command
 ###
 
-class UserUpdateCmd(rccommand.RCCommand):
+class UserDeleteCmd(rccommand.RCCommand):
 
     def name(self):
-        return "user-update"
+        return "user-delete"
 
     def is_hidden(self):
         return os.getuid() != 0
 
+    def arguments(self):
+        return "<username> <username> ..."
+
     def description_short(self):
-        return "Update users"
+        return "Delete users"
+
+    def local_opt_table(self):
+        return [["s", "strict", "", "Fail if attempting to delete a non-existent user"]]
 
     def execute(self, server, options_dict, non_option_args):
 
-        name, passwd, privileges = non_option_args
+        if options_dict.has_key("strict"):
+            all_users = map(lambda x:x[0], server.rcd.users.get_all())
+            failed = 0
+            for username in non_option_args:
+                if not username in all_users:
+                    rctalk.warning("User '" + username + "' does not exist")
+                    failed = 1
+            if failed:
+                rctalk.error("User deletion cancelled")
+        
+        for username in non_option_args:
+            if not server.rcd.users.remove(username):
+                rctalk.warning("Attempt to delete user '" + username + "' failed")
+            
 
-        passwd = rcutil.md5ify_password(passwd)
-        server.rcd.users.update(name, passwd, privileges)
 
 
 rccommand.register(UserListCmd)
 rccommand.register(UserAddCmd)
+rccommand.register(UserDeleteCmd)
 
 # Doesn't work, so don't register.
 # rccommand.register(UserUpdateCmd)
