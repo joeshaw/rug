@@ -880,6 +880,10 @@ class PackageInfoCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
+        if not non_option_args:
+            self.usage()
+            sys.exit(1)
+
         if options_dict.has_key("allow-unsubscribed"):
             allow_unsub = 1
         else:
