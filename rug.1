@@ -39,7 +39,11 @@ Show detailed information about a package. Multiple packages may be listed, sepa
 
 .TP 
 install (in) [packagename]
-Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed. Accepts the following option flags:
+Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed. 
+
+If you need to specify channels when installing packages, prepend the channel name and a colon to the package. For example: \fBrug in evolution\-devel\-snapshots:evolution\fR will install the "evolution" package from the "evolution\-devel\-snapshots" channel. If you do not specify a channel, the newest package will be installed. If there are two equal versions, the package from the channel with the higher priority (set by the server administrator) will be installed.
+
+The install command accepts the following option flags:
 .IP 
 \-d, \-\-download\-only
 .br 
@@ -59,7 +63,7 @@ Allow required software to be pulled in from channels to which you are not subsc
 
 \-\-entire\-channel [channelname]
 .br 
-Install all packages in the channel specified. For example, \fBrug install \-\-entire\-channel ximian\-gnome\fR would install everything in the "ximian\-gnome" channel.
+Install all packages in the channel specified. For example, \fBrug install \-\-entire\-channel ximian\-desktop\fR would install everything in the "ximian\-desktop" channel.
 
 .TP 
 lock\-add (la) [options] [packagename]  \fI[[relation] [version]]\fR
