@@ -375,9 +375,9 @@ Many rug commands have options which apply only to them.  They are listed here a
 \fBrug install\fR <\fIpackagename\fR>
 .B \fI\-d, \-\-download\-only\fR: Downloads the packages, but does not install them. See also the \-N or \-\-dry\-run flag, which is available for all commands.
 .br 
-.B \fI\-r, \-\-allow\-removals\fR: Permit rug to remove software without confirmation.
+.B \fI\-y, \-\-no\-confirmation\fR: Install without confirmation. Does not allow removal of conflicting packages without confirmation; to permit removal of conflicts without confirmation use \-r as well.
 .br 
-.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmation.
+.B \fI\-r, \-\-allow\-removals\fR: Permit rug to remove software without confirmation.
 .br 
 .B \fI\-r, \-\-allow\-removals\fR: Allow software to be removed as necessary to complete the installation..br 
 .br 
@@ -497,9 +497,7 @@ Output Options:
 \fBrug update (up)\fR <\fIchannel\fR>
 .B \fI\-N, \-\-dry\-run\fR: Do not actually perform requested actions
 .br 
-.B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmations
-.br 
-.B \fI\-d, \-\-allow\-removals\fR: Permit removal of software without confirmation
+.B \fI\-y, \-\-no\-confirmation\fR: Install packages without confirmation. Will not remove packages without confirmation; to allow removal without confirmation, use \-r as well. 
 .br 
 .B \fI\-i, \-\-importance=<importance>\fR: Only install updates as or more important than the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
 .br 
@@ -559,6 +557,15 @@ The \fI.rugrc\fR resource file is optional. If it exists, its contents are treat
 
 .LP 
 If \fI.rugrc\fR does not exist, the older \fI.rcrc\fR file is accepted instead.
+
+
+.TP 
+\fI/etc/ximian/rcd.conf\fR
+Red Carpet Daemon configuration file. See the rcd.conf(5) man page for details.
+
+.TP 
+\fI/var/lib/rcd/services.xml\fR
+Red Carpet Daemon services file. Determines the servers accessed by the daemon. See the rcd(8) man page for details. Generally not manipulated by hand; use the \fBrug service\-add\fR command instead.
 .SH "ENVIRONMENT VARIABLES"
 .TP 
 \fBRUG_ARGS\fP
@@ -576,7 +583,11 @@ Note that rug will use the .rugrc file in the home directory of the user running
 Here are some standard ways in which the program might be used:
 .TP 
 \fBrug update \-y\fR
-Download and install all updates to currently installed package in currently subscribed channels, removing any software that conflicts with those updates, and without asking for confirmation. This is convenient option but should be used only with servers which you trust absolutely.
+Download and install all updates to currently installed package in currently subscribed channels. This does not remove software that may conflict with those updates. This is the same as using the option \fI\-\-no\-confirmation\fR
+
+.TP 
+\fBrug update \-yr\fR
+Download and install all updates to currently installed package in currently subscribed channels, and remove any conflicting packages, without asking for confirmation. This is a convenient option, but should be used only with servers which you trust absolutely. This is the same as using the options \fI\-\-no\-confirmation\fR and \fI\-\-allow\-removals\fR.
 
 .TP 
 \fBrug \-Vu \-\-host=\fI<hostname>\fB install \fI<packagename>\fR
