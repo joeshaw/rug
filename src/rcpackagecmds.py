@@ -798,8 +798,6 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
 ### "info-requirements" command
 ###
 
-### FIXME: a very preliminary implementation
-
 class PackageInfoRequirementsCmd(rccommand.RCCommand):
 
     def name(self):
@@ -892,8 +890,6 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
 ###
 ### "info-conflicts" command
 ###
-
-### FIXME: a very preliminary implementation
 
 class PackageInfoConflictsCmd(rccommand.RCCommand):
     

@@ -115,9 +115,6 @@ def main(rc_version):
         rctalk.error("Unable to connect to the daemon.")
         sys.exit(1)
 
-    # FIXME: check for error here.  Maybe we should ping the server
-    # before going further?
-
     ###
     ### Control verbosity
     ###

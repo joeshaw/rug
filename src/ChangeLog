@@ -1,5 +1,9 @@
 2002-07-23  Jon Trowbridge  <trow@ximian.com>
 
+	* rcpackagecmds.py: Removed obsolete FIXMEs.
+
+	* rcmain.py (main): Removed some obsolete FIXMEs.
+
 	* rcchannelcmds.py (ListChannelsCmd.execute): Display aliases
 	when listing the channels.
 	(RefreshChannelCmd.execute): Only print the "Download complete"
