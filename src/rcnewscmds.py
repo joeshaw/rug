@@ -80,7 +80,8 @@ class NewsCmd(rccommand.RCCommand):
             if n.has_key("time_str"):
                 rctalk.message("("+n["time_str"]+")")
             if n.has_key("summary"):
-                lines = rcformat.linebreak(textify_entities(n["summary"]), 75)
+                summary = re.sub("\s+", " ", n["summary"])
+                lines = rcformat.linebreak(textify_entities(summary), 75)
                 for l in lines:
                     rctalk.message(l)
             if n.has_key("url"):
