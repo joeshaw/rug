@@ -213,7 +213,7 @@ class PackagesCmd(rccommand.RCCommand):
             key = "name"
 
         if options_dict.has_key("match-words"):
-            op = "contains" ## should be contains_word
+            op = "contains_word"
         else:
             op = "contains"
 

@@ -1,3 +1,9 @@
+2002-06-27  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackagesCmd.execute): If the --match-word
+	option is set, use the 'contains_word' operator in our query
+	instead of 'contains'.
+
 2002-06-26  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py: Call expanduser so that we can actually find
