@@ -24,10 +24,10 @@ import rccommand
 import rcchannelcmds
 
 def get_packages(server, channel):
-    return server.rcd.packsys.query([["channel","is",str(channel["id"])]])
+    return server.rcd.packsys.search([["channel","is",str(channel["id"])]])
 
 def get_system_packages(server):
-    return server.rcd.packsys.query([["installed","is","true"]])
+    return server.rcd.packsys.search([["installed","is","true"]])
 
 def install_indicator(server, package):
     if package["installed"]:
@@ -58,17 +58,17 @@ def sort_and_format_table(package_table, multi):
 
 def find_package_in_channel(server, channel, package):
     if channel != -1:
-        [package] = server.rcd.packsys.query([["name",      "is", package],
-                                              ["installed", "is", "false"],
-                                              ["channel",   "is", channel]])
+        [package] = server.rcd.packsys.search([["name",      "is", package],
+                                               ["installed", "is", "false"],
+                                               ["channel",   "is", channel]])
     else:
         package = server.rcd.packsys.find_latest_version(package)
 
     return package
 
 def find_package_on_system(server, package):
-    [package] = server.rcd.packsys.query([["name",      "is", package],
-                                          ["installed", "is", "true"]])
+    [package] = server.rcd.packsys.search([["name",      "is", package],
+                                           ["installed", "is", "true"]])
 
     return package
 
@@ -146,7 +146,7 @@ class PackageSearchCmd(rccommand.RCCommand):
         else:
             channel = 0
 
-        packages = server.rcd.packsys.query([[search_type, "contains", non_option_args[0]]])
+        packages = server.rcd.packsys.search([[search_type, "contains", non_option_args[0]]])
         
         # FIXME: Check for -p
         for p in packages:

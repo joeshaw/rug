@@ -1,3 +1,8 @@
+2002-06-12  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py: Change calls of rcd.packsys.query() to
+	rcd.packsys.search() to match the design doc.
+
 2002-06-12  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageUpdatesCmd): General hacking.
