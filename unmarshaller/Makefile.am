@@ -16,3 +16,6 @@ EXTRA_DIST = setup.py unmarshaller.c
 
 distclean:
 	rm -rf build unmarshaller.c ximian_unmarshaller.so
+
+clean:
+	rm -rf build ximian_unmarshaller.so

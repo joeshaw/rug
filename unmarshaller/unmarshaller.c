@@ -5,9 +5,7 @@
  *
  * Copyright (C) 2002 Ximian, Inc.
  *
- */
-
-/*
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -25,7 +23,161 @@
  */
 
 #include <glib.h>
+#include <glib-object.h>
+#include <expat.h>
 #include <Python.h>
+
+
+#define G_TYPE_BASE64 base64_get_type()
+
+static gchar *
+base64_copy (const gchar *buf)
+{
+    return g_strdup (buf);
+}
+
+static void
+base64_free (gchar *buf)
+{
+    g_free (buf);
+}
+
+static GType
+base64_get_type (void)
+{
+    static GType type = 0;
+
+    if (type == 0)
+        type = g_boxed_type_register_static ("Base64",
+                                             (GBoxedCopyFunc) base64_copy,
+                                             (GBoxedFreeFunc) base64_free);
+
+    return type;
+}
+
+
+
+typedef struct {
+	GValue      *parent;
+	GValueArray *array;
+} Node;
+
+static Node *node_copy (const Node *node);
+static void  node_free (Node *node);
+
+#define G_TYPE_LIST list_get_type()
+#define G_TYPE_DICT dict_get_type()
+
+static GType
+list_get_type (void)
+{
+    static GType type = 0;
+
+    if (type == 0)
+        type = g_boxed_type_register_static ("List",
+                                             (GBoxedCopyFunc) node_copy,
+                                             (GBoxedFreeFunc) node_free);
+
+    return type;
+}
+
+static GType
+dict_get_type (void)
+{
+    static GType type = 0;
+
+    if (type == 0)
+        type = g_boxed_type_register_static ("Dict",
+                                             (GBoxedCopyFunc) node_copy,
+                                             (GBoxedFreeFunc) node_free);
+
+    return type;
+}
+
+static GValue *
+node_new (GType type, GValue *parent, GValueArray *array)
+{
+	GValue *self;
+	Node   *node;
+
+	self = g_new0 (GValue, 1);
+	self = g_value_init (self, type);
+
+	node = g_new (Node, 1);
+	node->parent = parent;
+	node->array = array;
+
+	g_value_set_boxed (self, (gpointer) node);
+	return self;
+}
+
+#define list_new(parent, array) node_new(G_TYPE_LIST, parent, array)
+#define dict_new(parent, array) node_new(G_TYPE_DICT, parent, array)
+
+static Node *
+node_copy (const Node *node)
+{
+	Node *dest;
+
+	dest = g_new (Node, 1);
+    dest->parent = node->parent;
+    dest->array = g_value_array_copy (node->array);
+
+    return dest;
+}
+
+static void
+node_free (Node *node)
+{
+	g_value_array_free (node->array);
+	g_free (node);
+}
+
+static void
+node_push (GValue *self, GValue *child)
+{
+	Node *node;
+
+	node = (Node *) g_value_get_boxed (self);
+	node->array = g_value_array_append (node->array,
+								 child);
+}
+
+static GValue *
+node_pop (GValue *self)
+{
+    Node *node;
+
+	node = (Node *) g_value_get_boxed (self);
+
+    if (node->parent)
+        return node->parent;
+
+    g_warning ("Trying to pop root node");
+    return self;
+}
+
+static guint
+node_children_count (GValue *self)
+{
+    Node *node;
+
+	node = (Node *) g_value_get_boxed (self);
+
+    return node->array->n_values;
+}
+
+static GValue *
+node_children_nth (GValue *self, guint n)
+{
+    Node *node;
+
+	node = (Node *) g_value_get_boxed (self);
+
+    return g_value_array_get_nth (node->array, n);
+}
+
+#define node_children_last(self) node_children_nth (self, node_children_count (unm->cursor) - 1);
 
 enum PyUnmarshallerFlavor {
     PY_UNMARSHALLER_FLAVOR_NONE,
@@ -37,8 +189,10 @@ enum PyUnmarshallerFlavor {
 typedef struct _PyUnmarshaller PyUnmarshaller;
 struct _PyUnmarshaller {
     PyObject_HEAD;
+	XML_Parser parser;
     enum PyUnmarshallerFlavor flavor;
-    GPtrArray *stack;
+    GValue    *stack;
+    GValue    *cursor;
     GSList    *marks;
     GString   *data;
     char      *methodname;
@@ -76,32 +230,137 @@ static PyMethodDef general_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
+static PyObject *
+g_value_boolean_to_PyObject (GValue *val, PyObject *boolean_cb)
+{
+    PyObject *obj;
+    PyObject *args;
+    gboolean bool;
 
+    bool = g_value_get_boolean (val);
+
+    if (boolean_cb) {
+        args = Py_BuildValue ("(i)", bool);
+        obj = PyEval_CallObject (boolean_cb, args);
+        Py_DECREF (args);
+    }
+
+    if (!obj) {
+        g_warning("Couldn't build PyObject for boolean %d\n", bool);
+        Py_INCREF(Py_None);
+        obj = Py_None;
+    }
+
+    return obj;
+}
+
+static PyObject *
+g_value_base64_to_PyObject (GValue *val, PyObject *base64_cb)
+{
+    PyObject *obj;
+    PyObject *args;
+    char *data;
+
+    data = (char *) g_value_get_boxed (val);
+
+    if (base64_cb) {
+        args = Py_BuildValue ("(s)", data);
+        obj = PyEval_CallObject (base64_cb, args);
+        Py_DECREF (args);
+    }
+
+    if (!obj) {
+        g_warning("Couldn't build PyObject for base64\n");
+        Py_INCREF(Py_None);
+        obj = Py_None;
+    }
+
+    return obj;
+}
+
+static PyObject *
+g_value_to_PyObject (GValue *val, PyObject *boolean_cb, PyObject *base64_cb)
+{
+    GType type;
+    PyObject *obj;
+    int len, i;
+
+    type = G_VALUE_TYPE(val);
+    switch (type) {
+    case G_TYPE_BOOLEAN:
+        obj = g_value_boolean_to_PyObject(val, boolean_cb);
+        break;
+    case G_TYPE_INT:
+        obj = Py_BuildValue ("i", g_value_get_int (val));
+        break;
+    case G_TYPE_DOUBLE:
+        obj = Py_BuildValue ("d", g_value_get_double (val));
+        break;
+    case G_TYPE_STRING:
+        obj = Py_BuildValue ("s", g_value_get_string (val));
+        break;
+
+    default:
+        if (type == G_TYPE_LIST) {
+            len = node_children_count (val);
+            obj = PyList_New (len);
+            for (i = 0; i < len; i++) {
+                GValue *v = node_children_nth (val, i);
+                PyList_SetItem (obj, i, g_value_to_PyObject (v, boolean_cb, base64_cb));
+            }
+        } else if (type == G_TYPE_DICT) {
+            obj = PyDict_New ();
+            len = node_children_count (val);
+            for (i = 0; i < len; i++) {
+                GValue *key = node_children_nth (val, i);
+                GValue *v = node_children_nth (val, ++i);
+
+                PyDict_SetItem (obj,
+                                g_value_to_PyObject (key, boolean_cb, base64_cb),
+                                g_value_to_PyObject (v, boolean_cb, base64_cb));
+            }
+        } else if (type == G_TYPE_BASE64) {
+            obj = g_value_base64_to_PyObject(val, base64_cb);
+            break;
+        } else {
+            g_warning ("Unhandled GType");
+            Py_INCREF (Py_None);
+            obj = Py_None;
+        }
+    }
+
+    return obj;
+}
 
 static PyObject *
 unmarshaller_close (PyObject *self, PyObject *args)
 {
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    PyObject *tuple, *result;
-    int i;
+    PyObject *tuple, *result, *obj;
+    int len, i;
 
     if (unm->flavor == PY_UNMARSHALLER_FLAVOR_FAULT
         && unm->fault_cb
-        && unm->stack->len > 0) {
-        args = Py_BuildValue ("(O)", g_ptr_array_index (unm->stack, 0));
+        && node_children_count (unm->stack) > 0) {
+
+        args = Py_BuildValue ("(O)",
+                              g_value_to_PyObject (node_children_nth (unm->stack, 0),
+                                                   unm->boolean_cb, unm->binary_cb));
         result = PyEval_CallObject (unm->fault_cb, args);
-        if (result == NULL)
+        Py_DECREF (args);
+        if (result == NULL) /* throw exception */
             return NULL;
         Py_DECREF (result);
     }
 
     /* tuple-ify the stack */
-    tuple = PyTuple_New (unm->stack->len);
-    for (i = 0; i < unm->stack->len; ++i) {
-        PyObject *obj = g_ptr_array_index (unm->stack, i);
+    len = node_children_count (unm->stack);
+    tuple = PyTuple_New (len);
+
+    for (i = 0; i < len; i++) {
+        obj = g_value_to_PyObject (node_children_nth (unm->stack, i),
+                                   unm->boolean_cb, unm->binary_cb);
         PyTuple_SetItem (tuple, i, obj);
-        Py_INCREF (obj);
-        ++i;
     }
 
     return tuple;
@@ -120,64 +379,52 @@ unmarshaller_getmethodname (PyObject *self, PyObject *args)
 }
 
 static PyObject *
-unmarshaller_xml (PyObject *self, PyObject *args)
+unmarshaller_feed (PyObject *self, PyObject *args)
 {
-#if 0
-    PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    char *encoding;
-    int standalone;
+	PyUnmarshaller *unm = (PyUnmarshaller *) self;
+	char *data_str;
+	int done;
 
-    /* FIXME: do nothing for now */
+	if (! PyArg_ParseTuple (args, "si", &data_str, &done))
+		return NULL;
 
-    if (! PyArg_ParseTuple (args, "si", &encoding, &standalone))
-        return NULL;
+    Py_BEGIN_ALLOW_THREADS
+	XML_Parse (unm->parser, data_str, strlen(data_str), done);
+    Py_END_ALLOW_THREADS
 
-    g_free (unm->encoding);
-    unm->encoding = g_strdup (encoding);
-
-    g_assert (standalone);
-#endif
-
-    Py_INCREF (Py_None);
-    return Py_None;
+	Py_INCREF (Py_None);
+	return Py_None;
 }
 
-static PyObject *
-unmarshaller_start (PyObject *self, PyObject *args)
+static void
+start_element_cb (gpointer self, const char *name, const char **atts)
 {
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    PyObject *dummy;
-    char *tag;
 
-    if (! PyArg_ParseTuple (args, "sO", &tag, &dummy))
-        return NULL;
+    if (!strcmp (name, "array")) {
+        node_push (unm->cursor,
+                   list_new (unm->cursor, g_value_array_new (0)));
+        unm->cursor = node_children_last (unm->cursor);
+    }
 
-    if (!strcmp (tag, "array") || !strcmp (tag, "struct"))
-        unm->marks =
-            g_slist_prepend (unm->marks,
-                             GINT_TO_POINTER (unm->stack->len));
+    if (!strcmp (name, "struct")) {
+        node_push (unm->cursor,
+                   dict_new (unm->cursor,
+                             g_value_array_new (0)));
+        unm->cursor = node_children_last (unm->cursor);
+    }
 
     g_string_assign (unm->data, "");
 
-    unm->value = !strcmp (tag, "value");
-
-    Py_INCREF (Py_None);
-    return Py_None;
+    unm->value = !strcmp (name, "value");
 }
 
-static PyObject *
-unmarshaller_data (PyObject *self, PyObject *args)
+static void
+char_data_cb (gpointer self, const char *data, int len)
 {
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    char *data_str;
 
-    if (! PyArg_ParseTuple (args, "s", &data_str))
-        return NULL;
-    
-    g_string_append (unm->data, data_str);
-
-    Py_INCREF (Py_None);
-    return Py_None;
+    g_string_append_len (unm->data, data, len);
 }
 
 /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
@@ -185,108 +432,109 @@ unmarshaller_data (PyObject *self, PyObject *args)
 static void
 end_boolean (PyUnmarshaller *unm, const char *data)
 {
-    PyObject *args;
-    PyObject *bool;
+    GValue *val;
 
-    args = Py_BuildValue ("(s)", data);
-    bool = PyEval_CallObject (unm->boolean_cb, args);
-    Py_DECREF (args);
+    val = g_new0 (GValue, 1);
+    val = g_value_init (val, G_TYPE_BOOLEAN);
+    g_value_set_boolean (val, atoi (data));
 
-    g_ptr_array_add (unm->stack, bool);
-
+    node_push (unm->cursor, val);
     unm->value = 0;
 }
 
 static void
 end_int (PyUnmarshaller *unm, const char *data)
 {
-    PyObject *obj = Py_BuildValue ("i", atoi (data));
-    g_ptr_array_add (unm->stack, obj);
+    GValue *val;
+
+    val = g_new0 (GValue, 1);
+    val = g_value_init (val, G_TYPE_INT);
+    g_value_set_int (val, atoi (data));
+
+    node_push (unm->cursor, val);
     unm->value = 0;
 }
 
 static void
 end_double (PyUnmarshaller *unm, const char *data)
 {
-    PyObject *obj = Py_BuildValue ("d", atof (data));
-    g_ptr_array_add (unm->stack, obj);
+    GValue *val;
+
+    val = g_new0 (GValue, 1);
+    val = g_value_init (val, G_TYPE_DOUBLE);
+    g_value_set_double (val, atof (data));
+
+    node_push (unm->cursor, val);
     unm->value = 0;
 }
 
 static void
 end_string (PyUnmarshaller *unm, const char *data)
 {
+    GValue *val;
+
     /* FIXME: ignores all issues regarding the encoding of the data */
-    PyObject *obj = Py_BuildValue ("s", data);
-    g_ptr_array_add (unm->stack, obj);
+    val = g_new0 (GValue, 1);
+    val = g_value_init (val, G_TYPE_STRING);
+    g_value_set_string (val, data);
+
+    node_push (unm->cursor, val);
     unm->value = 0;
 }
 
 static void
 end_array (PyUnmarshaller *unm, const char *data)
 {
-    PyObject *list;
-    int mark, i;
-    
-    g_assert (unm->marks);
-    mark = GPOINTER_TO_INT (unm->marks->data);
-    
-    unm->marks = g_slist_delete_link (unm->marks,
-                                      unm->marks);
+    g_assert (G_VALUE_TYPE(unm->cursor) == G_TYPE_LIST);
 
-    list = PyList_New (unm->stack->len - mark);
-
-    for (i = mark; i < unm->stack->len; ++i) {
-        PyObject *obj = g_ptr_array_index (unm->stack, i);
-        PyList_SetItem (list, i - mark, obj);
-    }
-
-    g_ptr_array_set_size (unm->stack, mark);
-    g_ptr_array_add (unm->stack, list);
-    
+    unm->cursor = node_pop (unm->cursor);
     unm->value = 0;
 }
 
 static void
 end_struct (PyUnmarshaller *unm, const char *data)
 {
-    PyObject *dict;
-    int mark, i;
+    g_assert (G_VALUE_TYPE(unm->cursor) == G_TYPE_DICT);
 
-    g_assert (unm->marks);
-    mark = GPOINTER_TO_INT (unm->marks->data);
-    
-    unm->marks = g_slist_delete_link (unm->marks,
-                                      unm->marks);
-
-    dict = PyDict_New ();
-
-    for (i = mark; i < unm->stack->len; i += 2) {
-        PyObject *key = g_ptr_array_index (unm->stack, i);
-        PyObject *value = g_ptr_array_index (unm->stack, i+1);
-
-        PyDict_SetItem (dict, key, value);
-    }
-
-    g_ptr_array_set_size (unm->stack, mark);
-    g_ptr_array_add (unm->stack, dict);
-    
+    unm->cursor = node_pop (unm->cursor);
     unm->value = 0;
 }
 
 static void
 end_base64 (PyUnmarshaller *unm, const char *data)
 {
+    GValue *val;
+
+    /* FIXME: ignores all issues regarding the encoding of the data */
+    val = g_new0 (GValue, 1);
+    val = g_value_init (val, G_TYPE_BASE64);
+    g_value_set_boxed (val, data);
+
+    node_push (unm->cursor, val);
+    unm->value = 0;
+
+#if 0
     PyObject *binary;
     PyObject *args;
+    GValue *val;
+    char *data_str;
 
     args = Py_BuildValue ("(s)", data);
     binary = PyEval_CallObject (unm->binary_cb, args);
     Py_DECREF (args);
 
-    g_ptr_array_add (unm->stack, binary);
+    if (binary == NULL)
+        return;
+
+    if (!PyArg_ParseTuple (binary, "i", &data_str))
+        return;
+
+    Py_DECREF(binary);
+
+    end_string (unm, data_str);
 
     unm->value = 0;
+#endif
 }
 
 static void
@@ -322,76 +570,69 @@ end_methodName (PyUnmarshaller *unm, const char *data)
     unm->flavor = PY_UNMARSHALLER_FLAVOR_METHODNAME;
 }
 
-static PyObject *
-unmarshaller_end (PyObject *self, PyObject *args)
+static void
+end_element_cb (gpointer self, const char *name)
 {
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    char *tag;
-    char *data_str = NULL;
+    char *data_str;
     void (*fn) (PyUnmarshaller *, const char *str) = NULL;
-
-    if (! PyArg_ParseTuple (args, "s", &tag))
-        return NULL;
 
     data_str = unm->data->str;
 
-    switch (*tag) {
+    switch (*name) {
 
     case 'a':
-        if (! strcmp (tag, "array"))
+        if (! strcmp (name, "array"))
             fn = end_array;
         break;
 
     case 'b':
-        if (! strcmp (tag, "boolean"))
+        if (! strcmp (name, "boolean"))
             fn = end_boolean;
-        else if (! strcmp (tag, "base64"))
+        else if (! strcmp (name, "base64"))
             fn = end_base64;
         break;
 
     case 'd':
-        if (! strcmp (tag, "double"))
+        if (! strcmp (name, "double"))
             fn = end_double;
         break;
 
     case 'f':
-        if (! strcmp (tag, "fault"))
+        if (! strcmp (name, "fault"))
             fn = end_fault;
         break;
 
     case 'i':
-        if (! strcmp (tag, "i4") || ! strcmp (tag, "int"))
+        if (! strcmp (name, "i4") || ! strcmp (name, "int"))
             fn = end_int;
         break;
 
     case 'n':
-        if (! strcmp (tag, "name"))
+        if (! strcmp (name, "name"))
             fn = end_string;
         break;
 
     case 'p':
-        if (! strcmp (tag, "params"))
+        if (! strcmp (name, "params"))
             fn = end_params;
         break;
 
     case 's':
-        if (! strcmp (tag, "string"))
+        if (! strcmp (name, "string"))
             fn = end_string;
-        else if (! strcmp (tag, "struct"))
+        else if (! strcmp (name, "struct"))
             fn = end_struct;
         break;
 
     case 'v':
-        if (! strcmp (tag, "value"))
+        if (! strcmp (name, "value"))
             fn = end_value;
         break;
     }
 
     if (fn)
         fn (unm, data_str);
-
-    Py_INCREF (Py_None);
-    return Py_None;
 }
 
 /* ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** */
@@ -412,8 +653,14 @@ unmarshaller_new (PyObject *self, PyObject *args)
     unm = PyObject_NEW (PyUnmarshaller, &PyUnmarshallerType);
 #endif
 
+    unm->parser = XML_ParserCreate (NULL);
+    XML_SetUserData (unm->parser, unm);
+    XML_SetElementHandler (unm->parser, start_element_cb, end_element_cb);
+    XML_SetCharacterDataHandler (unm->parser, char_data_cb);
+
     unm->flavor = PY_UNMARSHALLER_FLAVOR_NONE;
-    unm->stack = g_ptr_array_new ();
+    unm->stack = list_new (NULL, g_value_array_new (0));
+    unm->cursor = unm->stack;
     unm->marks = NULL;
     unm->data = g_string_new ("");
     unm->methodname = NULL;
@@ -435,11 +682,9 @@ unmarshaller_dealloc (PyObject *self)
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
     int i;
 
-    for (i = 0; i < unm->stack->len; ++i) {
-        PyObject *obj = g_ptr_array_index (unm->stack, i);
-        Py_DECREF (obj);
-    }
-    g_ptr_array_free (unm->stack, TRUE);
+    XML_ParserFree(unm->parser);
+
+    g_value_unset (unm->stack);
 
     g_slist_free (unm->marks);
     g_string_free (unm->data, TRUE);
@@ -456,11 +701,7 @@ unmarshaller_dealloc (PyObject *self)
 static PyMethodDef unmarshaller_methods[] = {
     { "close", unmarshaller_close, METH_VARARGS, "close" },
     { "getmethodname", unmarshaller_getmethodname, METH_VARARGS, "getmethodname" },
-    { "xml",   unmarshaller_xml,   METH_VARARGS, "xml" },
-
-    { "start", unmarshaller_start, METH_VARARGS, "start" },
-    { "data",  unmarshaller_data,  METH_VARARGS, "data" },
-    { "end",   unmarshaller_end,   METH_VARARGS, "end" },
+    { "feed",   unmarshaller_feed,   METH_VARARGS, "feed" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -477,4 +718,6 @@ initximian_unmarshaller (void)
 
     Py_InitModule("ximian_unmarshaller",
                   general_methods);
+
+    g_type_init ();
 }

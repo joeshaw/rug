@@ -2,16 +2,17 @@
 import os, string
 from distutils.core import setup, Extension
 
-pc = os.popen("pkg-config --cflags-only-I glib-2.0", "r")
+pc = os.popen("pkg-config --cflags-only-I glib-2.0 gobject-2.0", "r")
 glib_includes = map(lambda x:x[2:], string.split(pc.readline()))
 pc.close()
 
-pc = os.popen("pkg-config --libs-only-l glib-2.0", "r")
+pc = os.popen("pkg-config --libs-only-l glib-2.0 gobject-2.0", "r")
 glib_libs = string.split(pc.readline())
 #glib_libs = map(lambda x:x[2:], string.split(pc.readline()))
+glib_libs.append("-lexpat")
 pc.close()
 
-pc = os.popen("pkg-config --libs-only-L glib-2.0", "r")
+pc = os.popen("pkg-config --libs-only-L glib-2.0 gobject-2.0", "r")
 glib_libdirs = map(lambda x:x[2:], string.split(pc.readline()))
 pc.close()
 

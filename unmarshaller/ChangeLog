@@ -1,3 +1,11 @@
+2003-05-23  Joe Shaw  <joe@ximian.com>
+
+	* Makefile.am: Add a clean target
+
+	* setup.py: Link against gobject and expat
+
+	* unmarshaller.c: Use our newer, faster unmarshaller from red-carpet.
+
 2002-12-12  Jon Trowbridge  <trow@ximian.com>
 
 	* unmarshaller.c (unmarshaller_close): If an exception was raised
