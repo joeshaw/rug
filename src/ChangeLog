@@ -1,3 +1,8 @@
+2002-09-11  Jon Trowbridge  <trow@ximian.com>
+
+	* rcformat.py (package_to_row): Print a "v" in the status field
+	if a package is name-installed but not installed.
+
 2002-09-10  Joe Shaw  <joe@ximian.com>
 
 	* rcformat.py (pending_to_str): take an optional "time" argument

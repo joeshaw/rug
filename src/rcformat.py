@@ -152,6 +152,8 @@ def package_to_row(server, pkg, no_abbrev, key_list):
 
             if pkg["installed"]:
                 val = "i"
+            elif pkg["name_installed"]:
+                val = "v"
             else:
                 val = ""
 
