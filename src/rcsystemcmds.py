@@ -17,6 +17,10 @@
 
 import sys
 import os
+import socket
+import errno
+import time
+
 import rcchannelutils
 import rctalk
 import rcformat
@@ -91,6 +95,27 @@ class ShutdownCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
         server.rcd.system.shutdown()
+
+        rctalk.message("Waiting for daemon to shut down...")
+
+        while 1:
+            try:
+                server.rcd.system.ping()
+            except socket.error, e:
+                eno, str = e
+                if eno == errno.ENOENT or eno == errno.ECONNREFUSED:
+                    rctalk.message("Daemon shut down.")
+                    sys.exit(0)
+                else:
+                    raise
+            except ximian_xmlrpclib.ProtocolError, e:
+                if e.errcode == -1:
+                    rctalk.message("Daemon shut down.")
+                    sys.exit(0)
+                else:
+                    raise
+                
+            time.sleep(0.4)
 
 rccommand.register(ShutdownCmd)
 
