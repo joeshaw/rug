@@ -238,9 +238,9 @@ except socket.error:
     rctalk.error("Unable to connect to the daemon.")
     rctalk.error("Please ensure that the service is running.")
     sys.exit(1)
-except (cgiwrap.ProtocolError, ximian_xmlrpclib.Fault):
-    rctalk.error("Unable to authenticate with the daemon.")
-    rctalk.error("You may need to use the --user and --password options.")
-    sys.exit(1)
+#except (cgiwrap.ProtocolError, ximian_xmlrpclib.Fault):
+#    rctalk.error("Unable to authenticate with the daemon.")
+#    rctalk.error("You may need to use the --user and --password options.")
+#    sys.exit(1)
 
 # FIXME: we should probably check for error conditions here

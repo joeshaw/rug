@@ -56,18 +56,14 @@ def sort_and_format_table(package_table, multi):
         rcformat.tabular(header[:1]+header[2:], package_table)
 
 def find_package(server, channel, package):
-    query = [["name", "is", package], ["installed", "is", "false"]]
-
     if channel != -1:
-        query.append(["channel", "is", channel])
+        [package] = server.rcd.packsys.query([["name",      "is", package],
+                                              ["installed", "is", "false"],
+                                              ["channel",   "is", channel]])
+    else:
+        package = server.rcd.packsys.find_latest_version(package)
 
-    packages = server.rcd.packsys.query(query)
-
-    # FIXME: This is wrong; we should be doing a real version compare here.
-    packages.sort(lambda x, y:cmp(rcformat.display_version(y),
-                                  rcformat.display_version(x)))
-
-    return packages[0]
+    return package
 
 class PackageListCmd(rccommand.RCCommand):
 
