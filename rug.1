@@ -236,7 +236,11 @@ Display a summary of available updates. Accepts one flag: \fI\-\-no\-abbrev\fR, 
 
 .TP 
 list\-updates (lu) [channelname] [channelname]
-List updates in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates. Accepts the flags:
+List updates in subscribed channels. Adding channels as arguments limits the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates. 
+
+If the output from this command does not match the pending updates listed on the server, it is because the pending updates list on the server shows updates for all available channels, not just channels to which the client is subscribed. For the lists to match, the client must be subscribed to all available channels.
+
+Accepts the flags:
 .IP 
 \-\-no\-abbrev
 .br 
