@@ -29,17 +29,28 @@ def get_packages(server, channel):
 def get_system_packages(server):
     return server.rcd.packsys.search([["installed","is","true"]])
 
+def get_non_system_packages(server):
+    return server.rcd.packsys.search([["installed","is","false"]])
+
 def install_indicator(server, package):
     if package["installed"]:
         return "i"
     else:
         return ""
 
-def append_to_table(server, package_table, p, multi):
+def append_to_table(server, package_table, p, multi, no_abbrev):
+    channel_name = rcchannelcmds.channel_id_to_name(server, p["channel"])
+
+    if no_abbrev:
+        evr_fn = rcformat.evr_to_str
+    else:
+        evr_fn = rcformat.evr_to_abbrev_str
+        channel_name = rcformat.abbrev_channel_name(channel_name)
+        
     row = [install_indicator(server, p),
-           str(p["channel"]),
+           channel_name,
            p["name"],
-           rcformat.display_version(p)]
+           evr_fn(p)]
 
     if multi or rctalk.be_terse:
         package_table.append(row)
@@ -50,10 +61,13 @@ def sort_and_format_table(package_table, multi):
     header = ["S", "Channel", "Name", "Version"]
 
     if multi or rctalk.be_terse:
-        package_table.sort(lambda x, y:cmp(x[2],y[2]))
+        package_table.sort(lambda x, y:cmp(string.lower(x[2]),
+                                           string.lower(y[2])) or
+                           cmp(string.lower(x[1]),string.lower(y[1])))
         rcformat.tabular(header, package_table)
     else:
-        package_table.sort(lambda x, y:cmp(x[1],y[1]))
+        package_table.sort(lambda x, y:cmp(string.lower(x[1]),
+                                           string.lower(y[1])))
         rcformat.tabular(header[:1]+header[2:], package_table)
 
 def find_package_in_channel(server, channel, package):
@@ -79,10 +93,15 @@ class PackageListCmd(rccommand.RCCommand):
     def name(self):
         return "packages"
 
+    def local_opt_table(self):
+        return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
+
     def execute(self, server, options_dict, non_option_args):
 
         packages = [];
         package_table = [];
+
+        no_abbrev = options_dict.has_key("no-abbrev")
 
         if len(non_option_args) > 1:
             multi = 1
@@ -90,18 +109,24 @@ class PackageListCmd(rccommand.RCCommand):
             multi = 0
 
         if non_option_args:
-            for a in non_option_args:
+            if "all" in non_option_args:
+                multi = 1
+                packages = get_non_system_packages(server)
+                for p in packages:
+                    append_to_table(server, package_table, p, multi, no_abbrev)
+            else:
+                for a in non_option_args:
 
-                clist = rcchannelcmds.get_channels_by_name(server, a)
+                    clist = rcchannelcmds.get_channels_by_name(server, a)
 
-                if rcchannelcmds.validate_channel_list(a, clist):
-                    packages = get_packages(server, clist[0])
-                    for p in packages:
-                        append_to_table(server, package_table, p, multi)
+                    if rcchannelcmds.validate_channel_list(a, clist):
+                        packages = get_packages(server, clist[0])
+                        for p in packages:
+                            append_to_table(server, package_table, p, multi, no_abbrev)
         else:
             packages = get_system_packages(server)
             for p in packages:
-                append_to_table(server, package_table, p, 0)
+                append_to_table(server, package_table, p, 0, no_abbrev)
             
         if package_table:
             sort_and_format_table(package_table, multi)
@@ -119,7 +144,9 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["d", "search-description", "", "Search description"],
                 ["v", "search-version", "", "Search version"],
                 ["p", "show-package-ids", "", "Show package IDs for each package"],
-                ["c", "channel", "channel id", "Search in a specific channel"]]
+                ["c", "channel", "channel id", "Search in a specific channel"],
+                ["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
+
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -235,9 +262,8 @@ class PackageUpdatesCmd(rccommand.RCCommand):
             else:
                 evr_fn = rcformat.evr_to_abbrev_str
 
-            old_ver = evr_fn(old_pkg["epoch"], old_pkg["version"], old_pkg["release"])
-            new_ver = evr_fn(new_pkg["epoch"], new_pkg["version"], new_pkg["release"])
-
+            old_ver = evr_fn(old_pkg)
+            new_ver = evr_fn(new_pkg)
 
             chan = rcchannelcmds.get_channel_by_id(server, new_pkg["channel"])
             chan_name = chan["name"]

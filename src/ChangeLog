@@ -1,5 +1,20 @@
 2002-06-14  Joe Shaw  <joe@ximian.com>
 
+	* rcformat.py (evr_to_str, evr_to_abbrev_str): Changed to take a
+	package instead of an EVR triple.
+	(display_version): Remove, replaced by the above two.
+
+	* rcpackagecmds.py (append_to_table): Abbreviate the version and
+	channel name.
+	(sort_and_format_table): lower() the strings, also sort by channel
+	name after package name.
+	(PackageListCmd, PackageSearchCmd): Take --no-abbrev.
+	(PackageListCmd.execute): Accept "all" to list packages in all
+	channels.
+	(PackageUpdatesCmd.execute): Update the evr_fn() call.
+
+2002-06-14  Joe Shaw  <joe@ximian.com>
+
 	* rcformat.py (transaction_status): Added.  Takes the messages
 	from the daemon and outputs a human-readable string.
 

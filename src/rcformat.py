@@ -70,22 +70,32 @@ def linebreak(in_str, width):
 
 ## Assemble EVRs into strings
 
-def evr_to_str(epoch, version, release):
-    return str(epoch) + ":" + version + "-" + release
+def evr_to_str(package):
+    version = ""
+    
+    if package["epoch"]:
+        version = version + str(package["epoch"]) + ":"
+
+    version = version + package["version"]
+
+    if package["release"]:
+        version = version + "-" + package["release"]
+
+    return version
 
 
 ## Assemble EVRs into abbreviated strings
 
-def evr_to_abbrev_str(epoch, version, release):
+def evr_to_abbrev_str(package):
 
-    if string.find(release, "snap") != -1:
+    if string.find(package["release"], "snap") != -1:
         r = re.compile(".*(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)")
-        m = r.match(version) or r.match(release)
+        m = r.match(package["version"]) or r.match(package["release"])
         if m:
             return "%s-%s-%s, %s:%s" % \
                    (m.group(1), m.group(2), m.group(3), m.group(4), m.group(5))
         
-    return evr_to_str(epoch, version, release)
+    return evr_to_str(package)
 
 
 ## Shorten channel names in a semi-coherent way
@@ -167,22 +177,6 @@ def tabular(headers, table):
     # print table body
     for r in table:
         print row_to_string(r, col_sizes)
-
-###
-### Code for displaying versions of packages
-###
-def display_version(package):
-    version = ""
-    
-    if package["epoch"]:
-        version = version + str(package["epoch"]) + ":"
-
-    version = version + package["version"]
-
-    if package["release"]:
-        version = version + "-" + package["release"]
-
-    return version
 
 ###
 ### Format transaction status messages into readable text
