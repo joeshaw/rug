@@ -1,3 +1,8 @@
+2002-09-18  Joe Shaw  <joe@ximian.com>
+
+	* rcusercmds.py: Show success/failure on adding or deleting users,
+	change the text when adding a user.
+
 2002-09-16  Joe Shaw  <joe@ximian.com>
 
 	* rcformat.py (transaction_status): Distinguish between an

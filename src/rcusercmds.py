@@ -68,9 +68,7 @@ def get_privileges(initial, in_legal):
 
     rctalk.message("")
     rctalk.message("At the prompt, type +/- followed by a privilege name to add/remove")
-    rctalk.message("that privilege.  To accept the current set of privilege, just hit return.")
-    rctalk.message("Eventually we'll have a good explanation of how this works here;")
-    rctalk.message("I'm too lazy to write anything coherent right now.")
+    rctalk.message("that privilege.  To accept the current set of privileges, press return.")
 
     while 1:
         table = []
@@ -206,8 +204,14 @@ class UserAddCmd(rccommand.RCCommand):
         privs = get_privileges(privs, valid_privs)
         privs_str = string.join(privs, ", ")
 
-        server.rcd.users.update(username, passwd, privs_str)
-    
+        rc = server.rcd.users.update(username, passwd, privs_str)
+
+        rctalk.message("")
+
+        if rc:
+            rctalk.message("User '" + username + "' added.")
+        else:
+            rctalk.error("User '" + username + "' could not be added.")
 
 ###
 ### "user-delete" command
@@ -248,6 +252,8 @@ class UserDeleteCmd(rccommand.RCCommand):
         for username in non_option_args:
             if not server.rcd.users.remove(username):
                 rctalk.warning("Attempt to delete user '" + username + "' failed")
+            else:
+                rctalk.message("User '" + username + "' deleted.")
             
 
 
