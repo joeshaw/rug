@@ -1,5 +1,15 @@
 2002-07-01  Jon Trowbridge  <trow@ximian.com>
 
+	* rcpackagecmds.py (PackageInfoCmd.execute): Print the
+	recent history of each item we are requesting info on.
+
+	* rcchannelcmds.py (channel_to_str): Removed the channel ID
+	from the string we return.
+	(ListChannelsCmd.execute): Don't put the channel ID in any
+	of the output.
+
+2002-07-01  Jon Trowbridge  <trow@ximian.com>
+
 	* rcformat.py (pending_to_str): Make our pending status line
 	look nicer.
 

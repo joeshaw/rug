@@ -302,8 +302,8 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["v", "search-version", "", "Search version"],
                 ["p", "show-package-ids", "", "Show package IDs for each package"],
                 ["c", "channel", "channel id", "Search in a specific channel"],
-                ["i",  "installed-only", "", "List installed packages only"],
-                ["u",  "uninstalled-only", "", "List uninstalled packages only"],
+                ["i", "installed-only", "", "List installed packages only"],
+                ["u", "uninstalled-only", "", "List uninstalled packages only"],
                 ["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
 
 
@@ -467,6 +467,43 @@ class PackageInfoCmd(rccommand.RCCommand):
             rctalk.message("Summary: " + pinfo["summary"])
             rctalk.message("Description: ")
             rctalk.message("  " + pinfo["description"])
+
+            log_entries = server.rcd.log.query_log([["name", "=", p["name"]]])
+            if log_entries:
+
+                # Reverse chronological order
+                log_entries.sort(lambda x,y:cmp(y["timestamp"], x["timestamp"]))
+
+                act_len = apply(max, map(lambda x:len(x["action"]), log_entries))
+                
+                rctalk.message("\nHistory:")
+                                
+                for item in log_entries:
+
+                    init_str = ""
+                    fin_str = ""
+
+                    if item.has_key("pkg_initial"):
+                        init_str = rcformat.evr_to_abbrev_str(item["pkg_initial"])
+                    if item.has_key("pkg_final"):
+                        fin_str = rcformat.evr_to_abbrev_str(item["pkg_final"])
+
+                    if init_str and fin_str:
+                        pkg_str = init_str + " => " + fin_str
+                    elif init_str:
+                        pkg_str = init_str
+                    elif fin_str:
+                        pkg_str = fin_str
+
+                    time_str = time.strftime("%Y-%m-%d %H:%M,",
+                                             time.localtime(item["timestamp"]))
+
+                    action_str = string.ljust(item["action"] + ",", act_len+1)
+
+                    if pkg_str:
+                        rctalk.message(time_str + " " + action_str + " " + pkg_str)
+            
+            
 
 def transact_and_poll(server, packages_to_install, packages_to_remove):
     tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove)
