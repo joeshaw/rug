@@ -222,6 +222,10 @@ class RefreshChannelCmd(rccommand.RCCommand):
                                  "request.")
                     rctalk.error("Please try again shortly.")
                     sys.exit(1)
+                elif f.faultCode == rcfault.cant_refresh:
+                    rctalk.error("Error trying to refresh: " +
+                                 f.faultString)
+                    sys.exit(1)
                 else:
                     raise
             rctalk.message("Refreshing all channels")

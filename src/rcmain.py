@@ -158,6 +158,10 @@ def main(rc_version):
 
     try:
         command.execute(server, opt_dict, args)
+    except KeyboardInterrupt:
+        # Just quietly exit if we got a control C.
+        print
+        sys.exit(0)
     except socket.error, e:
         rctalk.error("Unable to connect to the daemon: " + str(e))
         rctalk.error("Please ensure that the service is running.")
