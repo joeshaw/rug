@@ -157,6 +157,9 @@ def package_to_row(server, pkg, no_abbrev, key_list):
             else:
                 val = ""
 
+            if pkg.get("locked"):
+                val = val + "L"
+
         elif key == "channel":
 
             if pkg.has_key("channel_guess"):

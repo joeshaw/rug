@@ -1,3 +1,17 @@
+2002-10-10  Jon Trowbridge  <trow@ximian.com>
+
+	* rcmain.py: Import rcmountcmds.
+
+	* rcpackagecmds.py (verbose_updates_list): When printing the
+	update description, don't repeat the same message multiple times.
+	(i.e. just print "New Snapshot Build" once instead of repeating it
+	20 times.)
+
+	* rcmountcmds.py: Add 'mount' and 'unmount' commands.
+
+	* rcformat.py (package_to_row): If the package is locked, append a
+	"L" to the status.
+
 2002-10-01  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Use /var/run/rcd/rcd now.

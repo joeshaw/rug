@@ -523,8 +523,11 @@ def verbose_updates_list(server, update_list):
         rctalk.message(" Update Vers: " + rcformat.evr_to_str(new_pkg))
 
         header = "Enhancements: "
+        last_desc = None
         for d in descriptions:
-            rctalk.message(header + d)
+            if last_desc != d: # don't print the same damn message many times
+                rctalk.message(header + d)
+            last_desc = d
             header = "              "
 
         rctalk.message("")

@@ -262,5 +262,3 @@ rccommand.register(UserListCmd)
 rccommand.register(UserAddCmd)
 rccommand.register(UserDeleteCmd)
 
-# Doesn't work, so don't register.
-# rccommand.register(UserUpdateCmd)
