@@ -6,7 +6,9 @@ unmarshaller_DATA = ximian_unmarshaller.so
 # Boy, that mv build/lib.*/ construction sure is lame.
 ximian_unmarshaller.so: setup.py unmarshaller.c
 	rm -rf build
-	cp $(srcdir)/unmarshaller.c .
+	if [ ! -e unmarshaller.c ]; then	\
+		cp $(srcdir)/unmarshaller.c .;	\
+	fi
 	python $(srcdir)/setup.py build
 	mv build/lib.*/ximian_unmarshaller.so .
 
