@@ -121,10 +121,10 @@ class ServiceAddCmd(rccommand.RCCommand):
         return ["sa"]
 
     def arguments(self):
-        return "<service> ..."
+        return "<service uri> ..."
 
     def description_short(self):
-        return "Add a new service. Specify service URI, name, or number."
+        return "Add a new service."
 
     def category(self):
         return "service"
