@@ -1,3 +1,21 @@
+2002-06-21  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py: Split out all of the stuff in rc.in into here.
+
+	* rc.in: Just a shell around rcmain.main() now.
+
+	* rcpackagecmds.py (PackageInstallCmd): Add --allow-removals to
+	the local_opt_table and disallow removals on a no-confirmation
+	install unless it is set.
+	(PackageUpdateCmd.execute): Show the list of packages to be
+	upgraded.  Disallow removals on no-confirmation unless
+	-d/--allow-removals is set.
+
+2002-06-20  Joe Shaw  <joe@ximian.com>
+
+	* rc.in: Handle XML-RPC and HTTP authentication errors and pass
+	through all others, as they should have been handled before then.
+
 2002-06-19  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageSearchCmd.local_opt_table): Added

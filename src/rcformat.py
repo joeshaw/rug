@@ -125,7 +125,10 @@ def abbrev_importance(str):
 def pending_to_str(p):
     pc = p["percent_complete"]
     elap = p["elapsed_sec"]
-    rem = p["remaining_sec"]
+    if p.has_key("remaining_sec"):
+        rem = p["remaining_sec"]
+    else:
+        rem = -1
 
     msg = str(int(pc)) + "% complete"
     if elap >= 0:

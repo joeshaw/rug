@@ -391,7 +391,8 @@ class PackageInstallCmd(rccommand.RCCommand):
         return "install"
 
     def local_opt_table(self):
-        return [["y", "no-confirmation", "", "Perform the actions without confirmation"]]
+        return [["d", "allow-removals", "", "Allow removals with no confirmation"],
+                ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
 
     def execute(self, server, options_dict, non_option_args):
         packages_to_install = []
@@ -437,6 +438,10 @@ class PackageInstallCmd(rccommand.RCCommand):
             if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
                 rctalk.message("Aborted.")
                 sys.exit(0)
+
+        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
+            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
+            sys.exit(1)
 
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
@@ -503,6 +508,9 @@ class PackageUpdateCmd(rccommand.RCCommand):
 
         dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
 
+        rctalk.message("The following packages will be updated:")
+        format_dependencies(packages_to_install)
+
         if dep_install:
             rctalk.message("The following additional packages will be installed:")
             format_dependencies(dep_install)
@@ -517,8 +525,11 @@ class PackageUpdateCmd(rccommand.RCCommand):
                 rctalk.message("Aborted.")
                 sys.exit(0)
 
+        if options_dict.has_key("no-confirmation") and not options_dict.has_key("allow-removals"):
+            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
+            sys.exit(1)
+
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
-        
 
 rccommand.register(PackageListCmd,    "List the packages in a channel")
 rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")

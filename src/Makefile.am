@@ -7,6 +7,7 @@ rcsupport_DATA = 		\
 	rccommand.py		\
 	rcformat.py		\
 	rclogcmds.py		\
+	rcmain.py		\
 	rcpackagecmds.py	\
 	rcsystemcmds.py		\
 	rctalk.py		\
