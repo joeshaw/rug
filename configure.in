@@ -17,7 +17,7 @@ AM_INIT_AUTOMAKE(rug, $VERSION)
 
 AM_MAINTAINER_MODE
 
-AC_PATH_PROG(HAVE_PYTHON, python, no)
+AM_PATH_PYTHON(2.2)
 
 if test x$HAVE_PYTHON = xno; then
 	AC_MSG_ERROR(Couldn't find python in the path)
@@ -42,7 +42,7 @@ sys.exit(0)"
 
 AC_MSG_CHECKING(for python distutils)
 have_distutils="no"
-if python -c "$distutils_check" 1>&AC_FD_CC 2>&AC_FD_CC; then
+if $PYTHON -c "$distutils_check" 1>&AC_FD_CC 2>&AC_FD_CC; then
    have_distutils="yes"
 fi
 AC_MSG_RESULT($have_distutils)

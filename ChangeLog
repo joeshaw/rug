@@ -1,3 +1,7 @@
+2003-11-09  Frank Belew <frb@ximian.com>
+
+	* configure.in: use AM_PATH_PYTHON instead of AC_PATH_PROG
+
 2003-06-09  Aaron Weber <aaron@ximian.com>
 
 	* rug.1: formatting issues-- had missed a few linebreaks in the
