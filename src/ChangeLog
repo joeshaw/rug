@@ -1,4 +1,9 @@
-2003-08-25  Joe shaw  <joe@ximian.com>
+2003-08-26  Joe Shaw  <joe@ximian.com>
+
+	* rctransactcmds.py: The signature for the transact and rollback
+	RPC methods have changed.  Update them.
+
+2003-08-25  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageSearchCmd): Change the way we filter
 	out packages which are installed on the system and are also in
