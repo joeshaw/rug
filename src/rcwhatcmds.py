@@ -58,7 +58,7 @@ def dep_table(server, pairs, dep_name, by_channel = 0, no_abbrev = 0):
             channel = rcformat.abbrev_channel_name(channel)
 
         if not channel:
-            channel = "Unknown"
+            channel = "(none)"
 
         if dep.has_key("relation"):
             dep_str = dep["relation"] + " " + evr_fn(dep)

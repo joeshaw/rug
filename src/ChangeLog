@@ -1,5 +1,13 @@
 2003-09-17  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageInfoRequirementsCmd,
+	PackageInfoChildrenCmd): Change "** Unknown **" to "(none)" for
+	consistency.
+
+	* rcwhatcmds.py (dep_table): Ditto.
+
+2003-09-17  Joe Shaw  <joe@ximian.com>
+
 	* Makefile.am: Add rcserviceutils.py.
 
 	* rcchannelcmds.py (ListChannelsCmd): Add a --service argument

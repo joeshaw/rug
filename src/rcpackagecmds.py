@@ -824,7 +824,7 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
                         count = count + 1
 
                 if count == 0:
-                    table.append(["*", name, "** Unknown **", ""] + pad)
+                    table.append(["*", name, "(none)", "(none)"] + pad)
                 elif count > 1 and not rctalk.be_terse:
                     table.append(["", "", "", ""] + pad)
 
@@ -937,7 +937,7 @@ class PackageInfoChildrenCmd(rccommand.RCCommand):
                         count = count + 1
 
                 if count == 0:
-                    table.append(["*", name, "** Unknown **", ""] + pad)
+                    table.append(["*", name, "(none)", "(none)"] + pad)
                 elif count > 1 and not rctalk.be_terse:
                     table.append(["", "", "", ""] + pad)
 
