@@ -225,9 +225,11 @@ class Boolean:
 
     def __repr__(self):
         if self.value:
-            return "<Boolean True at %x>" % id(self)
+            # return "<Boolean True at %x>" % id(self)
+            return "True"
         else:
-            return "<Boolean False at %x>" % id(self)
+            # return "<Boolean False at %x>" % id(self)
+            return "False"
 
     def __int__(self):
         return self.value

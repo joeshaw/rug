@@ -32,6 +32,7 @@ import rcchannelcmds
 import rcpackagecmds
 import rclogcmds
 import rcnewscmds
+import rcprefscmds
 
 rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
