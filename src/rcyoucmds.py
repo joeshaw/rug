@@ -31,6 +31,9 @@ import rcfault
 import rcchannelutils
 import rcpackageutils
 
+def server_has_patch_support(server):
+    return server.rcd.system.query_module("rcd.you", 1, 0)
+
 class ListYouPatchesCmd(rccommand.RCCommand):
 
     def name(self):
@@ -56,6 +59,10 @@ class ListYouPatchesCmd(rccommand.RCCommand):
                 ["",  "sort-by-channel", "", "Sort patches by channel"]]
 
     def execute(self, server, options_dict, non_option_args):
+
+        if not server_has_patch_support (server):
+            rctalk.error ("Current rcd daemon does not have patch support")
+            sys.exit(1)
 
         patches = []
         patch_table = []
@@ -270,6 +277,10 @@ class InfoYouPatchCmd(rccommand.RCCommand):
             self.usage()
             sys.exit(1)
 
+        if not server_has_patch_support (server):
+            rctalk.error ("Current rcd daemon does not have patch support")
+            sys.exit(1)
+
         if options_dict.has_key("allow-unsubscribed"):
             allow_unsub = 1
         else:
@@ -422,6 +433,10 @@ class InstallYouPatchCmd(rccommand.RCCommand):
 
 
     def execute(self, server, options_dict, non_option_args):
+        if not server_has_patch_support (server):
+            rctalk.error ("Current rcd daemon does not have patch support")
+            sys.exit(1)
+
         install_list = []
 
         if options_dict.has_key("download_only"):
