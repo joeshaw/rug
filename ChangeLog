@@ -1,3 +1,7 @@
+2004-09-22  James Willcox  <james@ximian.com>
+
+	* configure.in: Bump to 2.4.1
+
 2004-09-09  Jacob Hammons  <JHAMMONS@novell.com>
 
 	* rug.1: Update patch commands' documentation.
