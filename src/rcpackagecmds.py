@@ -1960,6 +1960,41 @@ class PackageDumpCmd(rccommand.RCCommand):
             f.close()
 
         sys.stderr.write("Dump finished.\n")
+
+###
+### "dangling requires" command
+###
+
+class PackageDanglingRequiresCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "dangling-requires"
+
+    def description_short(self):
+        return "Search for packages with requirements that are not provided " \
+               "by any other package."
+
+    def category(self):
+        return "dependency"
+
+    def execute(self, server, options_dict, non_option_args):
+        danglers = server.rcd.packsys.find_dangling_requires()
+        if not danglers:
+            rctalk.message("No dangling requires found.")
+            sys.exit(0)
+
+        table = []
+
+        for d in danglers:
+            pkg = d[0]["name"]
+            cid = d[0].get("channel", d[0].get("channel_guess", 0))
+            channel = rcchannelutils.channel_id_to_name(server, cid)
+            for r in d[1:]:
+                table.append([pkg, channel, rcformat.dep_to_str(r)])
+                pkg = ""
+                channel = ""
+
+        rcformat.tabular(["Package", "Channel", "Requirement"], table)
         
 ###
 ### Don't forget to register!
@@ -1980,3 +2015,4 @@ rccommand.register(PackageVerifyCmd)
 rccommand.register(PackageDumpCmd)
 rccommand.register(PackageSolveCmd)
 rccommand.register(PackageRollbackCmd)
+rccommand.register(PackageDanglingRequiresCmd)

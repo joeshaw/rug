@@ -42,7 +42,7 @@ import rcmountcmds
 import rclockcmds
 
 rc_name = "Red Carpet Command Line Client"
-rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
+rc_copyright = "Copyright (C) 2000-2003 Ximian Inc.  All Rights Reserved."
 rc_version = None
 
 # Whether we are connecting over Unix domain sockets or TCP.
