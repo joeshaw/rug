@@ -1467,7 +1467,7 @@ class TransactCmd(rccommand.RCCommand):
         allow_remove = self.unattended_removals() or options_dict.has_key("allow-removals")
 
         if dep_remove and options_dict.has_key("no-confirmation") and not allow_remove:
-            rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
+            rctalk.warning("Removals are required.  Use the -r option or confirm interactively.")
             sys.exit(1)
 
         return dep_install, dep_remove, dep_info

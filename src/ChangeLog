@@ -1,3 +1,8 @@
+2003-04-02  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (TransactCmd): Fix the text to suggest using
+	the -r option instead of -d (it was changed long ago).
+
 2003-04-02  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmountcmds.py (UnmountCmd.aliases): Make 'umount' an alias for
