@@ -1,4 +1,4 @@
-.\" Copyright Ximian, Inc. 2002. 
+.\" Copyright (C) Ximian, Inc. 2002. 
 .\" Please visit bugzilla.ximian.com to report problems with the software or its documentation.
 .TH "rc" "1" "1.0" "Aaron Weber <aaron@ximian.com>" "System tools"
 .SH "NAME"
@@ -51,7 +51,7 @@ List the locks that have been put in place. Locks are sorted by ID number.
 
 .TP 
 packages \fI<"channelname">\fR\fR
-List the packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
+List all installed packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
  
 .TP  
 remove (rm, erase) \fI<packagename>\fR
@@ -344,8 +344,11 @@ Many rc commands have options which apply only to them.  They are listed here al
 
 .TP 
 \fBrc packages\fR <\fIchannelname\fR>
+
 .B \fI\-\-no\-abbrev\fR: Do not abbreviate channel or version information.
 .br 
+.B \fI\-i, \-\-installed\-only \fR:   Show only installed packages (default).
+.B \fI\-u, \-\-uninstalled\-only\fR:  Show only uninstalled packages
 .B \fI\-\-sort\-by\-name\fR: Sort packages by name (default).
 .br 
 .B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
@@ -490,10 +493,10 @@ Displays the functionality provided by the "mypackage" software from "mychannel.
 Installs all packages that are in subscribed channels whose names begin with "rc".
 .SH "AUTHORS"
 .LP 
-Copyright 2002 Ximian, Inc.
+Copyright (C) 2002 Ximian, Inc.
 http://www.ximian.com/
 .SH "SEE ALSO"
 .LP 
-rcd(8), rcd.conf(5), rcman(1), rcreports, rc\-dump, rc\-restore, rce\-getchannels(1), red\-carpet(GNOME application), 
+rcd(8), rcd.conf(5), rcman(1), rcreports, rcmirror(1), red\-carpet(GNOME application)
 .LP 
 The graphical Red Carpet client, red\-carpet, has a manual accessible through the GNOME help system; select items from the Help menu within the application to read it. Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian. To report problems with this software or its documentation, visit http://bugzilla.ximian.com.
