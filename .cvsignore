@@ -1,3 +1,8 @@
+COPYING
+INSTALL
+install-sh
+missing
+mkinstalldirs
 Makefile
 Makefile.in
 aclocal.m4
