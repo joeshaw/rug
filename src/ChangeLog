@@ -1,5 +1,18 @@
 2003-08-28  Joe Shaw  <joe@ximian.com>
 
+	* rcchannelcmds.py: Move channel refreshing out of here.
+
+	* rcchannelutils.py: Handle the fact that channel refreshing is
+	per-service and not per-channel.
+
+	* rcservicecmds.py: Move channel refreshing into here, and update
+	for the new RPC method names.
+
+	* rcsystemcmds.py: Make a minor change for refreshing after
+	activation.
+
+2003-08-28  Joe Shaw  <joe@ximian.com>
+
 	* Makefile.am: Install rcservicecmds.py.
 
 	* rcprefscmds.py (PrefsMirrorsCmd): Remove this from here, it's in

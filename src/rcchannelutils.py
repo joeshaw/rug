@@ -150,31 +150,30 @@ def add_channel_name(server, pkg):
     pkg["channel_name"] = channel_id_to_name(server, id)
 
     
-def refresh_channels(server, channels):
+def refresh_channels(server, service=None):
     stuff_to_poll = []
-    
-    # No channels specified, so we want to refresh everything.
-    if not channels:
-        try:
-            stuff_to_poll = server.rcd.packsys.refresh_all_channels()
-        except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.locked:
-                rctalk.error("The daemon is busy processing another "
-                             "request.")
-                rctalk.error("Please try again shortly.")
-                sys.exit(1)
-            elif f.faultCode == rcfault.cant_refresh:
-                rctalk.error("Error trying to refresh: " +
-                             f.faultString)
-                sys.exit(1)
-            else:
-                raise
-        rctalk.message("Refreshing all channels")
-    else:
-        for c in channels:
-            if c:
-                stuff_to_poll.append(server.rcd.packsys.refresh_channel(c["id"]))
-                rctalk.message("Refreshing channel %s" % channel_to_str(c))
+
+    try:
+        if service:
+            stuff_to_poll = server.rcd.service.refresh(service)
+        else:
+            stuff_to_poll = server.rcd.service.refresh()
+    except ximian_xmlrpclib.Fault, f:
+        if f.faultCode == rcfault.locked:
+            rctalk.error("The daemon is busy processing another "
+                         "request.")
+            rctalk.error("Please try again shortly.")
+            sys.exit(1)
+        elif f.faultCode == rcfault.cant_refresh:
+            rctalk.error("Error trying to refresh: " +
+                         f.faultString)
+            sys.exit(1)
+        elif f.faultCode == rcfault.invalid_service:
+            rctalk.error("No service matches '%s'" % service)
+            sys.exit(1)
+        else:
+            raise
+        rctalk.message("Refreshing channel data")
 
     if stuff_to_poll:
         try:

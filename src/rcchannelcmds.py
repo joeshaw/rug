@@ -205,45 +205,6 @@ class UnsubscribeCmd(rccommand.RCCommand):
                     rctalk.warning("Attempt to unsubscribe to channel " + \
                                    rcchannelutils.channel_to_str(c) + " failed")
 
-
-class RefreshChannelCmd(rccommand.RCCommand):
-
-    def name(self):
-        return "refresh"
-
-    def aliases(self):
-        return ["ref"]
-
-    def category(self):
-        return "system"
-
-    def arguments(self):
-        return "<channel> <channel> ..."
-
-    def description_short(self):
-        return "Refresh channel data"
-
-    def execute(self, server, options_dict, non_option_args):
-
-        channels = []
-
-        # if channels is empty, that means refresh all channels.
-        if non_option_args:
-            failed = 0
-            
-            for a in non_option_args:
-                clist = rcchannelutils.get_channels_by_name(server, a)
-                if not rcchannelutils.validate_channel_list(a, clist):
-                    failed = 1
-                else:
-                    channels.append(clist[0])
-
-            if failed:
-                sys.exit(1)
-
-        rcchannelutils.refresh_channels(server, channels)
-
 rccommand.register(ListChannelsCmd)
 rccommand.register(SubscribeCmd)
 rccommand.register(UnsubscribeCmd)
-rccommand.register(RefreshChannelCmd)

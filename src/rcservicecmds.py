@@ -18,6 +18,7 @@
 import sys
 import string
 
+import rcchannelutils
 import rccommand
 import rcfault
 import rcformat
@@ -312,9 +313,37 @@ class ServiceMirrorsCmd(rccommand.RCCommand):
                     rctalk.error(f.faultString)
                 else:
                     raise
-        
+
+class ServiceRefreshCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "refresh"
+
+    def aliases(self):
+        return ["ref"]
+
+    def category(self):
+        return "system"
+
+    def arguments(self):
+        return "<service>"
+
+    def description_short(self):
+        return "Refresh channel data"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        if len(non_option_args) > 1:
+            self.usage()
+            sys.exit(1)
+
+        if non_option_args:
+            rcchannelutils.refresh_channels(server, non_option_args[0])
+        else:
+            rcchannelutils.refresh_channels(server)
 
 rccommand.register(ServiceListCmd)
 rccommand.register(ServiceAddCmd)
 rccommand.register(ServiceDeleteCmd)
 rccommand.register(ServiceMirrorsCmd)
+rccommand.register(ServiceRefreshCmd)

@@ -200,7 +200,7 @@ class ActivateCmd(rccommand.RCCommand):
                 rctalk.message("System successfully activated against %s" % s)
 
             if not options_dict.has_key("no-refresh"):
-                rcchannelutils.refresh_channels(server, [])
+                rcchannelutils.refresh_channels(server)
             
         else:
             if not err_str:
