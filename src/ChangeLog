@@ -1,5 +1,10 @@
 2003-10-29  Joe Shaw  <joe@ximian.com>
 
+	* rcchannelcmds.py (ListChannelsCmd.execute): If we can't find a
+	matching service, print an error and exit.
+
+2003-10-29  Joe Shaw  <joe@ximian.com>
+
 	* rcpackageutils.py (split_channel_and_name): Added.  Code
 	originally in find_package(), it splits out the "channel:package"
 	notation used in "rug install" and such.

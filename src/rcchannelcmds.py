@@ -64,6 +64,11 @@ class ListChannelsCmd(rccommand.RCCommand):
             services = rcserviceutils.get_services(server)
             service = rcserviceutils.find_service(services,
                                                   options_dict["service"])
+
+            if not service:
+                rctalk.error("Unknown service '%s'" % options_dict["service"])
+                sys.exit(1)
+
             channels = filter(lambda c,s=service:c.get("service") == s["id"],
                               channels)
 
