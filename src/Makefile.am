@@ -13,9 +13,11 @@ rcsupport_DATA = 		\
 	rcmain.py		\
 	rcnewscmds.py		\
 	rcpackagecmds.py	\
+	rcpackageutils.py	\
 	rcprefscmds.py		\
 	rcsystemcmds.py		\
 	rctalk.py		\
+	rctransactcmds.py	\
 	rcutil.py		\
 	rcusercmds.py		\
 	rcwhatcmds.py		\

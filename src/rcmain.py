@@ -40,6 +40,7 @@ import rcnewscmds
 import rcprefscmds
 import rcmountcmds
 import rclockcmds
+import rctransactcmds
 
 rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2003 Ximian Inc.  All Rights Reserved."

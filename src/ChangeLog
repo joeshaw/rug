@@ -1,5 +1,20 @@
 2003-05-12  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py: This file was getting too long, so I split it
+	into 3 files.  This now contains just the non-transaction related
+	packaging commands.
+
+	* rcpackageutils.py: Added.  A lot of package-related utility
+	functions, like the find_package family and get_updates().
+
+	* rctransactcmds.py: Added.  All the transaction-related commands
+	like install, remove, update, solvedeps, verify and rollback are
+	here.
+
+	* rcmain.py: Import rctransactcmds.py.
+
+2003-05-12  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageFileListCmd): Added a "file-list"
 	command which lists the files within an installed package or
 	package file.
