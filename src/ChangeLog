@@ -1,3 +1,9 @@
+2004-04-26  Tambet Ingo  <tambet@ximian.com>
+
+	* rcusercmds.py (get_password): Default to "New Password".
+	(UserAddCmd.execute): Use "New Username" to make it clearer that
+	we're asking user name for new user, not authentication info.
+
 2004-03-24  Tambet Ingo  <tambet@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoCmd.execute): Add new information to

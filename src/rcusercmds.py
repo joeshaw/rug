@@ -28,7 +28,7 @@ import rcfault
 import ximian_xmlrpclib
 
 
-def get_password(msg="Password"):
+def get_password(msg="New Password"):
     p1, p2 = "foo", "bar"
 
     while p1 != p2:
@@ -192,7 +192,7 @@ class UserAddCmd(rccommand.RCCommand):
         if non_option_args:
             username = non_option_args[0]
         else:
-            print "Username: ",
+            print "New Username: ",
 
             try:
                 username = string.strip(sys.stdin.readline())
@@ -311,7 +311,7 @@ class UserEditCmd(rccommand.RCCommand):
 
         new_password = "-*-unchanged-*-"
         if options_dict.has_key("change-password"):
-            new_password = get_password("New Password")
+            new_password = get_password()
 
         set_privs = 1
         try:
