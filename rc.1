@@ -52,6 +52,8 @@ List the locks that have been put in place. Locks are sorted by ID number.
 .TP 
 packages \fI<"channelname">\fR\fR
 List all packages in a channel. If no channel is specified, all installed packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
+<LI>
+The output for this command is in three columns. The first column indicates the status, the second the name of the package, and the third the version of the package. The package status column will be empty if the package is not installed, and will show "i" if the package is installed, or "v" if the package is installed but is a different version from the one displayed in the list.
  
 .TP  
 remove (rm, erase) \fI<packagename>\fR
@@ -81,7 +83,7 @@ Verify system dependencies. If the system dependencies are not satisfied, rc wil
 \fBChannel commands:\fR
 .TP 
 channels (ch) 
-List available channels
+List available channels. Output is in three columns: The first indicating whether you are subscribed to the channel, the second showing the short alias for the channel, and the third showing the full channel name.
 
 .TP 
 subscribe (sub)\fI<channelname>\fR
@@ -128,8 +130,8 @@ get\-prefs (get, prefs)\fR
 List the system preferences that may be set.
 
 .TP 
-set\-prefs (set) \fI<key>  \fI<value>\fR         
-Set the preference variable \fIkey\fRto the value \fI<value>\fR.
+set\-prefs (set) \fI<key> <value>\fR         
+Set the preference variable \fIkey\fR to the value \fI<value>\fR.
 Values that may be set are:
 .IP 
 \fBhost:\fR The URL of the Red Carpet Server you will be using.
@@ -530,6 +532,6 @@ Copyright (C) 2002 Ximian, Inc.
 http://www.ximian.com/
 .SH "SEE ALSO"
 .LP 
-rcd(8), rcd.conf(5), rcman(1), rcreports, rcmirror(1), red\-carpet(GNOME application)
+rcd(8), rcd.conf(5), rcman(1), rcreports, rcmirror(1)
 .LP 
 The graphical Red Carpet client, red\-carpet, has a manual accessible through the GNOME help system; select items from the Help menu within the application to read it. Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian. To report problems with this software or its documentation, visit http://bugzilla.ximian.com.
