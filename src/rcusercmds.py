@@ -125,6 +125,9 @@ class UserListCmd(rccommand.RCCommand):
     def description_short(self):
         return "List users"
 
+    def category(self):
+        return "user"
+
     def execute(self, server, options_dict, non_option_args):
         users = server.rcd.users.get_all()
         if users:
@@ -147,6 +150,9 @@ class UserAddCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "Add a new user"
+
+    def category(self):
+        return "user"
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -212,6 +218,9 @@ class UserDeleteCmd(rccommand.RCCommand):
     def description_short(self):
         return "Delete users"
 
+    def category(self):
+        return "user"
+    
     def local_opt_table(self):
         return [["s", "strict", "", "Fail if attempting to delete a non-existent user"]]
 

@@ -1,3 +1,29 @@
+2002-08-02  Jon Trowbridge  <trow@ximian.com>
+
+	* rcusercmds.py: Added categories and is_basic settings.
+
+	* rcprefscmds.py: Added categories and is_basic settings.
+
+	* rcsystemcmds.py: Added categories and is_basic settings.
+
+	* rcwhatcmds.py: Added categories and is_basic settings.
+
+	* rcpackagecmds.py: Added categories and is_basic settings.
+
+	* rcchannelcmds.py: Added categories and is_basic settings.
+
+	* rccommand.py (register): Check the is_basic flag, store it in
+	the command_dict.
+	(category_data): Added a hard-wired set of category information.
+	(print_command_list): Modified to optionally split up commands by
+	category.
+	(usage_basic): Filter on the basic flag, not a 'basic' category.
+	Print command list w/o categories.
+	(usage_full): Print command list w/ categories.
+	(RCCommand.is_basic): Added.  By default returns 0.
+	(RCCommand.category): Default is now 'other'.
+	(HelpCmd.is_basic): Returns 1.
+
 2002-08-02  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py: If -U isn't specified, use getpass.getuser() to get

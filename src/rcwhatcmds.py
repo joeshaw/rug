@@ -57,6 +57,9 @@ def dep_table(server, pairs, dep_name, by_channel = 0, no_abbrev = 0):
         if not no_abbrev:
             channel = rcformat.abbrev_channel_name(channel)
 
+        if not channel:
+            channel = "Unknown"
+
         if dep.has_key("relation"):
             dep_str = dep["relation"] + " " + evr_fn(dep)
         else:
@@ -91,6 +94,9 @@ class WhateverCmd(rccommand.RCCommand):
 
     def arguments(self):
         return "<package-dep>"
+
+    def category(self):
+        return "dependency"
 
     def local_opt_table(self):
         return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"],

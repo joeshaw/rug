@@ -50,13 +50,14 @@ def register(constructor):
     name = obj.name()
     aliases = obj.aliases()
     hidden = obj.is_hidden()
+    basic = obj.is_basic()
     description = obj.description_short() or "<No Description Available>"
     category = obj.category()
 
     if command_dict.has_key(name):
         rctalk.error("Command name collision: '"+name+"'")
     else:
-        command_dict[name] = (description, constructor, aliases, hidden, category)
+        command_dict[name] = (description, constructor, aliases, hidden, basic, category)
 
     for a in aliases:
         al = string.lower(a)
@@ -82,33 +83,76 @@ def construct(name):
 
     return cons()
 
-def print_command_list(commands):
+# It seems bad that this is hard-wired here, but I don't really see
+# any cleaner way around it
+category_data = {"package":["Package management", -1000],
+                 "dependency":["Dependency analysis", 0],
+                 "user":["User management", 0],
+                 "prefs":["Preference management", 0],
+                 "other":["Other", 10000000]}
+
+def command_sort(a, b):
+
+    a_name = string.lower(a[0])
+    b_name = string.lower(b[0])
+
+    a_cat = string.lower(a[2])
+    b_cat = string.lower(b[2])
+
+    if category_data.has_key(a_cat):
+        a_catcode = category_data[a_cat][1]
+    else:
+        a_catcode = 0
+
+    if category_data.has_key(b_cat):
+        b_catcode = category_data[b_cat][1]
+    else:
+        b_catcode = 0
+        
+    return cmp(a_catcode, b_catcode) or cmp(a_cat, b_cat) or cmp(a_name, b_name)
+
+def print_command_list(commands, with_categories=0):
 
     max_len = 0
     cmd_list = []
     
     for c in commands:
-        name, aliases, description = c
+        name, aliases, description, category = c
 
         if aliases:
             name = name + " (" + string.join(aliases, ", ") + ")"
-            
-        cmd_list.append([name, description])
+
+        cmd_list.append([name, description, category])
         max_len = max(max_len, len(name))
 
     desc_len = max_len + 4
 
+    cmd_list.sort(command_sort)
+
+    previous_category = "we will banish all dwarves from the love kingdom"
+
     for c in cmd_list:
+
+        name, description, category = c
+
+        if with_categories and category != previous_category:
+            if category_data.has_key(category):
+                category_name = category_data[category][0]
+            else:
+                category_name = string.upper(category[0]) + category[1:]
+                
+            rctalk.message("\n" + category_name + " commands:")
+            previous_category = category
 
         # If, for some reason, the command list is *really* wide (which it never should
         # be), don't do something stupid.
         if 79 - desc_len > 10:
-            desc = rcformat.linebreak(c[1], 79-desc_len)
+            desc = rcformat.linebreak(description, 79-desc_len)
         else:
-            desc = [c[1]]
+            desc = [description]
                 
         desc_first = desc.pop(0)
-        rctalk.message("  " + string.ljust(c[0], max_len) + "  " + desc_first)
+        rctalk.message("  " + string.ljust(name, max_len) + "  " + desc_first)
         for d in desc:
             rctalk.message(" " * desc_len + d)
 
@@ -122,9 +166,9 @@ def usage_basic():
         keys.sort()
         command_list = []
         for k in keys:
-            description, constructor, aliases, hidden, category  = command_dict[k]
-            if not hidden and string.lower(category) == "basic":
-                command_list.append([k, aliases, description])
+            description, constructor, aliases, hidden, basic, category  = command_dict[k]
+            if not hidden and basic:
+                command_list.append([k, aliases, description, category])
 
         rctalk.message("Some basic commands are:")
         print_command_list(command_list)
@@ -142,20 +186,17 @@ def usage_full():
 
     rctalk.message("The following options are understood by all commands:")
     rcformat.opt_table(default_opt_table)
-    rctalk.message("")
 
     keys = command_dict.keys()
 
     if keys:
-        keys.sort()
         command_list = []
         for k in keys:
-            description, constructor, aliases, hidden, category  = command_dict[k]
+            description, constructor, aliases, hidden, basic, category  = command_dict[k]
             if not hidden:
-                command_list.append([k, aliases, description])
+                command_list.append([k, aliases, description, category])
 
-        rctalk.message("Valid commands are:")
-        print_command_list(command_list)
+        print_command_list(command_list, with_categories=1)
 
         rctalk.message("")
         rctalk.message("For more detailed information about a specific command,")
@@ -281,8 +322,11 @@ class RCCommand:
     def is_hidden(self):
         return 0
 
+    def is_basic(self):
+        return 0
+
     def category(self):
-        return "unknown"
+        return "other"
 
     def arguments(self):
         return "..."
@@ -443,8 +487,8 @@ class HelpCmd(RCCommand):
     def name(self):
         return "help"
 
-    def category(self):
-        return "basic"
+    def is_basic(self):
+        return 1
 
     def description_short(self):
         return "A list of all of the available commands"

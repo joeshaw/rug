@@ -29,6 +29,9 @@ class PingCmd(rccommand.RCCommand):
     def description_short(self):
         return "Ping the server"
 
+    def category(self):
+        return "system"
+
     def execute(self, server, options_dict, non_option_args):
 
         results = server.rcd.system.ping ()
@@ -66,6 +69,9 @@ class ShutdownCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "Shut down the server"
+
+    def category(self):
+        return "system"
 
     def execute(self, server, options_dict, non_option_args):
         server.rcd.system.shutdown()

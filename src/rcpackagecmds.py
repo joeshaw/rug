@@ -201,11 +201,17 @@ class PackagesCmd(rccommand.RCCommand):
     def category(self):
         return "basic"
 
+    def is_basic(self):
+        return 1
+
     def arguments(self):
         return "<channel> <channel> ..."
 
     def description_short(self):
         return "List the packages in a channel"
+
+    def category(self):
+        return "package"
 
     def local_opt_table(self):
         return [["", "no-abbrev", "", "Do not abbreviate channel or version information"],
@@ -286,14 +292,17 @@ class PackageSearchCmd(rccommand.RCCommand):
     def name(self):
         return "search"
 
-    def category(self):
-        return "basic"
+    def is_basic(self):
+        return 1
 
     def arguments(self):
         return "<search-string> <search-string>..."
 
     def description_short(self):
         return "Search for a package"
+    
+    def category(self):
+        return "package"
         
     def local_opt_table(self):
         return [["", "match-all", "",              "Require packages to match all search strings (default)"],
@@ -503,8 +512,8 @@ class PackageUpdatesCmd(rccommand.RCCommand):
     def name(self):
         return "updates"
 
-    def category(self):
-        return "basic"
+    def is_basic(self):
+        return 1
 
     def aliases(self):
         return ["up"]
@@ -514,6 +523,9 @@ class PackageUpdatesCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "List available updates"
+
+    def category(self):
+        return "package"
 
     def local_opt_table(self):
         return [["", "sort-by-name", "", "Sort updates by name"],
@@ -551,6 +563,9 @@ class SummaryCmd(rccommand.RCCommand):
     def name(self):
         return "summary"
 
+    def is_basic(self):
+        return 1
+
     def aliases(self):
         return ["sum"]
 
@@ -559,6 +574,9 @@ class SummaryCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "Display a summary of available updates"
+
+    def category(self):
+        return "package"
 
     def local_opt_table(self):
         return [["", "no-abbrev", "", "Don't abbreviate channel names or importance levels"]]
@@ -688,7 +706,7 @@ class PackageInfoCmd(rccommand.RCCommand):
         return "info"
 
     def category(self):
-        return "basic"
+        return "package"
 
     def arguments(self):
         return "<package-name>"
@@ -786,6 +804,9 @@ class PackageInfoProvidesCmd(rccommand.RCCommand):
     def arguments(self):
         return "<package>"
 
+    def category(self):
+        return "dependency"
+
     def description_short(self):
         return "List a package's provides"
 
@@ -827,6 +848,9 @@ class PackageInfoRequirementsCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "List a package's requirements"
+
+    def category(self):
+        return "dependency"
 
     def local_opt_table(self):
         return [["i", "installed-providers", "", "If a requirement is satisifed by an installed package, don't list uninstalled packages that satisfy the same requirement. (default)"],
@@ -931,6 +955,9 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "List a package's conflicts"
+
+    def category(self):
+        return "dependency"
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -1168,7 +1195,7 @@ class PackageInstallCmd(TransactCmd):
         return "install"
 
     def category(self):
-        return "basic"
+        return "package"
 
     def arguments(self):
         return "<package-name> <package-name> ..."
@@ -1241,7 +1268,7 @@ class PackageRemoveCmd(TransactCmd):
         return "remove"
 
     def category(self):
-        return "basic"
+        return "package"
 
     def arguments(self):
         return "<package-name> <package-name> ..."
@@ -1280,7 +1307,7 @@ class PackageUpdateAllCmd(TransactCmd):
         return "update-all"
 
     def category(self):
-        return "basic"
+        return "package"
 
     def aliases(self):
         return ["ua"]
@@ -1314,7 +1341,7 @@ class PackageVerifyCmd(TransactCmd):
         return "verify"
 
     def category(self):
-        return "basic"
+        return "package"
 
     def arguments(self):
         return ""
@@ -1342,6 +1369,9 @@ class PackageSolveCmd(TransactCmd):
 
     def description_short(self):
         return "Resolve dependencies for libraries"
+
+    def category(self):
+        return "dependency"
 
     def execute(self, server, options_dict, non_option_args):
         if options_dict.has_key("dry-run"):
@@ -1402,6 +1432,9 @@ class PackageDumpCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "Get an XML dump of system information"
+
+    def category(self):
+        return "system"
 
     def execute(self, server, options_dict, non_option_args):
         if non_option_args:
