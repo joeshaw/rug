@@ -110,7 +110,6 @@ List the packages that provide with the command, library, package, or program <\
 \fBrc what\-requires\fR <\fIquerystring\fR>\fR 
 List the packages that require the command, library, package, or program <\fIquerystring\fR>.
 .SH "GLOBAL OPTIONS"
-
 .LP 
 The following options can be applied to any rc transaction:
 .TP 
@@ -337,7 +336,7 @@ This environment variable is prepended to any
 command line options that are passed to rc and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-eng\fR flag in the RC_ARGS variable; this is absurd.
 .SH "EXAMPLES"
 .LP 
-This program is normally run as root, but can be used with sudo. If you use sudo, rc will use the .rcrc file in your home directory (if any), and if you use su, rc will use the .rcrc file in root's home directory.
+When run by normal users, this program can be used to query software lists and package databases, but cannot be used to install, update, or remove software.  Those operations require root privileges and should be performed as root or with sudo. Note that rc will use the .rcrc file in the home directory of the user running the program, whether that is root, a normal user, or a normal user with sudo privileges.
 .LP 
 Here are some standard ways in which the program might be used:
 .TP 

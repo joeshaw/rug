@@ -1,4 +1,8 @@
-2002-07-15  Joe Shaw  <joe@ximian.com>
+2002-07-16 Aaron Weber <aaron@ximian.com>
+
+	* rc.1: Revise Examples.
+
+2002-07-15 Aaron Weber <aaron@ximian.com>
 
 	* Makefile.am: add man page entry
 	* rc.1: add man page itself.
