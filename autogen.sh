@@ -4,20 +4,78 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-PKG_NAME="rc"
+ORIGDIR=`pwd`
+cd $srcdir
 
-(test -f $srcdir/configure.in \
-  && test -d $srcdir/src \
-  && test -f $srcdir/src/rc.in) || {
-    echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
-    echo " top-level $PKG_NAME directory"
-    exit 1
+DIE=0
+
+# Check for autoconf, the required version is set in configure.in
+(autoconf --version) < /dev/null > /dev/null 2>&1 || {
+	echo
+	echo "You must have at minimum autoconf version 2.12 installed"
+	echo "to compile rc. Download the appropriate package for"
+	echo "your distribution, or get the source tarball at"
+	echo "ftp://ftp.gnu.org/pub/gnu/"
+	DIE=1
 }
 
-which gnome-autogen.sh || {
-    echo "You need to install gnome-common from the GNOME CVS"
-    exit 1
+# Check for libtool
+(libtool --version | egrep "1.3") > /dev/null || 
+(libtool --version | egrep "1.4") > /dev/null || {
+	echo
+	echo "You must have at minimum libtool version 1.3 installed"
+	echo "to compile rc. Download the appropriate package for"
+	echo "your distribution, or get the source tarball at"
+	echo "ftp://alpha.gnu.org/gnu/libtool-1.4.tar.gz"
+	DIE=1
 }
 
-USE_GNOME2_MACROS=1 . gnome-autogen.sh
-         
+# Check for automake, the required version is set in Makefile.am
+(automake-1.4 --version) < /dev/null > /dev/null 2>&1 ||{
+	echo
+	echo "You must have at minimum automake version 1.4 installed"
+	echo "to compile rc. Download the appropriate package for"
+	echo "your distribution, or get the source tarball at"
+	echo "ftp://ftp.cygnus.com/pub/home/tromey/automake-1.4.tar.gz"
+	DIE=1
+}
+
+
+if test "$DIE" -eq 1; then
+	exit 1
+fi
+
+(test -f src/rcmain.py) || {
+	echo "You must run this script in the top-level rc directory"
+	exit 1
+}
+
+if test -z "$*"; then
+	echo "I am going to run ./configure with no arguments - if you wish "
+        echo "to pass any to it, please specify them on the $0 command line."
+fi
+
+case $CC in
+xlc )
+  am_opt=--include-deps;;
+esac
+
+for i in .
+do 
+  echo processing $i
+  (cd $i; \
+    libtoolize --copy --force; \
+    aclocal-1.4 $ACLOCAL_FLAGS;
+    autoheader; \
+    automake-1.4 --add-missing $am_opt; \
+    autoheader; \
+    autoconf)
+done
+
+cd $ORIGDIR
+
+echo "Running $srcdir/configure --enable-maintainer-mode" "$@"
+$srcdir/configure --enable-maintainer-mode "$@"
+
+echo 
+echo "Now type 'make' to compile linc."
