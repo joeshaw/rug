@@ -1,3 +1,13 @@
+2002-07-11  Jon Trowbridge  <trow@ximian.com>
+
+	* rcwhatcmds.py: Add aliases for the what-foo commands.
+
+	* rcformat.py (opt_table): If a description of an option is too
+	long, wrap the text nicely.
+
+	* rccommand.py (usage): If a description of a command is too long,
+	wrap the text nicely.
+
 2002-07-11  Frank Belew  <frb@ximian.com>
 
 	* Makefile.am: added DESTDIR to install-exec-hook

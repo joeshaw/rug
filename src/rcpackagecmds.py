@@ -221,7 +221,7 @@ class PackageSearchCmd(rccommand.RCCommand):
 
     def description_short(self):
         return "Search for a package"
-
+        
     def local_opt_table(self):
         return [["", "match-all", "",              "Require packages to match all search strings (default)"],
                 ["", "match-any", "",              "Allow packages to match any of the search strings"],

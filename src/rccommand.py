@@ -107,8 +107,21 @@ def usage():
                 cmd_list.append([name, description])
                 max_len = max(max_len, len(name))
 
+        desc_len = max_len + 4
+
         for c in cmd_list:
-            rctalk.message("  " + string.ljust(c[0], max_len) + "  " + c[1])
+
+            # If, for some reason, the command list is *really* wide (which it never should
+            # be), don't do something stupid.
+            if 79 - desc_len > 10:
+                desc = rcformat.linebreak(c[1], 79-desc_len)
+            else:
+                desc = [c[1]]
+                
+            desc_first = desc.pop(0)
+            rctalk.message("  " + string.ljust(c[0], max_len) + "  " + desc_first)
+            for d in desc:
+                rctalk.message(" " * desc_len + d)
             
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")

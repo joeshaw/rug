@@ -283,8 +283,21 @@ def opt_table(table):
 
         opt_list.append([opt + "  ", r[3]])
 
-    aligned(opt_list)
-    
+    # By appending [0,0], we insure that this will work even if
+    # opt_list is empty (which it never should be)
+    max_len = apply(max, map(lambda x:len(x[0]), opt_list) + [0,0])
+
+    for opt, desc_str in opt_list:
+
+        if 79 - max_len > 10:
+            desc = linebreak(desc_str, 79 - max_len)
+        else:
+            desc = [desc_str]
+
+        desc_first = desc.pop(0)
+        rctalk.message(string.ljust(opt, max_len) + desc_first)
+        for d in desc:
+            rctalk.message(" " * max_len + d)
 
 
 def tabular(headers, table):

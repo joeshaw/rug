@@ -13,13 +13,3 @@ this!  (libredcarpet should be doing this stuff!)
 
 Need to format update output to be less "apt-like", to show what channel
 packages are coming in from, to show versions in --verbose mode, etc.
-
-
---------------
-
-Talk to Aaron about docs.
-
-Talk to Frank about snapshots.
-
-
-
