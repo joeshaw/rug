@@ -1,5 +1,11 @@
 2002-06-12  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageRemoveCmd): Added.
+	(transact_and_poll): Move the bulk of the transaction code into
+	here.
+
+2002-06-12  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageInstallCmd.execute): Poll on the
 	transaction ID so we can get status on the install.
 

@@ -56,13 +56,19 @@ def sort_and_format_table(package_table, multi):
         package_table.sort(lambda x, y:cmp(x[1],y[1]))
         rcformat.tabular(header[:1]+header[2:], package_table)
 
-def find_package(server, channel, package):
+def find_package_in_channel(server, channel, package):
     if channel != -1:
         [package] = server.rcd.packsys.query([["name",      "is", package],
                                               ["installed", "is", "false"],
                                               ["channel",   "is", channel]])
     else:
         package = server.rcd.packsys.find_latest_version(package)
+
+    return package
+
+def find_package_on_system(server, package):
+    [package] = server.rcd.packsys.query([["name",      "is", package],
+                                          ["installed", "is", "true"]])
 
     return package
 
@@ -220,6 +226,30 @@ class PackageUpdatesCmd(rccommand.RCCommand):
             else:
                 rctalk.message("No updates are available.")
 
+def transact_and_poll(server, packages_to_install, packages_to_remove):
+    tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove)
+    message_offset = 0
+    download_percent = 0.0
+
+    while 1:
+        tid_info = server.rcd.system.poll_pending(tid)
+
+        if tid_info["percent_complete"] > download_percent:
+            download_percent = tid_info["percent_complete"]
+            print "Download " + str(int(download_percent)) + "% complete"
+            
+        message_len = len(tid_info["messages"])
+            
+        if message_len > message_offset:
+            for e in tid_info["messages"][message_offset:]:
+                print e
+            message_offset = message_len
+                    
+        if tid_info["status"] == "finished" or tid_info["status"] == "failed":
+            break
+
+        time.sleep(1)
+
 class PackageInstallCmd(rccommand.RCCommand):
 
     def name(self):
@@ -239,7 +269,7 @@ class PackageInstallCmd(rccommand.RCCommand):
             else:
                 package = a
 
-            p = find_package(server, channel, package)
+            p = find_package_in_channel(server, channel, package)
 
             if not p:
                 rctalk.error("Unable to find package '" + package + "'")
@@ -251,31 +281,33 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to install ---")
             sys.exit(0)
 
-        tid = server.rcd.packsys.transact(packages_to_install, [])
-        message_offset = 0
-        download_percent = 0.0
+        transact_and_poll(server, packages_to_install, [])
 
-        while 1:
-            tid_info = server.rcd.system.poll_pending(tid)
+class PackageRemoveCmd(rccommand.RCCommand):
 
-            if tid_info["percent_complete"] > download_percent:
-                download_percent = tid_info["percent_complete"]
-                print "Download " + str(int(download_percent)) + "% complete"
+    def name(self):
+        return "remove"
 
-            message_len = len(tid_info["messages"])
-
-            if message_len > message_offset:
-                for e in tid_info["messages"][message_offset:]:
-                    print e
-                message_offset = message_len
-
-            if tid_info["status"] == "finished" or tid_info["status"] == "failed":
-                break
-
-            time.sleep(1)
+    def execute(self, server, options_dict, non_option_args):
+        packages_to_remove = []
         
+        for a in non_option_args:
+            p = find_package_on_system(server, a)
 
-rccommand.register(PackageListCmd, "List the packages in a channel")
-rccommand.register(PackageSearchCmd, "Search for packages matching criteria")
+            if not p:
+                rctalk.error("Unable to find package '" + a + "'")
+                sys.exit(1)
+                
+            packages_to_remove.append(p)
+
+        if not packages_to_remove:
+            rctalk.message("--- No packages to remove ---")
+            sys.exit(0)
+
+        transact_and_poll(server, [], packages_to_remove)
+
+rccommand.register(PackageListCmd,    "List the packages in a channel")
+rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")
 rccommand.register(PackageUpdatesCmd, "List pending updates")
 rccommand.register(PackageInstallCmd, "Install a package")
+rccommand.register(PackageRemoveCmd,  "Remove a package")
