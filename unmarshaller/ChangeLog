@@ -1,3 +1,9 @@
+2002-12-12  Jon Trowbridge  <trow@ximian.com>
+
+	* unmarshaller.c (unmarshaller_close): If an exception was raised
+	during our call to PyEval_CallObject, return NULL to pass it up
+	the stack.  This makes the right thing happen w/ python 2.x.
+
 2002-12-03  Jon Trowbridge  <trow@ximian.com>
 
 	* unmarshaller.c: Added a fault_cb to the PyUnmarshaller struct.

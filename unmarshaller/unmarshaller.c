@@ -82,14 +82,17 @@ static PyObject *
 unmarshaller_close (PyObject *self, PyObject *args)
 {
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    PyObject *tuple;
+    PyObject *tuple, *result;
     int i;
 
     if (unm->flavor == PY_UNMARSHALLER_FLAVOR_FAULT
         && unm->fault_cb
         && unm->stack->len > 0) {
         args = Py_BuildValue ("(O)", g_ptr_array_index (unm->stack, 0));
-        PyEval_CallObject (unm->fault_cb, args);
+        result = PyEval_CallObject (unm->fault_cb, args);
+        if (result == NULL)
+            return NULL;
+        Py_DECREF (result);
     }
 
     /* tuple-ify the stack */
