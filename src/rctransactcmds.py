@@ -461,11 +461,15 @@ class PackageInstallCmd(TransactCmd):
             rctalk.message("--- No packages to install ---")
             sys.exit(0)
 
-        install_deps, remove_deps, dep_info = \
-                      resolve_dependencies(server,
-                                           packages_to_install,
-                                           packages_to_remove,
-                                           [])
+        if not options_dict.has_key("download-only"):
+            install_deps, remove_deps, dep_info = \
+                          resolve_dependencies(server,
+                                               packages_to_install,
+                                               packages_to_remove,
+                                               [])
+        else:
+            install_deps = []
+            remove_deps = []
 
         self.transact(server, options_dict,
                       packages_to_install, install_deps,
@@ -590,11 +594,15 @@ class PackageUpdateCmd(TransactCmd):
             rctalk.message("--- No packages to update ---")
             sys.exit(0)
 
-        install_deps, remove_deps, dep_info = \
-                      resolve_dependencies(server,
-                                           packages_to_install,
-                                           [],
-                                           [])
+        if not options_dict.has_key("download-only"):
+            install_deps, remove_deps, dep_info = \
+                          resolve_dependencies(server,
+                                               packages_to_install,
+                                               [],
+                                               [])
+        else:
+            install_deps = []
+            remove_deps = []
 
         self.transact(server, options_dict,
                       packages_to_install, install_deps,
@@ -678,7 +686,7 @@ def date_converter(date_str):
     # day field (the third field) to see if it's 0, because 0 is not a
     # valid day of the month.  If that's the case, get the date using
     # localtime() and build a new tuple with our time settings.
-    if date[2] == 0:
+    if date and date[2] == 0:
         new_date = list(time.localtime())
         new_date[3:6] = list(date[3:6])
         date = tuple(new_date)
@@ -789,7 +797,7 @@ class PackageRollbackCmd(TransactCmd):
 
         download_id, transact_id, step_id = \
                      server.rcd.packsys.rollback(when, flags,
-                                                 -1, # FIXME!!!!!!!!!
+                                                 "",
                                                  rcmain.rc_name,
                                                  rcmain.rc_version)
 

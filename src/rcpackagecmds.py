@@ -1007,27 +1007,29 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
             table = []
 
             for dep in dep_info["conflicts"]:
-                conflictors = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+                provided_by = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
                 conf_dict = {}
 
                 name = rcformat.dep_to_str(dep)
-                status = ""
-                for conf in conflictors:
-                    if conf["installed"] \
-                           and not evr_eq(conf, pkg): # skip self-conflicts
-                        status = "*"
-
                 count = 0
-                for conf in conflictors:
-                    if not evr_eq(conf, pkg): # skip self-conflicts
-                        row = rcformat.package_to_row(server, conf, 0, ["name", "installed", "channel"])
-                        key = string.join(row)
-                        if not conf_dict.has_key(key):
-                            table.append([status, name] + row)
-                            conf_dict[key] = 1
-                            status = ""
-                            name = ""
-                            count = count + 1
+                for provider in provided_by:
+                    # skip self-conflicts
+                    if evr_eq(provider, pkg):
+                        continue
+
+                    if provider["installed"]:
+                        status = "*"
+                    else:
+                        status = ""
+
+                    row = rcformat.package_to_row(server, provider, 0, ["name", "installed", "channel"])
+                    key = string.join(row)
+                    if not conf_dict.has_key(key):
+                        table.append([status, name] + row)
+                        conf_dict[key] = 1
+                        status = ""
+                        name = ""
+                        count = count + 1
 
                 if count == 0:
                     table.append(["", name, "", "", ""])
@@ -1041,7 +1043,99 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
             if not table:
                 rctalk.message("--- No conflicts ---")
             else:
-                rcformat.tabular(["!", "Conflict", "Conflicts With", "S", "Channel"], table)
+                rcformat.tabular(["!", "Conflict", "Provided By", "S", "Channel"], table)
+
+            if len(plist) > 1:
+                rctalk.message("")
+                
+
+###
+### "info-obsoletes" command
+###
+
+class PackageInfoObsoletesCmd(rccommand.RCCommand):
+    
+    def name(self):
+        return "info-obsoletes"
+
+    def aliases(self):
+        return ["io"]
+
+    def arguments(self):
+        return "<package>"
+
+    def description_short(self):
+        return "List all obsoletes for the package"
+
+    def category(self):
+        return "dependency"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        if len(non_option_args) < 1:
+            self.usage()
+            sys.exit(1)
+
+        plist = []
+
+        for a in non_option_args:
+            plist = plist + rcpackageutils.find_package(server, a, 1)
+
+        if not plist:
+            rctalk.message("--- No packages found ---")
+            sys.exit(1)
+
+        for pkg in plist:
+            dep_info = server.rcd.packsys.package_dependency_info(pkg)
+
+            if not dep_info.has_key("obsoletes"):
+                continue
+
+            table = []
+
+            for dep in dep_info["obsoletes"]:
+                provided_by = map(lambda x:x[0], server.rcd.packsys.what_provides(dep))
+                ob_dict = {}
+
+                name = rcformat.dep_to_str(dep)
+                status = ""
+                for provider in provided_by:
+                    if provider["installed"]:
+                        status = "*"
+
+                count = 0
+                for provider in provided_by:
+                    # skip self-obsoletes
+                    if evr_eq(provider, pkg):
+                        continue
+
+                    if provider["installed"]:
+                        status = "*"
+                    else:
+                        status = ""
+                    
+                    row = rcformat.package_to_row(server, provider, 0, ["name", "installed", "channel"])
+                    key = string.join(row)
+                    if not ob_dict.has_key(key):
+                        table.append([status, name] + row)
+                        ob_dict[key] = 1
+                        status = ""
+                        name = ""
+                        count = count + 1
+
+                if count == 0:
+                    table.append(["", name, "", "", ""])
+                elif count > 1:
+                    table.append(["", "", "", "", ""])
+
+            if len(plist) > 1:
+                rctalk.message("--- %s %s ---" %
+                               (pkg["name"], rcformat.evr_to_str(pkg)))
+
+            if not table:
+                rctalk.message("--- No obsoletes ---")
+            else:
+                rcformat.tabular(["!", "Obsoletes", "Provided by", "S", "Channel"], table)
 
             if len(plist) > 1:
                 rctalk.message("")
@@ -1243,6 +1337,7 @@ rccommand.register(PackageInfoProvidesCmd)
 rccommand.register(PackageInfoRequirementsCmd)
 rccommand.register(PackageInfoChildrenCmd)
 rccommand.register(PackageInfoConflictsCmd)
+rccommand.register(PackageInfoObsoletesCmd)
 rccommand.register(PackageDumpCmd)
 rccommand.register(PackageDanglingRequiresCmd)
 rccommand.register(PackageFileListCmd)
