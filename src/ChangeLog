@@ -1,3 +1,8 @@
+2002-12-11  Joe Shaw  <joe@ximian.com>
+
+	* rclogcmds.py (log_entries_to_table): For terse output, include
+	the package name.  Fixes #35452.
+
 2002-12-09  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (TransactCmd.resolve_deps): When listing the

@@ -76,16 +76,22 @@ def log_entries_to_table(entries):
         pkg_final = "-"
         if x.has_key("pkg_final"):
             pkg_final = rcformat.evr_to_str(x["pkg_final"])
+
+        if x.has_key("pkg_final"):
+            pkg = x["pkg_final"]
+        else:
+            pkg = x["pkg_initial"]
                 
         log_table.append([x["time_str"],
-                          x["action"],
                           x["host"],
                           x["user"],
+                          x["action"],
+                          pkg["name"],
                           pkg_initial,
                           pkg_final])
 
     if log_table:
-        rcformat.tabular(["Time", "Action", "Host", "User", "Initial", "Final"], log_table)
+        rcformat.tabular(["Time", "Host", "User", "Action", "Package", "Initial", "Final"], log_table)
     else:
         rctalk.message("No matches.")
 
