@@ -1,3 +1,9 @@
+2002-06-10  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (install_indicator): Get the system packages
+	from the daemon so we can show if each package is installed on the
+	system.
+	
 2002-06-07  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py: Added.  Supports listing of packages in a channel.
