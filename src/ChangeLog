@@ -1,5 +1,11 @@
 2002-08-21  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageListUpdateCmd, PackageUpdateCmd): Add
+	-i/--importance options which will show or update only packages of
+	equal or greater importance.
+
+2002-08-21  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageListUpdatesCmd, SummaryCmd): Don't
 	include excluded updates in these commands, but let the user know
 	they're there.

@@ -160,6 +160,11 @@ def find_package(server, str, allow_unsub):
     return p
 
 
+update_importances = {"minor"     : 4,
+                      "feature"   : 3,
+                      "suggested" : 2,
+                      "urgent"    : 1,
+                      "necessary" : 0}
 
 def get_updates(server, non_option_args):
     up = server.rcd.packsys.get_updates()
@@ -545,17 +550,35 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
         return "package"
 
     def local_opt_table(self):
-        return [["", "sort-by-name", "", "Sort updates by name"],
-                ["", "sort-by-channel", "", "Sort updates by channel"],
-                ["", "no-abbrev", "", "Do not abbreviate channel or version information"]]
+        return [["",  "sort-by-name", "", "Sort updates by name"],
+                ["",  "sort-by-channel", "", "Sort updates by channel"],
+                ["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
+                ["i", "importance", "importance", "Show only updates as or more important than 'importance' (valid are " + str(update_importances.keys()) + ")"]]
 
     def execute(self, server, options_dict, non_option_args):
 
         no_abbrev = options_dict.has_key("no-abbrev") or \
                     options_dict.has_key("terse")
 
-        up = get_updates(server, non_option_args)
+        min_importance = None
+        if options_dict.has_key("importance"):
+            if not update_importances.has_key(options_dict["importance"]):
+                rctalk.warning("Invalid importance: " +
+                               options_dict["importance"])
+            else:
+                min_importance = update_importances[options_dict["importance"]]
 
+        update_list = get_updates(server, non_option_args)
+
+        if min_importance != None:
+            up = []
+            for u in update_list:
+                # higher priorities have lower numbers... i know, i know...
+                if u[1]["importance_num"] <= min_importance:
+                    up.append(u)
+        else:
+            up = update_list
+        
         # remove exclusions from the list
         up_len = len(up)
         up = filter(lambda x, exl=exclude_list():not x[1]["name"] in exl, up)
@@ -1424,8 +1447,29 @@ class PackageUpdateCmd(TransactCmd):
     def description_short(self):
         return "Download and install available updates"
 
+    def local_opt_table(self):
+        return [["i", "importance", "importance", "Only install updates as or more important than 'importance' (valid are " + str(update_importances.keys()) + ")"]]
+
     def execute(self, server, options_dict, non_option_args):
-        up = get_updates(server, non_option_args)
+        min_importance = None
+        if options_dict.has_key("importance"):
+            if not update_importances.has_key(options_dict["importance"]):
+                rctalk.error("Invalid importance: " +
+                             options_dict["importance"])
+                sys.exit(1)
+            else:
+                min_importance = update_importances[options_dict["importance"]]
+        
+        update_list = get_updates(server, non_option_args)
+
+        if min_importance != None:
+            up = []
+            for u in update_list:
+                # higher priorities have lower numbers... i know, i know...
+                if u[1]["importance_num"] <= min_importance:
+                    up.append(u)
+        else:
+            up = update_list
 
         # x[1] is the package to be updated
         packages_to_install = filter(lambda x, exl=exclude_list():not x["name"] in exl, map(lambda x:x[1], up))
