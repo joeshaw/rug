@@ -1,5 +1,11 @@
 2002-09-11  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (TransactCmd.transact): Filter out duplicates
+	before we resolve dependencies in case we have two different
+	versions of one package installed and try to do an upgrade on it.
+
+2002-09-11  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackagesCmd.execute): Do a "name-installed"
 	query when -i is used, so we see what packages by that name are
 	installed, but from another channel.

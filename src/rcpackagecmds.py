@@ -1207,6 +1207,15 @@ def exclude_list():
 
     return exclude
 
+def filter_dups(list):
+    for l in list:
+        count = list.count(l)
+        if count > 1:
+            for i in range(1, count):
+                list.remove(l)
+
+    return list
+
 ###
 ### Base class for all transaction-based commands
 ###
@@ -1229,6 +1238,10 @@ class TransactCmd(rccommand.RCCommand):
             if verify:
                 dep_install, dep_remove, dep_info = server.rcd.packsys.verify_dependencies()
             else:
+                install_packages = filter_dups(install_packages)
+                remove_packages = filter_dups(remove_packages)
+                extra_reqs = filter_dups(extra_reqs)
+                
                 dep_install, dep_remove, dep_info = server.rcd.packsys.resolve_dependencies(install_packages, remove_packages, extra_reqs)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.failed_dependencies:
