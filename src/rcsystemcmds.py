@@ -142,3 +142,54 @@ class ActivateCmd(rccommand.RCCommand):
 
 rccommand.register(ActivateCmd)
 
+
+class RecurringCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "recurring"
+
+    def aliases(self):
+        return ["rec"]
+
+    def description_short(self):
+        return "List information about recurring events"
+
+    def category(self):
+        return "system"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        try:
+            items = server.rcd.system.get_recurring()
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                rctalk.error("Server does not support 'recurring'.")
+                sys.exit(1)
+            else:
+                raise
+            
+        items.sort(lambda x, y: cmp(x["when"], y["when"]))
+
+        table = []
+        for rec in items:
+            next_str = "%s (%s)" % (rec["when_str"],
+                                    rcformat.seconds_to_str(rec["when_delta"]))
+            if rec.has_key("prev_str"):
+                prev_str = "%s (%s)" % (rec["prev_str"],
+                                        rcformat.seconds_to_str(rec["prev_delta"]))
+            else:
+                prev_str = ""
+                
+            row = []
+            row.append(rec["label"])
+            row.append(str(rec["count"]))
+            row.append(next_str)
+            row.append(prev_str)
+            table.append(row)
+
+        if table:
+            rcformat.tabular(["Label", "#", "Next", "Previous"], table)
+        else:
+            rctalk.message("*** No recurring events are scheduled. ***")
+
+rccommand.register(RecurringCmd)
