@@ -246,11 +246,9 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
         if stuff_to_poll:
             try:
-                count = 1
                 polling = 1
                 while polling:
                     polling = 0
-
                     percent = 0
 
                     time_remaining = -1
@@ -265,7 +263,9 @@ class RefreshChannelCmd(rccommand.RCCommand):
                             if pending.has_key("remaining_sec"):
                                 time_remaining = max(time_remaining,
                                                      pending["remaining_sec"])
-                    
+                        else:
+                            percent = percent + 100
+
                     percent = percent / len(stuff_to_poll)
                     
                     msg = "Downloading... %.f%% complete" % percent
