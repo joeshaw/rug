@@ -16,11 +16,11 @@ rug \-\-version
 rug \fI\-\-help\fR 
 .SH "DESCRIPTION"
 .LP 
-rug is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rug.
+rug is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rug. You may use one or more remote servers, known as services.
 .LP 
-Red Carpet services sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
+Red Carpet applications sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
 .LP 
-Red Carpet services, including rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
+Red Carpet applications, including rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
 .LP 
 Note: Previous versions of this software were known as \fIrc\fR, but due to a conflict with another package the application has been renamed. Other related software names, such as rcd, rcman, and red\-carpet, have not been affected. The \fIrug\fR command now uses the \fI.rugrc\fR configuration file and the \fIRUG_ARGS\fR environment variable. The older \fI.rcrc\fR and \fIRC_ARGS\fR are accepted if the new forms are absent.
 .SH "COMMANDS"
@@ -180,8 +180,8 @@ Set the preference variable \fIkey\fR to the value \fI<value>\fR. Options are no
 \fBSystem commands:\fR
 .br 
 .TP 
-activate (act)<activation code> <email address>
-Activates the machine for a premium server, allowing it access to private channels hosted there.
+activate (act) \fI<activation code> <email address>\fR
+Activates the machine for a premium server, allowing it access to private channels hosted there. If you use multiple servers, you must specify the server with the \fI\-s <URL>\fR flag. See the COMMAND OPTIONS section for more details.
 
 .TP 
 dump
@@ -335,6 +335,8 @@ Many rug commands have options which apply only to them.  They are listed here a
 .TP 
 \fBrug activate (act)\fR
 .B \fI\-n, \-\-no\-refresh\fR: Do not refresh the channel data after activation.
+.B \fI\-s, \-\-service\fR: If you are using multiple servers, use this flag to specify which one. Follow the flag with a space and the full URL of the server.
+.B \fI\-a, \-\-alias\fR: Specify the alias for this machine; the alias is displayed to the server administrator. This option is useful only with Red Carpet Enterprise servers.
 
 .TP 
 \fBrug channels (ch)\fR
