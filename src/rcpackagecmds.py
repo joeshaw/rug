@@ -358,7 +358,7 @@ class PackagesCmd(rccommand.RCCommand):
 
         else:
             if options_dict.has_key("uninstalled-only"):
-                query = [["installed", "=", "false"]]
+                query = [["name-installed", "=", "false"]]
             else:
                 query = [["installed", "=", "true"]]
 
