@@ -1,3 +1,9 @@
+2003-07-08  Joe Shaw  <joe@ximian.com>
+
+	* ximian_xmlrpclib.py (Transport.parse_response): Just move past
+	garbage found initially on the wire.  This causes fewer problems
+	passing control back to things making XML-RPC calls.
+
 2003-07-07  Joe Shaw  <joe@ximian.com>
 
 	* ximian_xmlrpclib.py (Transport.parse_response): Catch a

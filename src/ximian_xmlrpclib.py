@@ -576,7 +576,6 @@ class _Method:
     def __call__(self, *args):
         return self.__send(self.__name, args)
 
-
 class Transport:
     """Handles an HTTP transaction to an XML-RPC server."""
 
@@ -733,6 +732,7 @@ class Transport:
 
         my_thread = threading.currentThread()
         unmarshaller = ximian_unmarshaller.new(binary_cb, boolean_cb, fault_cb)
+        first_pass = 1
         while 1:
             if my_thread in self.__cancelled:
                 f.close()
@@ -741,17 +741,24 @@ class Transport:
             response = f.read(1024)
             if not response:
                 break
+
             if self.verbose:
                 print "body:", repr(response)
 
             # FIXME: This is evil and wrong and papers over what appears
             # to be a race in rcd.  Essentially there is garbage on the
             # wire, including null bytes, and the unmarshaller will throw
-            # a TypeError if this happens.
-            try:
-                unmarshaller.feed(response, 0)
-            except TypeError:
-                break
+            # a TypeError if this happens, so we move past the bad data
+            # to the start of the actual XML
+            if first_pass:
+                ind = string.index(response, "<?xml")
+                if self.verbose and ind > 0:
+                    print "Moving past %d bad bytes" % ind
+                response = response[ind:]
+
+            unmarshaller.feed(response, 0)
+
+            first_pass = 0
 
         f.close()
         unmarshaller.feed("", 1)
