@@ -205,6 +205,11 @@ class PackagesCmd(rccommand.RCCommand):
                 ["", "show-package-ids",   "",     "Show package IDs"],
                 ["", "no-abbrev", "",              "Don't abbreviate channel or version information"]]
 
+    def local_orthogonal_opts(self):
+        return [["match-any", "match-all"],
+                ["match-substrings", "match-words"],
+                ["installed-only", "uninstalled-only"]]
+
     def execute(self, server, options_dict, non_option_args):
 
         if options_dict.has_key("search-descriptions"):
@@ -218,8 +223,8 @@ class PackagesCmd(rccommand.RCCommand):
             op = "contains"
 
         query = []
-        for str in non_option_args:
-            query.append([key, op, str])
+        for s in non_option_args:
+            query.append([key, op, s])
 
         if query and options_dict.has_key("match-any"):
             query.insert(0, ["", "begin-or", ""])
@@ -231,7 +236,13 @@ class PackagesCmd(rccommand.RCCommand):
             query.append(["installed", "=", "false"])
 
         if options_dict.has_key("channel"):
-            query.append(["channel", "=", options_dict["channel"]])
+            cname = options_dict["channel"]
+            clist = rcchannelcmds.get_channels_by_name(server,cname)
+            if not rcchannelcmds.validate_channel_list(cname, clist):
+                sys.exit(1)
+            c = clist[0]
+
+            query.append(["channel", "=", str(c["id"])])
 
         packages = server.rcd.packsys.search(query)
 

@@ -106,7 +106,6 @@ def main(rc_version):
     if "--ignore-rc-file" not in argv:
         try:
             rcrc = open(os.path.expanduser("~/.rcrc"), "r")
-            print rcrc
             while 1:
                 line = rcrc.readline()
                 if not line:

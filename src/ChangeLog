@@ -1,3 +1,12 @@
+2002-06-28  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackagesCmd.local_orthogonal_opts): Added.
+	(PackagesCmd.execute): Don't use "str" as a variable name.
+	Use the string->channel functions from rcchannelcmds.py
+	on the argument to the --channel option.
+
+	* rcmain.py: Remove some spew.
+
 2002-06-27  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackagesCmd.execute): If the --match-word
