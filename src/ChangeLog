@@ -1,3 +1,8 @@
+2002-10-11  Joe Shaw  <joe@ximian.com>
+
+	* rcprefscmds.py (PrefsListCmd): add a -d option to not show the
+	descriptions.
+
 2002-10-10  Joe Shaw  <joe@ximian.com>
 
 	* rcfault.py: Added undefined_method fault.

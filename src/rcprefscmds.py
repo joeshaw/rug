@@ -96,14 +96,21 @@ class PrefsListCmd(rccommand.RCCommand):
     def category(self):
         return "prefs"
 
+    def local_opt_table(self):
+        return [["d", "no-descriptions", "", "Do not show descriptions of the preferences"]]
+
     def execute(self, server, options_dict, non_option_args):
         headers = ["Name", "Value"]
         pref_table = []
         
         if not non_option_args:
-            headers.append("Description")
-            pref_table = map(lambda p:[p["name"], str(p["value"]), p["description"]],
-                             server.rcd.prefs.list_prefs())
+            if options_dict.has_key("no-descriptions"):
+                f = lambda p:[p["name"], str(p["value"])]
+            else:
+                headers.append("Description")
+                f = lambda p:[p["name"], str(p["value"]), p["description"]]
+
+            pref_table = map(f, server.rcd.prefs.list_prefs())
         else:
             for a in non_option_args:
                 try:
