@@ -1,3 +1,14 @@
+2004-09-21  Tambet Ingo  <tambet@ximian.com>
+
+	* ximian_unmarshaller/unmarshaller.c (node_new): Use
+	g_value_take_boxed, as we don't want it to make copy of value.
+	(node_push): g_value_array_append() makes copy of data, so free
+	it after insertion.
+	(g_value_to_PyObject): PyDict_SetItem () increfs key and value,
+	decref them after insertion.
+	(unmarshaller_dealloc): Free the root node after unsetting.
+	Make it build cleanly.
+
 2003-09-11  Frank Belew  <frb@ximian.com>
 
 	* Makefile.am: don't hardcode "python" use $(PYTHON)

@@ -22,10 +22,10 @@
  * USA.
  */
 
+#include <Python.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <expat.h>
-#include <Python.h>
 
 
 #define G_TYPE_BASE64 base64_get_type()
@@ -107,7 +107,7 @@ node_new (GType type, GValue *parent, GValueArray *array)
 	node->parent = parent;
 	node->array = array;
 
-	g_value_set_boxed (self, (gpointer) node);
+	g_value_take_boxed (self, (gpointer) node);
 	return self;
 }
 
@@ -140,7 +140,9 @@ node_push (GValue *self, GValue *child)
 
 	node = (Node *) g_value_get_boxed (self);
 	node->array = g_value_array_append (node->array,
-								 child);
+                                        child);
+    g_value_unset (child);
+    g_free (child);
 }
 
 static GValue *
@@ -193,7 +195,6 @@ struct _PyUnmarshaller {
     enum PyUnmarshallerFlavor flavor;
     GValue    *stack;
     GValue    *cursor;
-    GSList    *marks;
     GString   *data;
     char      *methodname;
     char      *encoding;
@@ -315,9 +316,12 @@ g_value_to_PyObject (GValue *val, PyObject *boolean_cb, PyObject *base64_cb)
                 GValue *key = node_children_nth (val, i);
                 GValue *v = node_children_nth (val, ++i);
 
-                PyDict_SetItem (obj,
-                                g_value_to_PyObject (key, boolean_cb, base64_cb),
-                                g_value_to_PyObject (v, boolean_cb, base64_cb));
+                PyObject *py_key = g_value_to_PyObject (key, boolean_cb, base64_cb);
+                PyObject *py_val = g_value_to_PyObject (v, boolean_cb, base64_cb);
+
+                PyDict_SetItem (obj, py_key, py_val);
+                Py_XDECREF (py_key);
+                Py_XDECREF (py_val);
             }
         } else if (type == G_TYPE_BASE64) {
             obj = g_value_base64_to_PyObject(val, base64_cb);
@@ -537,11 +541,13 @@ end_base64 (PyUnmarshaller *unm, const char *data)
 #endif
 }
 
+#if 0
 static void
 end_dateTime (PyUnmarshaller *unm, const char *data)
 {
     g_assert_not_reached ();
 }
+#endif
 
 static void
 end_value (PyUnmarshaller *unm, const char *data)
@@ -562,6 +568,7 @@ end_fault (PyUnmarshaller *unm, const char *data)
     unm->flavor = PY_UNMARSHALLER_FLAVOR_FAULT;
 }
 
+#if 0
 static void
 end_methodName (PyUnmarshaller *unm, const char *data)
 {
@@ -569,6 +576,7 @@ end_methodName (PyUnmarshaller *unm, const char *data)
     unm->methodname = g_strdup (data);
     unm->flavor = PY_UNMARSHALLER_FLAVOR_METHODNAME;
 }
+#endif
 
 static void
 end_element_cb (gpointer self, const char *name)
@@ -661,7 +669,6 @@ unmarshaller_new (PyObject *self, PyObject *args)
     unm->flavor = PY_UNMARSHALLER_FLAVOR_NONE;
     unm->stack = list_new (NULL, g_value_array_new (0));
     unm->cursor = unm->stack;
-    unm->marks = NULL;
     unm->data = g_string_new ("");
     unm->methodname = NULL;
     unm->encoding = g_strdup ("utf-8");
@@ -680,13 +687,12 @@ static void
 unmarshaller_dealloc (PyObject *self)
 {
     PyUnmarshaller *unm = (PyUnmarshaller *) self;
-    int i;
 
-    XML_ParserFree(unm->parser);
+    XML_ParserFree (unm->parser);
 
     g_value_unset (unm->stack);
+    g_free (unm->stack);
 
-    g_slist_free (unm->marks);
     g_string_free (unm->data, TRUE);
     g_free (unm->methodname);
     g_free (unm->encoding);
