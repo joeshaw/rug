@@ -10,4 +10,7 @@ since he knows about words and stuff.
 Add a 'debug' command that gets and spits out an XMLified version of
 the RCWorld.  (This will replace cur_to_xml.)
 
+Do we do anything in the way of checks to make sure that there is
+enough disk space to download/install the packages we need to install?
+If not, we need to add this!
 
