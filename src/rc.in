@@ -19,12 +19,6 @@
 
 import sys
 import os
-import string
-import getopt
-
-# For exception handling.
-import socket
-import cgiwrap
 
 rc_dir = "@DDIR@/rc"
 rc_version = "@VERSION@"
@@ -42,7 +36,6 @@ if not (os.path.isfile("./rcmain.py") \
 
 sys.path.append(rc_dir)
 import rcmain
-
 
 if "--rc-profile" in sys.argv:
     import profile
