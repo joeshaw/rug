@@ -22,28 +22,14 @@ import rcformat
 import rccommand
 import rcchannelcmds
 
-cached_system_packages = {}
-
 def get_packages(server, channel):
     return server.rcd.packsys.query([["channel","is",str(channel["id"])]])
 
 def get_system_packages(server):
-    global cached_system_packages
-    if not cached_system_packages:
-        system_packages = server.rcd.packsys.query([["installed","is","true"]])
-        for a in system_packages:
-            cached_system_packages[a["name"]] = a
-    else:
-        system_packages = cached_system_packages.values();
-
-    return system_packages;
+    return server.rcd.packsys.query([["installed","is","true"]])
 
 def install_indicator(server, package):
-    global cached_system_packages
-    if not cached_system_packages:
-        get_system_packages(server)
-
-    if cached_system_packages.has_key(package["name"]):
+    if package["installed"]:
         return "i"
     else:
         return ""
@@ -54,7 +40,7 @@ def append_to_table(server, package_table, p, multi):
            p["name"],
            rcformat.display_version(p)]
 
-    if multi:
+    if multi or rctalk.be_terse:
         package_table.append(row)
     else:
         package_table.append(row[:1]+row[2:])
@@ -62,7 +48,7 @@ def append_to_table(server, package_table, p, multi):
 def sort_and_format_table(package_table, multi):
     header = ["S", "Channel", "Name", "Version"]
 
-    if multi:
+    if multi or rctalk.be_terse:
         package_table.sort(lambda x, y:cmp(x[2],y[2]))
         rcformat.tabular(header, package_table)
     else:
@@ -127,7 +113,6 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["s", "search-summary", "", "Search summary"],
                 ["d", "search-description", "", "Search description"],
                 ["v", "search-version", "", "Search version"],
-                ["u", "search-updates", "", "Search updates"],
                 ["p", "show-package-ids", "", "Show package IDs for each package"],
                 ["c", "channel", "channel id", "Search in a specific channel"]]
 
@@ -142,26 +127,31 @@ class PackageSearchCmd(rccommand.RCCommand):
             search_type = "description"
         elif options_dict.has_key("search-version"):
             search_type = "version"
-        elif options_dict.has_key("search-updates"):
-            search_type = "needs_upgrade"
 
-        # FIXME: Handle -c
-        if search_type == "needs_upgrade":
-            packages = server.rcd.packsys.query([[search_type, "is", "true"]])
+        if not non_option_args:
+            self.usage()
+            sys.exit(1)
+
+        multi = 0
+        # FIXME: This should support multiple channels
+        if options_dict.has_key("channel"):
+            if string.lower(options_dict["channel"]) == "all":
+                channel = -1
+                multi = 1
+            else:
+                channel = int(options_dict["channel"])
         else:
-            if not non_option_args:
-                self.usage()
-                sys.exit(1)
+            channel = 0
 
-            packages = server.rcd.packsys.query([[search_type, "contains", non_option_args[0]]])
+        packages = server.rcd.packsys.query([[search_type, "contains", non_option_args[0]]])
         
         # FIXME: Check for -p
         for p in packages:
-            package_table.append([install_indicator(server, p), str(p["channel"]), p["name"], rcformat.display_version(p)])
+            if (channel == -1 and p["channel"] != 0) or (channel == p["channel"]):
+                append_to_table(server, package_table, p, multi)
 
         if package_table:
-            package_table.sort(lambda x, y:cmp(x[2],y[2]))
-            rcformat.tabular(["S", "Channel", "Name", "Version"], package_table)
+            sort_and_format_table(package_table, multi)
         else:
             rctalk.message("--- No packages found ---")
 

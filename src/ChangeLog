@@ -1,3 +1,17 @@
+2002-06-11  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (install_indicator): Get rid of the global
+	package cache, it's no longer necessary, this speeds package
+	listing and searching a ton.
+	(append_to_table, sort_and_format_table): If rctalk.be_terse is
+	set, always specify the	channel ID (for ease in scripting)
+	(PackageSearchCmd.local_opt_table): Drop the "search-updates"
+	switch from the	list.
+	(PackageSearchCmd.execute): Allow a channel (or "all") to be
+	specified with the -c option.  If not presented, search system
+	packages.  Use the append_to_table() and sort_and_format_table()
+	functions.
+
 2002-06-11  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageListCmd.execute): Allow channels to be
