@@ -36,4 +36,12 @@ except:
     sys.exit(1)
 
 rc_version = "@VERSION@"
-rcmain.main(rc_version)
+
+if "--rc-profile" in sys.argv:
+    import profile
+    sys.stderr.write("*** Profiling Enabled ***\n")
+    sys.argv = filter(lambda x:x != "--profile", sys.argv)
+    profile.run("rcmain.main(rc_version)")
+else:
+    rcmain.main(rc_version)
+    

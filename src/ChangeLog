@@ -1,3 +1,8 @@
+2002-06-24  Jon Trowbridge  <trow@ximian.com>
+
+	* rc.in: Check for a magic --profile option, and run rc under the
+	python profiler if it is present.
+
 2002-06-21  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): If we don't get the HTTP error code or XML-RPC
