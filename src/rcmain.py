@@ -20,6 +20,7 @@
 import sys
 import string
 import getpass
+import os
 
 # For exception handling.
 import socket
@@ -94,7 +95,7 @@ def main(rc_version):
         if string.find(host, ":") == -1:
             host = host + ":5505"
 
-        url = "http://" + host + "/RPC2"
+        url = "https://" + host + "/RPC2"
 
         if (opt_dict.has_key("user")):
             username = opt_dict["user"]
@@ -107,10 +108,16 @@ def main(rc_version):
     else:
         url = "/tmp/rcd"
 
+    if os.environ.has_key("RC_TRANSPORT_DEBUG"):
+        transport_debug = 1
+    else:
+        transport_debug = 0
+
     try:
         server = ximian_xmlrpclib.Server(url,
                                          auth_username=username,
-                                         auth_password=password)
+                                         auth_password=password,
+                                         verbose=transport_debug)
     except:
         rctalk.error("Unable to connect to the daemon.")
         sys.exit(1)
