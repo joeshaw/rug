@@ -1,5 +1,16 @@
 2002-07-02  Jon Trowbridge  <trow@ximian.com>
 
+	* rcmain.py: Removed some debug spew that somehow got left in.
+
+	* rcformat.py: Replaced some "print"s with rctalk.foo calls.
+	(seconds_to_str): Added.
+	(bytes_to_str): Added.
+	(pending_to_str): Use seconds_to_str and bytes_to_str for nicer
+	output.
+
+	* rccommand.py: Replace a number of "print" statements
+	with calls to rctalk.message, rctalk.warning, etc.
+
 	* rcpackagecmds.py (PackageSearchCmd.execute): If
 	--search-descriptions is set, use the "text" key for the search.
 

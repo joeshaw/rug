@@ -15,8 +15,10 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ###
 
+import sys
 import string
 import rcformat
+import rctalk
 
 command_dict = {}
 
@@ -24,7 +26,7 @@ def register(constructor, description):
     obj = constructor()
     name = obj.name()
     if command_dict.has_key(name):
-        print "Command name collision: '"+name+"'"
+        rctalk.error("Command name collision: '"+name+"'")
     else:
         command_dict[name] = (description, constructor)
 
@@ -40,12 +42,13 @@ def construct(name):
             matches.append(n)
 
     if len(matches) == 0:
-        print "Unknown command."
+        rctalk.warning("Unknown command.")
         return None
 
     if len(matches) > 1:
-        print "Ambiguous command:"
-        print "'"+name+"' matches "+ string.join(matches, ", ")
+        rctalk.warning("Ambiguous command")
+        rctalk.warning("'"+name+"' matches "+ string.join(matches, ", "))
+        sys.exit(1)
         return None
         
     cons = (command_dict[matches[0]])[1]
@@ -53,17 +56,17 @@ def construct(name):
 
 
 def usage():
-    print "Usage: rc <command> <options> ..."
-    print
-    print "Valid commands are:"
+    rctalk.message("Usage: rc <command> <options> ...")
+    rctalk.message("")
+    rctalk.message("Valid commands are:")
     keys = command_dict.keys()
     if keys:
         keys.sort()
         max_len = apply(max,map(len, keys))
         for k in keys:
-            print "  " + string.ljust(k, max_len) + "  " + command_dict[k][0]
+            rctalk.message("  " + string.ljust(k, max_len) + "  " + command_dict[k][0])
     else:
-        print "<< No commands found --- something is wrong! >>"
+        rctalk.error("<< No commands found --- something is wrong! >>")
 
 default_opt_table = [
     ["U", "user",     "username", "Specify user name"],
@@ -115,19 +118,19 @@ class RCCommand:
     def usage(self):
         opts = self.default_opt_table()
         if opts:
-            print "General Options:"
+            rctalk.message("General Options:")
             rcformat.opt_table(opts)
-            print
+            rctalk.message("")
 
         opts = self.local_opt_table()
         if opts:
-            print "'" + self.name() + "' Options:"
+            rctalk.message("'" + self.name() + "' Options:")
             rcformat.opt_table(opts)
-            print
+            rctalk.message("")
         
 
     def execute(self, server, options_dict, non_option_args):
-        print "Execute not implemented!"
+        rctalk.error("Execute not implemented!")
         sys.exit(1)
 
     

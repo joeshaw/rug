@@ -121,6 +121,37 @@ def abbrev_importance(str):
     return str[0:3]
 
 
+## Format quantities of seconds
+
+def seconds_to_str(t):
+
+    h = int(t/3600)
+    m = int((t % 3600)/60)
+    s = t % 60
+
+    if h > 0:
+        return "%dh%02dm%0ds" % (h, m, s)
+        return "%ds" % t
+    elif m > 0:
+        return "%dm%02ds" % (m, s)
+    else:
+        return "%ds" % s
+
+
+## Format quantities of bytes
+
+def bytes_to_str(x):
+
+    for fmt in ("%db", "%.2fk", "%.2fM", "%.2fg"):
+
+        if x < 1024:
+            return fmt % x
+
+        x = x / 1024.0
+
+    return "!!!"
+
+
 ## Format pending strings
 
 def pending_to_str(p):
@@ -135,9 +166,9 @@ def pending_to_str(p):
     msg = msg + " " + hashes
     
     if p.has_key("completed_size") and p.has_key("total_size"):
-        cs = p["completed_size"]
-        ts = p["total_size"]
-        msg = msg + " (" + str(cs) + "/" + str(ts) + ")"
+        cs = bytes_to_str(p["completed_size"])
+        ts = bytes_to_str(p["total_size"])
+        msg = msg + " (" + cs + "/" + ts + ")"
 
     status = p["status"]
 
@@ -146,12 +177,12 @@ def pending_to_str(p):
         if p.has_key("elapsed_sec"):
             elap = p["elapsed_sec"]
             if elap >= 0:
-                msg = msg + ", " + str(elap) + "s elapsed"
+                msg = msg + ", " + seconds_to_str(elap) + " elapsed"
 
                 if p.has_key("remaining_sec"):
                     rem = p["remaining_sec"]
                     if rem >= 0:
-                        msg = msg + ", " + str(rem) + "s remaining"
+                        msg = msg + ", " + seconds_to_str(rem) + " remaining"
 
     else:
 
@@ -168,7 +199,7 @@ def pending_to_str(p):
 def separated(table, separator):
 
     for r in table:
-        print string.join(clean_row(r, separator), separator + " ")
+        rctalk.message(string.join(clean_row(r, separator), separator + " "))
 
 
 def aligned(table):
@@ -176,7 +207,7 @@ def aligned(table):
     col_sizes = max_col_widths(table)
 
     for r in table:
-        print string.join(pad_row(r, col_sizes), " ")
+        rctalk.message(string.join(pad_row(r, col_sizes), " "))
 
 
 def opt_table(table):
@@ -210,14 +241,14 @@ def tabular(headers, table):
         col_sizes = map(max, map(len,headers), col_sizes)
 
         # print headers
-        print string.join(pad_row(headers, col_sizes), " | ")
+        rctalk.message(string.join(pad_row(headers, col_sizes), " | "))
 
         # print head/body separator
-        print string.join (map(lambda x:stutter("-",x), col_sizes), "-+-")
+        rctalk.message(string.join (map(lambda x:stutter("-",x), col_sizes), "-+-"))
 
     # print table body
     for r in table:
-        print row_to_string(r, col_sizes)
+        rctalk.message(row_to_string(r, col_sizes))
 
 ###
 ### Format transaction status messages into readable text

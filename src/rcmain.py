@@ -216,8 +216,6 @@ def main(rc_version):
             optlist[i] = ("--" + short2long_dict[key[1:]], optlist[i][1])
         i = i + 1
 
-    print optlist
-
     ###
     ### Store our options in a dictionary
     ###

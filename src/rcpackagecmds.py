@@ -676,9 +676,7 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
 rccommand.register(PackageListCmd,    "List the packages in a channel")
-
 rccommand.register(PackageSearchCmd,  "Search for a package")
-
 rccommand.register(PackageUpdatesCmd, "List pending updates")
 rccommand.register(PackageInfoCmd,    "Show info on a package")
 rccommand.register(PackageInstallCmd, "Install a package")
