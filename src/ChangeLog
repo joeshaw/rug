@@ -1,3 +1,7 @@
+2002-10-18  Jon Trowbridge  <trow@ximian.com>
+
+	* Makefile.am (rcsupport_DATA): Added rclockcmds.py.
+
 2002-10-17  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageSearchCmd): Added the ability to filter
