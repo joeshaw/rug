@@ -815,7 +815,14 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to install ---")
             sys.exit(0)
 
-        dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
+        try:
+            dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -604:
+                rctalk.error (f.faultString);
+                sys.exit(1);
+            else:
+                raise
 
         if rctalk.show_verbose:
             rctalk.message("The following requested packages will be installed:")
@@ -876,7 +883,14 @@ class PackageRemoveCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to remove ---")
             sys.exit(0)
 
-        dep_install, dep_remove = server.rcd.packsys.resolve_dependencies([], packages_to_remove)
+        try:
+            dep_install, dep_remove = server.rcd.packsys.resolve_dependencies([], packages_to_remove)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -604:
+                rctalk.error (f.faultString);
+                sys.exit(1);
+            else:
+                raise
 
         if rctalk.show_verbose:
             rctalk.message("The following requested packages will be REMOVED:")
@@ -928,7 +942,14 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
             rctalk.message("--- No packages to update ---")
             sys.exit(0)
 
-        dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
+        try:
+            dep_install, dep_remove = server.rcd.packsys.resolve_dependencies(packages_to_install, [])
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -604:
+                rctalk.error (f.faultString);
+                sys.exit(1);
+            else:
+                raise
 
         rctalk.message("The following packages will be updated:")
         format_dependencies(packages_to_install)
@@ -974,7 +995,14 @@ class PackageVerifyCmd(rccommand.RCCommand):
                 ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
 
     def execute(self, server, options_dict, non_option_args):
-        dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
+        try:
+            dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == -604:
+                rctalk.error (f.faultString);
+                sys.exit(1);
+            else:
+                raise
 
         if dep_install:
             rctalk.message("The following packages must be installed:")
