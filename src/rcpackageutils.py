@@ -176,6 +176,9 @@ def find_local_package(server, package):
         if eno == errno.ENOENT:
             # No such file or directory.
             return None
+        elif eno == errno.EPERM or eno == errno.EACCES:
+            # Operation not permitted / Permission denied
+            return None
         else:
             raise
 

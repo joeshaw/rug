@@ -1,3 +1,8 @@
+2004-01-08  Joe Shaw  <joe@ximian.com>
+
+	* rcpackageutils.py (find_local_package): Handle EPERM and EACCES
+	when calling os.stat().  Fixes #52682.
+
 2003-12-02  Tambet Ingo  <tambet@ximian.com>
 
 	* ximian_xmlrpclib.py (Marshaller.dump_boolean): Implement. Without
