@@ -1,3 +1,10 @@
+2003-01-28  Joe Shaw  <joe@ximian.com>
+
+	* rcusercmds.py (UserEditCmd.execute): Don't allow the user to
+	mess with privileges if they're not a superuser (we still show it
+	if the daemon doesn't have the has_privilege call for backward
+	compatibility)
+
 2003-01-25  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageDanglingRequiresCmd): Added

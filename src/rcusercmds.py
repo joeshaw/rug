@@ -24,6 +24,8 @@ import rcutil
 import rctalk
 import rcformat
 import rccommand
+import rcfault
+import ximian_xmlrpclib
 
 
 def get_password(msg="Password"):
@@ -294,17 +296,35 @@ class UserEditCmd(rccommand.RCCommand):
         new_password = "-*-unchanged-*-"
         if options_dict.has_key("change-password"):
             new_password = get_password("New Password")
-            
-        user = matching[0]
-        current_privs = string.split(user[1], ", ")
 
-        valid_privs = map(string.lower,
-                          server.rcd.users.get_valid_privileges())
-        new_privs = get_privileges(current_privs, valid_privs)
-        new_privs_str = string.join(new_privs, ", ")
+        set_privs = 1
+        try:
+            set_privs = server.rcd.users.has_privilege("superuser")
+        except ximian_xmlrpclib.Fault, f:
+            # If our daemon doesn't have has_privilege, just let them
+            # try.
+            if f.faultCode != rcfault.undefined_method:
+                raise
+
+        if set_privs:
+            user = matching[0]
+            current_privs = string.split(user[1], ", ")
+
+            valid_privs = map(string.lower,
+                              server.rcd.users.get_valid_privileges())
+            new_privs = get_privileges(current_privs, valid_privs)
+            new_privs_str = string.join(new_privs, ", ")
+        else:
+            new_privs_str = "-*-unchanged-*-"
+
+        if not set_privs and not options_dict.has_key("change-password"):
+            # Lame.  Fake a permission denied fault so the user gets the
+            # stock "no permissions error"
+            raise ximian_xmlrpclib.Fault(rcfault.permission_denied,
+                                         "Permission denied")
 
         rctalk.message("")
-
+        
         if server.rcd.users.update(username, new_password, new_privs_str):
             rctalk.message("Saved changes to user '%s'" % username)
         else:
