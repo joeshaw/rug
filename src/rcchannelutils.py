@@ -80,7 +80,7 @@ def get_channels_by_name(server, in_str):
         match = 0
 
         chan_name = string.lower(c["name"])
-        chan_alias = get_channel_alias(c)
+        chan_alias = string.lower(get_channel_alias(c))
         
         chan_initials = reduce(lambda x,y:x+y,
                                map(lambda x:x[0],
