@@ -1,4 +1,4 @@
-.\" Copyright (C) Ximian, Inc. 2002-2003. 
+.\" Copyright (C) Ximian, Inc. 2002-2004. 
 .\" Please visit bugzilla.ximian.com to report problems with the software or its documentation.
 .TH "rug" "1" "1.0" "Ximian, Inc." "Ximian Red Carpet Software Management Tools"
 .SH "NAME"
@@ -20,7 +20,7 @@ rug is the command\-line complement to the Ximian Red Carpet software management
 .LP 
 Red Carpet applications sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
 .LP 
-Red Carpet applications, including rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
+Red Carpet applications, incding rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
 .LP 
 Note: Previous versions of this software were known as \fIrc\fR, but due to a conflict with another package the application has been renamed. Other related software names, such as rcd, rcman, and red\-carpet, have not been affected. The \fIrug\fR command now uses the \fI.rugrc\fR configuration file and the \fIRUG_ARGS\fR environment variable. The older \fI.rcrc\fR and \fIRC_ARGS\fR are accepted if the new forms are absent.
 .SH "COMMANDS"
@@ -35,13 +35,12 @@ The most commonly used command is \fIrug update\fR which downloads and installs 
 Note that you may substitute standard shell wildcards in package names, although not in channel names. If you need to specify a channel, prepend the channel name and a colon to the package. For example: \fBrug in evolution\-devel\-snapshots:evolution\fR will install the "evolution" package from the "evolution\-devel\-snapshots" channel, rather than from other channels such as "evolution\-snapshots." If you do not specify a channel, the newest package will be installed. If there are two equal versions, the package from the channel with the higher priority (set by the server administrator) will be installed.
 
 .TP 
-info [packagename]
+info (if) [packagename]
 Show detailed information about a package. Multiple packages may be listed, separated by spaces. Accepts the flag \fI\-u, \-\-allow\-unsubscribed\fR, to search in channels to which you are not subscribed, as well as subscribed channels.
 
 .TP 
 install (in) [packagename]
 Install the specified package or packages. Multiple packages may be listed, separated by spaces. If \fIpackagename\fR designates a package which you already have installed, but for which a newer version is available, the new version will be downloaded and installed. 
-
 
 The install command accepts the following option flags:
 .IP 
@@ -120,6 +119,36 @@ Sort packages by name (default).
 \-\-sort\-by\-channel
 .br 
 Sort packages by channel.
+
+.TP 
+patch\-info (pi) [patch]
+Show detailed information about a patch. Multiple patches may be listed, separated by spaces. Accepts the flag \fI\-u, \-\-allow\-unsubscribed\fR, to search in channels to which you are not subscribed, as well as subscribed channels.
+
+.TP 
+patch\-install (pin) [patch]
+Install the specified patch or patches. Multiple patches may be listed, separated by spaces.
+
+The patch-install command accepts the following option flags:
+.IP 
+\-d, \-\-download\-only
+.br 
+Downloads the patches, but does not install them. See also the \-N or \-\-dry\-run flag, which is available for all commands.
+
+\-u, \-\-allow\-unsubscribed
+.br 
+Allow required software to be pulled in from channels to which you are not subscribed.
+
+\-\-entire\-channel [channelname]
+.br 
+Install all patches in the channels specified. For example, \fBrug patch-install \-\-entire\-channel ximian\-desktop\fR would install all available patches in the "ximian\-desktop" channel.
+
+.TP 
+patch\-list (pl) [channelname] [channelname]
+List patches in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates. Accepts the flags:
+.IP 
+\-\-no\-abbrev
+.br 
+Do not abbreviate channel or version information.
 
 .TP  
 remove (rm, erase) [packagename]
@@ -212,7 +241,6 @@ List updates in subscribed channels. Adding channels as arguments will limit the
 \-\-no\-abbrev
 .br 
 Do not abbreviate channel or version information.
-
 
 .TP 
 update (up) [channelname] [channelname]
@@ -706,7 +734,7 @@ Installs all packages that are in subscribed channels whose names begin with "rc
 Adds a user named "donna" with the install privilege. After entering this command, you will be prompted to create and confirm a password for donna, and then to confirm or change the privileges granted to her.
 .SH "AUTHORS"
 .LP 
-Copyright (C) 2002\-2003 Ximian, Inc.
+Copyright (C) 2002\-2004 Ximian, Inc.
 http://www.ximian.com/
 .SH "SEE ALSO"
 .LP 
