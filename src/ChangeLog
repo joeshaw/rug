@@ -1,5 +1,13 @@
 2002-08-21  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageSearchCmd): Remove the
+	--show-package-ids options.  Fix a typo that prevented
+	--search-descriptions from working and add a -d alias.  Always use
+	"name-installed" when using --uninstalled-only and use it when
+	searching just inside one channel.
+
+2002-08-21  Joe Shaw  <joe@ximian.com>
+
 	* rcmain.py: Make rc_version a global, and set it when main() gets
 	called.
 

@@ -331,11 +331,10 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["", "match-any", "",              "Search for a match to any of the search strings"],
                 ["", "match-substrings", "",       "Matches for search strings may be partial words"],
                 ["", "match-words",      "",       "Matches for search strings must be whole words"],
-                ["", "search-description", "",     "Search in package descriptions, but not package names"],
+                ["d", "search-descriptions", "",   "Search in package descriptions, but not package names"],
                 ["i", "installed-only",   "",      "Show only packages that are already installed"],
                 ["u", "uninstalled-only", "",      "Show only packages that are not currently installed"],
                 ["c", "channel",        "channel", "Show only the packages from the channel you specify"],
-                ["", "show-package-ids",   "",     "Show package IDs along with names"],
                 ["", "sort-by-name",     "",       "Sort packages by name (default)"],
                 ["", "sort-by-channel",  "",       "Sort packages by channel, not by name"],
                 ["", "no-abbrev", "",              "Do not abbreviate channel or version information"]]
@@ -367,9 +366,12 @@ class PackageSearchCmd(rccommand.RCCommand):
             query.append(["", "end-or", ""])
 
         if options_dict.has_key("installed-only"):
-            query.append(["installed", "=", "true"])
+            if options_dict.has_key("channel"):
+                query.append(["name-installed", "=", "true"])
+            else:
+                query.append(["installed", "=", "true"])
         elif options_dict.has_key("uninstalled-only"):
-            query.append(["installed", "=", "false"])
+            query.append(["name-installed", "=", "false"])
 
         if options_dict.has_key("channel"):
             cname = options_dict["channel"]
