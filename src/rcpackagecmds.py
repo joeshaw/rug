@@ -556,6 +556,16 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
 
         up = get_updates(server, non_option_args)
 
+        # remove exclusions from the list
+        up_len = len(up)
+        up = filter(lambda x, exl=exclude_list():not x[1]["name"] in exl, up)
+        if not rctalk.be_terse and len(up) < up_len:
+            diff = up_len - len(up)
+            if diff == 1:
+                rctalk.message("1 update is excluded from the update list")
+            else:
+                rctalk.message(str(diff) + " updates are excluded from the update list")
+
         if not up:
             if non_option_args:
                 rctalk.message("No updates are available in the specified channels.")
@@ -603,6 +613,16 @@ class SummaryCmd(rccommand.RCCommand):
         no_abbrev = options_dict.has_key("no-abbrev")
 
         update_list = get_updates(server, [])
+
+        # remove exclusions from the list
+        up_len = len(update_list)
+        update_list = filter(lambda x, exl=exclude_list():not x[1]["name"] in exl, update_list)
+        if not rctalk.be_terse and len(update_list) < up_len:
+            diff = up_len - len(update_list)
+            if diff == 1:
+                rctalk.message("1 update is excluded from the summary.")
+            else:
+                rctalk.message(str(diff) + " updates are excluded from the summary.")
 
         if not update_list:
             rctalk.message("There are no available updates at this time.")
@@ -1124,6 +1144,34 @@ def format_dependencies(server, dep_list):
 
     rctalk.message("")
 
+def exclude_list():
+    exclude = []
+
+    try:
+        rcexclude = open(os.path.expanduser("~/.rcexclude"), "r")
+        while 1:
+            line = rcexclude.readline()
+
+            # remove the trailing newline
+            line = string.strip(line)
+
+            # strip out comments
+            hash_pos = string.find(line, "#")
+            if hash_pos >= 0:
+                line = line[0:hash_pos]
+
+            # skip empty lines
+            if not line:
+                break
+
+            exclude.append(line)
+        rcexclude.close()
+    except IOError:
+        # Can't open the file, just continue.
+        pass
+
+    return exclude
+
 ###
 ### Base class for all transaction-based commands
 ###
@@ -1140,34 +1188,6 @@ class TransactCmd(rccommand.RCCommand):
             opts.append(["d", "allow-removals", "", "Permit removal of software without confirmation"])
 
         return opts
-
-    def exclude_list(self):
-        exclude = []
-        
-        try:
-            rcexclude = open(os.path.expanduser("~/.rcexclude"), "r")
-            while 1:
-                line = rcexclude.readline()
-
-                # remove the trailing newline
-                line = string.strip(line)
-
-                # strip out comments
-                hash_pos = string.find(line, "#")
-                if hash_pos >= 0:
-                    line = line[0:hash_pos]
-
-                # skip empty lines
-                if not line:
-                    break
-
-                exclude.append(line)
-            rcexclude.close()
-        except IOError:
-            # Can't open the file, just continue.
-            pass
-
-        return exclude
 
     def transact(self, server, options_dict, install_packages, remove_packages, extra_reqs=[], verify=0):
         try:
@@ -1310,7 +1330,7 @@ class PackageInstallCmd(TransactCmd):
             if not p:
                 sys.exit(1)
 
-            if p["name"] in self.exclude_list():
+            if p["name"] in exclude_list():
                 rctalk.warning("Requesting excluded package '" +
                                p["name"] + "'!")
                               
@@ -1408,7 +1428,7 @@ class PackageUpdateCmd(TransactCmd):
         up = get_updates(server, non_option_args)
 
         # x[1] is the package to be updated
-        packages_to_install = filter(lambda x, exl=self.exclude_list():not x["name"] in exl, map(lambda x:x[1], up))
+        packages_to_install = filter(lambda x, exl=exclude_list():not x["name"] in exl, map(lambda x:x[1], up))
 
         if not packages_to_install:
             rctalk.message("--- No packages to update ---")

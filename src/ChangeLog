@@ -1,5 +1,12 @@
 2002-08-21  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageListUpdatesCmd, SummaryCmd): Don't
+	include excluded updates in these commands, but let the user know
+	they're there.
+	(exclude_list): Move this out of the TransactCmd class.
+
+2002-08-21  Joe Shaw  <joe@ximian.com>
+
 	* rcfault.py: Add cant_refresh fault.
 
 	* rcchannelcmds.py (RefreshChannelCmd): Handle cant_refresh fault.
