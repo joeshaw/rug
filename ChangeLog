@@ -1,3 +1,8 @@
+2002-10-31 Aaron Weber <aaron@ximian.com>
+
+	* rc.1: added -r information to man page entries for command
+	options on "install" and "update" commands. (Allow removals)
+
 2002-10-16 Aaron Weber <aaron@ximian.com>
 
 	* rc.1: Add activate, mount, unmount.

@@ -289,6 +289,7 @@ Many rc commands have options which apply only to them.  They are listed here al
 .br 
 .B \fI\-y, \-\-no\-confirmation\fR: Permit all actions without confirmation.
 .br 
+.B \fI\-r, \-\-allow\-removals\fR: Allow software to be removed as necessary to complete the installation..br 
 .B \fI\-u, \-\-allow\-unsubscribed\fR: Allow required software to be pulled in from channels to which you are not subscribed.
 .TP 
 \fBrc news\fR \fR
@@ -370,6 +371,8 @@ Output Options:
 .B \fI\-d, \-\-allow\-removals\fR: Permit removal of software without confirmation
 .br 
 .B \fI\-i, \-\-importance=<importance>\fR: Only install updates as or more important than the value you specify. Value may be 'minor', 'feature', 'suggested', 'necessary', or 'urgent'. 
+.br 
+.B \fI\-r, \-\-allow\-removals\fR: Allow software to be removed as necessary to complete the installation..br 
 
 .TP 
 \fBrc unsubscribe (unsub)\fR <\fIchannel\fR>
@@ -454,7 +457,7 @@ Displays the functionality provided by the "mypackage" software from "mychannel.
 Copyright 2002 Ximian, Inc.
 http://www.ximian.com/
 .SH "SEE ALSO"
-		.LP 
+.LP 
 rcd(8), rcd.conf(5), rcman(1), rcreports, rc\-dump, rc\-restore, rce\-getchannels(1), red\-carpet(GNOME application), 
 .LP 
 The graphical Red Carpet client, red\-carpet, has a manual accessible through the GNOME help system; select items from the Help menu within the application to read it. Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian. To report problems with this software or its documentation, visit http://bugzilla.ximian.com.
