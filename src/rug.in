@@ -21,7 +21,7 @@ try:
     import sys
     import os
 
-    rug_dir = "@DDIR@/rc"
+    rug_dir = "@DDIR@/rug"
 
     # This is where we look for binary extensions (like the fast
     # unmarshaller).

@@ -1,3 +1,7 @@
+2003-05-21  Joe Shaw  <joe@ximian.com>
+
+	* rug.in: Fix another rc -> rug directory reference.
+
 2003-05-20  Tambet Ingo  <tambet@ximian.com>
 
 	* rug.in: s/rc_dir/rug_dir/g
