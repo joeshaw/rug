@@ -39,6 +39,15 @@ def find_latest_package(server, package, allow_unsub, quiet):
     plist = server.rcd.packsys.search([["name", "is", package],
                                        ["installed", "is", "false"]])
 
+    if not plist:
+        if not quiet:
+            if allow_unsub:
+                rctalk.error("Unable to find package '" + package + "'")
+            else:
+                rctalk.error("Unable to find package '" + package +
+                             "' in any subscribed channel")
+        return []
+
     pkeys = {}
     pl = []
 
