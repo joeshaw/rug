@@ -1,3 +1,9 @@
+2002-12-09  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (TransactCmd.resolve_deps): When listing the
+	packages in the transaction, show the size of the download.  This
+	fixes bug #35262.
+
 2002-12-06  Joe Shaw  <joe@ximian.com>
 
 	* rcmountmds.py (MountCmd.execute): Make the alias lower case.

@@ -1419,8 +1419,10 @@ class TransactCmd(rccommand.RCCommand):
             format_dependencies(server, dep_remove)
 
         if not options_dict.has_key("terse"):
+
             msg_list = []
             count = len(install_packages) + len(dep_install)
+
             if count:
                 msg_list.append("%d packages will be installed" % count)
 
@@ -1429,6 +1431,29 @@ class TransactCmd(rccommand.RCCommand):
                 msg_list.append("%d packages will be removed" % count)
 
             rctalk.message("%s." % string.join(msg_list, " and "))
+
+            # Of course, this will be inaccurate if packages are already
+            # in the cache.  We try to do something reasonable if a
+            # file size is missing.
+            total_size = 0
+            approximate = 0
+            for p in install_packages:
+                sz = p.get("file_size", 0)
+                total_size = total_size + sz
+                if sz == 0:
+                    approximate = 1
+            for p in dep_install:
+                sz = p.get("file_size", 0)
+                total_size = total_size + sz
+                if sz == 0:
+                    approximate = 1
+
+            if total_size > 0:
+                size_str = rcformat.bytes_to_str(total_size)
+                approx_str = ""
+                if approximate:
+                    approx_str = "at least"
+                rctalk.message("This is %sa %s download." % (approx_str, size_str))
 
         if not options_dict.has_key("no-confirmation"):
             confirm = raw_input("Do you want to continue? [y/N] ")
