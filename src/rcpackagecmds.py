@@ -1364,7 +1364,7 @@ class PackageSolveCmd(TransactCmd):
 
                 if match.group(1):
                     dep["has_epoch"] = 1
-                    dep["epoch"] = match.group(1)
+                    dep["epoch"] = int(match.group(1))
                 else:
                     dep["has_epoch"] = 0
                     dep["epoch"] = 0

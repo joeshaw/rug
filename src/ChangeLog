@@ -1,3 +1,8 @@
+2002-08-01  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageSolveCmd.execute): Another patch from
+	Peter Teichman, fixing his versioned dependencies patch.
+
 2002-07-31  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageSolveCmd.execute): Applied a patch from
