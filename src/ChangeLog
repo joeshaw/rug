@@ -1,3 +1,8 @@
+2002-07-10  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageDebugCmd.execute): Decompress the
+	binary data returned by rcd.packsys.dump()
+
 2002-07-09  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (find_package_in_channel): If we don't find a

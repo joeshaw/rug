@@ -20,6 +20,8 @@ import os
 import sys
 import string
 import time
+import zlib
+
 import rctalk
 import rcformat
 import rccommand
@@ -1097,7 +1099,7 @@ class PackageDebugCmd(rccommand.RCCommand):
 
         rctalk.message("Getting a dump of the system.  Note: This could take several moments.")
 
-        f.write(server.rcd.packsys.dump())
+        f.write(zlib.decompress(server.rcd.packsys.dump().data))
         f.flush()
 
         if my_open:
