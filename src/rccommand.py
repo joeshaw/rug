@@ -438,7 +438,7 @@ class RCCommand:
     def usage(self):
 
         rctalk.message("")
-        rctalk.message("Usage: rc " + self.name() + " <options> " + \
+        rctalk.message("Usage: rug " + self.name() + " <options> " + \
                        self.arguments())
         rctalk.message("")
 

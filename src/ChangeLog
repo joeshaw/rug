@@ -1,5 +1,7 @@
 2003-05-29  Joe Shaw  <joe@ximian.com>
 
+	* rccommand.py (RCCommand.usage): Change "rc" to "rug".
+
 	* rctransactcmds.py (PackageRollbackCmd): Add a -d/--download-only
 	flag since we download packages to rollback now.  Make it accept a
 	variety of date formats, and to correctly output text when there's
