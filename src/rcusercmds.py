@@ -122,9 +122,6 @@ class UserListCmd(rccommand.RCCommand):
     def name(self):
         return "user-list"
 
-    def is_hidden(self):
-        return os.getuid() != 0
-
     def description_short(self):
         return "List users"
 
@@ -144,9 +141,6 @@ class UserAddCmd(rccommand.RCCommand):
 
     def name(self):
         return "user-add"
-
-    def is_hidden(self):
-        return os.getuid() != 0
 
     def arguments(self):
         return "<UserName> <Privilege> <Privilege> ..."
@@ -211,9 +205,6 @@ class UserDeleteCmd(rccommand.RCCommand):
 
     def name(self):
         return "user-delete"
-
-    def is_hidden(self):
-        return os.getuid() != 0
 
     def arguments(self):
         return "<username> <username> ..."

@@ -1,3 +1,46 @@
+2002-07-23  Jon Trowbridge  <trow@ximian.com>
+
+	* rccommand.py (register): Get the command's category, store it in
+	the command_dict along with the rest of the information.
+	(print_command_list): Added.  Breaks out the code (previously in
+	usage()) for formatting and printing a list of commands.
+	(usage_basic): Replaces usage().  Prints out a list of our basic
+	commands.
+	(usage_full): Also replaces usage().  Prints out a list of all
+	commands and all global options.
+	(extract_command_from_argv): If there is no command on the command
+	line, call usage_basic()... unless "--help" is also on the command
+	line, in which case we call usage_full().
+	(RCCommand.category): Added.  Our default category is "unknown".
+
+	* rcpackagecmds.py (PackagesCmd.category): Added.  Category is
+	"basic".
+	(PackageSearchCmd.category): Added.  Category is "basic".
+	(PackageUpdatesCmd.category): Added.  Category is "basic".
+	(PackageInfoCmd.category): Added.  Category is "basic".
+	(PackageInstallCmd.category): Added.  Category is "basic".
+	(PackageRemoveCmd.category): Added.  Category is "basic".
+	(PackageUpdateAllCmd.category): Added.  Category is "basic".
+	(PackageVerifyCmd.category): Added.  Category is "basic".
+
+	* rcchannelcmds.py (ListChannelsCmd.category): Added.  Category is
+	"basic".
+	(SubscribeCmd.category): Added.  Category is "basic".
+	(UnsubscribeCmd.category): Added.  Category is "basic".
+	(RefreshChannelCmd.category): Added.  Category is "basic".
+
+	* rcsystemcmds.py (ShutdownCmd.is_hidden): Removed.  Command is
+	now visible.
+
+	* rcusercmds.py (UserListCmd.is_hidden): Removed.  Command is now
+	visible.
+	(UserAddCmd.is_hidden): Removed.  Command is now visible.
+	(UserDeleteCmd.is_hidden): Removed.  Command is now visible.
+
+	* rcwhatcmds.py (WhatProvidesCmd.aliases): Removed.
+	(WhatRequiresCmd.aliases): Removed.
+	(WhatConflictsCmd.aliases): Removed.
+
 2002-07-22  Jon Trowbridge  <trow@ximian.com>
 
 	* rcchannelcmds.py (RefreshChannelCmd.execute): Keep track of

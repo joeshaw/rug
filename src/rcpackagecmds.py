@@ -196,6 +196,9 @@ class PackagesCmd(rccommand.RCCommand):
     def name(self):
         return "packages"
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return "<channel> <channel> ..."
 
@@ -280,6 +283,9 @@ class PackageSearchCmd(rccommand.RCCommand):
 
     def name(self):
         return "search"
+
+    def category(self):
+        return "basic"
 
     def arguments(self):
         return "<search-string> <search-string>..."
@@ -494,6 +500,9 @@ class PackageUpdatesCmd(rccommand.RCCommand):
     def name(self):
         return "updates"
 
+    def category(self):
+        return "basic"
+
     def aliases(self):
         return ["up"]
 
@@ -674,6 +683,9 @@ class PackageInfoCmd(rccommand.RCCommand):
 
     def name(self):
         return "info"
+
+    def category(self):
+        return "basic"
 
     def arguments(self):
         return "<package-name>"
@@ -1110,6 +1122,9 @@ class PackageInstallCmd(TransactCmd):
     def name(self):
         return "install"
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return "<package-name> <package-name> ..."
 
@@ -1180,6 +1195,9 @@ class PackageRemoveCmd(TransactCmd):
     def name(self):
         return "remove"
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return "<package-name> <package-name> ..."
 
@@ -1216,6 +1234,9 @@ class PackageUpdateAllCmd(TransactCmd):
     def name(self):
         return "update-all"
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return "<channel> <channel> ..."
 
@@ -1243,6 +1264,9 @@ class PackageVerifyCmd(TransactCmd):
 
     def name(self):
         return "verify"
+
+    def category(self):
+        return "basic"
 
     def arguments(self):
         return ""
@@ -1303,6 +1327,9 @@ class PackageDebugCmd(rccommand.RCCommand):
 
     def arguments(self):
         return "<file>"
+
+    def is_hidden(self):
+        return 1
 
     def description_short(self):
         return "Get a dump of the system for debugging"

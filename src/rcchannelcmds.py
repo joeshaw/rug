@@ -33,6 +33,9 @@ class ListChannelsCmd(rccommand.RCCommand):
     def aliases(self):
         return ["ch"]
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return ""
 
@@ -90,6 +93,9 @@ class SubscribeCmd(rccommand.RCCommand):
     def aliases(self):
         return ["sub"]
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return "<channel> <channel> ..."
 
@@ -138,6 +144,9 @@ class UnsubscribeCmd(rccommand.RCCommand):
     def aliases(self):
         return ["unsub"]
 
+    def category(self):
+        return "basic"
+
     def arguments(self):
         return "<channel> <channel> ..."
 
@@ -183,6 +192,9 @@ class RefreshChannelCmd(rccommand.RCCommand):
 
     def name(self):
         return "refresh"
+
+    def category(self):
+        return "basic"
 
     def arguments(self):
         return "<channel> <channel> ..."

@@ -54,11 +54,12 @@ def register(constructor):
     aliases = obj.aliases()
     hidden = obj.is_hidden()
     description = obj.description_short() or "<No Description Available>"
+    category = obj.category()
 
     if command_dict.has_key(name):
         rctalk.error("Command name collision: '"+name+"'")
     else:
-        command_dict[name] = (description, constructor, aliases, hidden)
+        command_dict[name] = (description, constructor, aliases, hidden, category)
 
     for a in aliases:
         al = string.lower(a)
@@ -84,45 +85,85 @@ def construct(name):
 
     return cons()
 
+def print_command_list(commands):
 
-def usage():
+    max_len = 0
+    cmd_list = []
+    
+    for c in commands:
+        name, aliases, description = c
+
+        if aliases:
+            name = name + " (" + string.join(aliases, ", ") + ")"
+            
+        cmd_list.append([name, description])
+        max_len = max(max_len, len(name))
+
+    desc_len = max_len + 4
+
+    for c in cmd_list:
+
+        # If, for some reason, the command list is *really* wide (which it never should
+        # be), don't do something stupid.
+        if 79 - desc_len > 10:
+            desc = rcformat.linebreak(c[1], 79-desc_len)
+        else:
+            desc = [c[1]]
+                
+        desc_first = desc.pop(0)
+        rctalk.message("  " + string.ljust(c[0], max_len) + "  " + desc_first)
+        for d in desc:
+            rctalk.message(" " * desc_len + d)
+
+def usage_basic():
     rctalk.message("Usage: rc <command> <options> ...")
     rctalk.message("")
-    rctalk.message("Valid commands are:")
 
     keys = command_dict.keys()
 
     if keys:
         keys.sort()
-        cmd_list = []
-        max_len = 0
+        command_list = []
         for k in keys:
-            name = k
+            description, constructor, aliases, hidden, category  = command_dict[k]
+            if not hidden and string.lower(category) == "basic":
+                command_list.append([k, aliases, description])
 
-            description, constructor, aliases, hidden = command_dict[k]
+        rctalk.message("Some basic commands are:")
+        print_command_list(command_list)
 
+        rctalk.message("")
+        rctalk.message("For a more complete list of commands and important options,")
+        rctalk.message("run rc with the --help option.")
+
+    else:
+        rctalk.error("<< No commands found --- something is wrong! >>")
+
+def usage_full():
+    rctalk.message("Usage: rc <command> <options> ...")
+    rctalk.message("")
+
+    rctalk.message("The following options are understood by all commands:")
+    rcformat.opt_table(default_opt_table)
+    rctalk.message("")
+
+    keys = command_dict.keys()
+
+    if keys:
+        keys.sort()
+        command_list = []
+        for k in keys:
+            description, constructor, aliases, hidden, category  = command_dict[k]
             if not hidden:
-                if aliases:
-                    name = name + " (" + string.join(aliases, ", ") + ")"
-                cmd_list.append([name, description])
-                max_len = max(max_len, len(name))
+                command_list.append([k, aliases, description])
 
-        desc_len = max_len + 4
+        rctalk.message("Valid commands are:")
+        print_command_list(command_list)
 
-        for c in cmd_list:
+        rctalk.message("")
+        rctalk.message("For more detailed information about a specific command,")
+        rctalk.message("run 'rc <command name> --help'.")
 
-            # If, for some reason, the command list is *really* wide (which it never should
-            # be), don't do something stupid.
-            if 79 - desc_len > 10:
-                desc = rcformat.linebreak(c[1], 79-desc_len)
-            else:
-                desc = [c[1]]
-                
-            desc_first = desc.pop(0)
-            rctalk.message("  " + string.ljust(c[0], max_len) + "  " + desc_first)
-            for d in desc:
-                rctalk.message(" " * desc_len + d)
-            
     else:
         rctalk.error("<< No commands found --- something is wrong! >>")
 
@@ -152,7 +193,10 @@ def extract_command_from_argv(argv):
 
     if not command:
         rctalk.warning("No command found on command line.")
-        usage()
+        if "--help" in argv:
+            usage_full()
+        else:
+            usage_basic()
         sys.exit(1)
 
     return command
@@ -239,6 +283,9 @@ class RCCommand:
     # list of available commands.
     def is_hidden(self):
         return 0
+
+    def category(self):
+        return "unknown"
 
     def arguments(self):
         return "..."

@@ -138,9 +138,6 @@ class WhatProvidesCmd(WhateverCmd):
     def name(self):
         return "what-provides"
 
-    def aliases(self):
-        return ["prov"]
-
     def description_short(self):
         return "List packages that provide the item you specify"
 
@@ -157,9 +154,6 @@ class WhatRequiresCmd(WhateverCmd):
     def name(self):
         return "what-requires"
 
-    def aliases(self):
-        return ["req"]
-
     def description_short(self):
         return "List packages that require the item you specify"
 
@@ -175,9 +169,6 @@ class WhatConflictsCmd(WhateverCmd):
 
     def name(self):
         return "what-conflicts"
-
-    def aliases(self):
-        return ["conf"]
 
     def description_short(self):
         return "List packages that conflict with the item you specify"
