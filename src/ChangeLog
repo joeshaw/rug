@@ -1,5 +1,7 @@
 2002-07-02  Jon Trowbridge  <trow@ximian.com>
 
+	* rcchannelcmds.py: Added an arguments() method for every command.
+
 	* rcmain.py (main): Extracted a bunch of the options
 	handling/parsing code and moved it into...
 
