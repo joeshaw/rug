@@ -88,13 +88,19 @@ class ShutdownCmd(rccommand.RCCommand):
         return "shutdown"
 
     def description_short(self):
-        return "Shut down the server"
+        return "Shut down the daemon"
 
     def category(self):
         return "system"
 
+    def local_opt_table(self):
+        return [["n", "no-wait", "", "Don't wait for confirmation that the daemon was shut down"]]
+
     def execute(self, server, options_dict, non_option_args):
         server.rcd.system.shutdown()
+
+        if options_dict.has_key("no-wait"):
+            sys.exit(0)
 
         rctalk.message("Waiting for daemon to shut down...")
 
@@ -118,6 +124,52 @@ class ShutdownCmd(rccommand.RCCommand):
             time.sleep(0.4)
 
 rccommand.register(ShutdownCmd)
+
+class RestartCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "restart"
+
+    def description_short(self):
+        return "Restart the daemon"
+
+    def category(self):
+        return "system"
+
+    def local_opt_table(self):
+        return [["n", "no-wait", "", "Don't wait for confirmation that the daemon has restarted"]]
+
+    def execute(self, server, options_dict, non_option_args):
+        server.rcd.system.restart()
+
+        if options_dict.has_key("no-wait"):
+            sys.exit(0)
+
+        rctalk.message("Waiting for daemon to restart...")
+
+        is_down = 0
+        while 1:
+            try:
+                server.rcd.system.ping()
+            except socket.error, e:
+                eno, str = e
+                if eno == errno.ENOENT or eno == errno.ECONNREFUSED:
+                    is_down = 1
+                else:
+                    raise
+            except ximian_xmlrpclib.ProtocolError, e:
+                if e.errcode == -1:
+                    is_down = 1
+                else:
+                    raise
+            else:
+                if is_down:
+                    rctalk.message("Daemon restarted successfully.")
+                    sys.exit(0)
+                
+            time.sleep(0.4)
+
+rccommand.register(RestartCmd)
 
 class ActivateCmd(rccommand.RCCommand):
 

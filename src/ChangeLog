@@ -1,3 +1,13 @@
+2003-04-16  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (TransactCmd.check_licenses): Added.  Spew out
+	the text of licenses that we require users to agree to.
+
+	* rcsystemcmds.py (ShutdownCmd): Add a -n/--no-wait option causes
+	rc not to wait for the daemon to shut down.
+	(RestartCmd): Added.  Restarts the daemon.  Also has a
+	-n/--no-wait option.
+
 2003-04-14  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoRequirementsCmd.execute): Print a

@@ -1475,6 +1475,33 @@ class TransactCmd(rccommand.RCCommand):
 
         return dep_install, dep_remove, dep_info
 
+    def check_licenses(self, server, packages):
+        try:
+            licenses = server.rcd.license.lookup_from_packages(packages)
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                return
+            else:
+                raise
+
+        if licenses:
+            if len(licenses) > 1:
+                lstr = "licenses"
+            else:
+                lstr = "license"
+            rctalk.message("")
+            rctalk.message("You must agree to the following %s before installing this software:" % lstr)
+            rctalk.message("")
+
+            for l in licenses:
+                rctalk.message(l)
+                rctalk.message("")
+
+            confirm = rctalk.prompt("Do you agree to the above %s? [y/N]" % lstr)
+            if not confirm or not (confirm[0] == "y" or confirm[0] == "Y"):
+                rctalk.message("Cancelled.")
+                sys.exit(0)
+
     def transact(self, server, options_dict,
                  install_packages, remove_packages, extra_reqs=[],
                  verify=0, rollback=0):
@@ -1508,6 +1535,11 @@ class TransactCmd(rccommand.RCCommand):
                                rcformat.evr_to_str(p) + " " + c)
 
             rctalk.message("")
+
+        # FIXME: Skipping over if no-confirmation is set is wrong.
+        if not options_dict.has_key("no-confirmation"):
+            self.check_licenses(server,
+                                install_packages + extract_packages(dep_install))
 
         if options_dict.has_key("dry-run"):
             flags = DRY_RUN
