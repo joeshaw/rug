@@ -1,3 +1,14 @@
+2003-05-19  Joe Shaw  <joe@ximian.com>
+
+	* Rename to rug.
+
+	* autogen.sh: Change rc checks to rug.
+
+	* configure.in: Change package name from rc to rug.  Create rug
+	from rug.in.
+
+	* unmarshaller/Makefile.am: Install into $(libdir)/rug
+
 2003-05-19 Aaron Weber <aaron@ximian.com>
 
 	* rug.1: s/rc/rug, s/rcrc/rugrc/.

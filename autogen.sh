@@ -4,11 +4,11 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-PKG_NAME="rc"
+PKG_NAME="rug"
 
 (test -f $srcdir/configure.in \
   && test -d $srcdir/src \
-  && test -f $srcdir/src/rc.in) || {
+  && test -f $srcdir/src/rug.in) || {
     echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
     echo " top-level $PKG_NAME directory"
     exit 1

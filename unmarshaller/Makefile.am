@@ -1,5 +1,5 @@
 
-unmarshallerdir = $(libdir)/rc
+unmarshallerdir = $(libdir)/rug
 
 unmarshaller_DATA = ximian_unmarshaller.so
 
