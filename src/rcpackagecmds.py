@@ -1361,7 +1361,8 @@ class TransactCmd(rccommand.RCCommand):
                 try:
                     dep_install, dep_remove, dep_info = server.rcd.packsys.rollback_dependencies(install_packages)
                 except ximian_xmlrpclib.Fault, f:
-                    if f.faultCode == rcfault.undefined_method:
+                    if f.faultCode == rcfault.undefined_method or \
+                       f.faultCode == rcfault.not_supported:
                         rctalk.error("Server does not support rollback.")
                         sys.exit(1)
                     elif f.faultCode == rcfault.package_not_found:
@@ -1798,7 +1799,8 @@ class PackageRollbackCmd(TransactCmd):
             try:
                 packages = server.rcd.packsys.get_rollback_packages()
             except ximian_xmlrpclib.Fault, f:
-                if f.faultCode == rcfault.undefined_method:
+                if f.faultCode == rcfault.undefined_method or \
+                   f.faultCode == rcfault.not_supported:
                     rctalk.error("Server does not support rollback.")
                     sys.exit(1)
                 else:
