@@ -1,5 +1,10 @@
 2002-06-07  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py: Added.  Supports listing of packages in a channel.
+	Doesn't do installed packages yet.
+
+2002-06-07  Joe Shaw  <joe@ximian.com>
+
 	* rc: Handle cases like "rc -U channels refresh 20001" in which
 	"channels" could get picked up as the action instead of "refresh".
 

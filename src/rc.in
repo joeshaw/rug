@@ -28,6 +28,7 @@ import cgiwrap
 
 import rccommand
 import rcchannelcmds
+import rcpackagecmds
 
 rc_version = "0.0"
 rc_name = "Red Carpet Command Line Client " + rc_version
