@@ -78,7 +78,11 @@ def main(rc_version):
     ### Open a connection to the server.
     ###
 
-    if opt_dict.has_key("host") or opt_dict.has_key("user"):
+    # If the hostname has a / in it, we assume that it is actually
+    # an explicitly-specified to a socket.
+    if opt_dict.has_key("host") and string.find(opt_dict["host"], "/") == 0:
+        local = 1
+    elif opt_dict.has_key("host") or opt_dict.has_key("user"):
         local = 0
     else:
         local = 1
@@ -106,7 +110,10 @@ def main(rc_version):
             password = rcutil.md5ify_password(getpass.getpass())
 
     else:
-        url = "/tmp/rcd"
+        if opt_dict.has_key("host"):
+            url = opt_dict["host"]
+        else:
+            url = "/tmp/rcd"
 
     if os.environ.has_key("RC_TRANSPORT_DEBUG"):
         transport_debug = 1

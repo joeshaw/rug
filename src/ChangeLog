@@ -1,5 +1,9 @@
 2002-08-01  Jon Trowbridge  <trow@ximian.com>
 
+	* rcmain.py (main): Yet another patch from Peter Teichman, adding
+	the ability to explicitly specify rcd's socket on the command
+	line.
+
 	* rcpackagecmds.py (PackageSolveCmd.execute): Another patch from
 	Peter Teichman, fixing his versioned dependencies patch.
 
