@@ -249,7 +249,7 @@ def expand_synthetic_args(argv, command_name):
     # override an magically added arg by explicitly putting the
     # orthogonal arg on the command line.
     def join_args(arglist, argv):
-        return map(string.strip, arglist) + argv
+        return map(string.strip, arglist + argv)
 
     # Try to read the .rcrc file.  It basically works like a .cvsrc file.
     if "--ignore-rc-file" not in argv:
@@ -293,14 +293,14 @@ def expand_synthetic_args(argv, command_name):
             except IOError:
                 rctalk.error("Couldn't open file '" + filename + "'")
                 sys.exit(1)
-            argv = join_args(lines, argv)
+            argv = join_args(argv, lines)
         else:
             rctalk.error("No filename provided for --read-from-file option")
             sys.exit(1)
 
     if "--read-from-stdin" in argv:
         lines = sys.stdin.readlines()
-        argv = join_args(lines, argv)
+        argv = join_args(argv, lines)
 
     return argv
 

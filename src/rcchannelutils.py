@@ -110,7 +110,8 @@ def validate_channel_list(name, chan_list):
     cname = chan_list[0]["name"]
     if string.lower(name) != string.lower(cname) \
        and name != str(chan_list[0]["id"]):
-        rctalk.message("'" + name + "' matches '" + cname + "'")
+        if not rctalk.be_terse:
+            rctalk.message("'" + name + "' matches '" + cname + "'")
 
     return 1
 

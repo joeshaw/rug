@@ -1,3 +1,13 @@
+2002-08-07  Jon Trowbridge  <trow@ximian.com>
+
+	* rccommand.py (join_args): Strip the elements of the list after
+	combining, so that our two args are both treated the same.
+	(expand_synthetic_args): Reverse the argument join-order for
+	--read-from-file and --read-from-stdin.
+
+	* rcchannelutils.py (validate_channel_list): Don't print our
+	"'abbrev' matches 'channelname'" message in terse mode.
+
 2002-08-07  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInstallCmd.execute,
