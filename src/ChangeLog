@@ -1,3 +1,8 @@
+2002-08-04  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageRemoveCmd.aliases): Added 'rm' and
+	'erase' as aliases.
+
 2002-08-02  Jon Trowbridge  <trow@ximian.com>
 
 	* rcusercmds.py: Added categories and is_basic settings.

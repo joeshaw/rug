@@ -1270,6 +1270,9 @@ class PackageRemoveCmd(TransactCmd):
     def category(self):
         return "package"
 
+    def aliases(self):
+        return ["rm", "erase"]
+
     def arguments(self):
         return "<package-name> <package-name> ..."
 
