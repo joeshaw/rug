@@ -16,14 +16,16 @@ rug \-\-version
 rug \fI\-\-help\fR 
 .SH "DESCRIPTION"
 .LP 
-rug is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rc.
+rug is the command\-line complement to the Ximian Red Carpet software management tool.  It works with the rcd daemon to install, update, and remove software according to the commands you give it. The software which it installs can be from local files or from Ximian servers and mirrors, and the system where software is being managed can be a remote system (see the \-\-host option and the rcd(8) man page) rather than the local system running rug.
 .LP 
 Red Carpet services sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
 .LP 
 Red Carpet services, including rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
+.LP 
+Note: Previous versions of this software were known as \fIrc\fR, but due to a conflict with another package the application has been renamed. Other related software names, such as rcd, rcman, and red\-carpet, have not been affected. The \fIrug\fR command now uses the \fI.rugrc\fR configuration file and the \fIRUG_ARGS\fR environment variable. The older \fI.rcrc\fR and \fIRC_ARGS\fR are accepted if the new forms are absent.
 .SH "COMMANDS"
 .LP 
-rug provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most commonly used is \fIrug update\-all\fR which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
+rug provides a number of commands (shown as <\fIcommand\fR> in the SYNTAX section), each of which has a number of options in addition to the global options which affect all transactions. The most commonly used is \fIrug update\fR which downloads and installs updates in channels to which you are subscribed. If you only want to update software, that is the only command you need.
 
 .LP 
 \fBPackage management commands:\fR
@@ -519,12 +521,18 @@ Output Options:
 .TP 
  \fI.rugrc\fR
 
-  The \fI.rugrc\fR resource file is optional. If it exists, its contents are treated as additional arguments to the rug command being executed.  This is similar to the behavior of the RC_ARGS environment variable.  Note also that the .rugrc file used is in the home directory of the user running rc, and if you run rug through sudo instead of directly as root, you will not use the root user's .rugrc file.
+The \fI.rugrc\fR resource file is optional. If it exists, its contents are treated as additional arguments to the rug command being executed.  This is similar to the behavior of the \fIRUG_ARGS\fR environment variable.  Note also that the \fI.rugrc\fR file used is in the home directory of the user running rc, and if you run rug through sudo instead of directly as root, you will not use the root user's \fI.rugrc\fR file.
+
+.LP 
+If \fI.rugrc\fR does not exist, the older \fI.rcrc\fR file is accepted instead.
 .SH "ENVIRONMENT VARIABLES"
 .TP 
-\fBRC_ARGS\fP
+\fBRUG_ARGS\fP
 This environment variable is prepended to any
-command line options that are passed to rug and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-env\fR flag in the RC_ARGS variable; this is absurd.
+command line options that are passed to rug and acts as an extra set of arguments.  The variable is ignored if the \fI\-\-ignore\-env\fR flag is set. Do not attempt to set the \fI\-\-ignore\-env\fR flag in the \fIRUG_ARGS\fR variable; this is absurd.
+
+.LP 
+If \fIRUG_ARGS\fR is not set, the \fIRC_ARGS\fR environment variable is accepted instead.
 .SH "EXAMPLES"
 .LP 
 In most cases, non\-root users will be able to query the system but not alter it. However, system administrators may use the user\-add (ua) command to create rcd accounts for non\-root users if they wish.
