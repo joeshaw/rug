@@ -1,3 +1,7 @@
+2002-10-15  Jon Trowbridge  <trow@ximian.com>
+
+	* Makefile.am (rcsupport_DATA): Added rcmountcmds.py.
+
 2002-10-15  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelutils.py (refresh_channels): Added.  Moved the bulk of

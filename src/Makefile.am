@@ -18,6 +18,7 @@ rcsupport_DATA = 		\
 	rcutil.py		\
 	rcusercmds.py		\
 	rcwhatcmds.py		\
+	rcmountcmds.py		\
 	ximian_xmlrpclib.py
 
 EXTRA_DIST = $(rcsupport_DATA)
