@@ -20,7 +20,7 @@ rug is the command\-line complement to the Ximian Red Carpet software management
 .LP 
 Red Carpet applications sort software by category into channels, groups of similar software. For example, one channel might contain software from the operating system vendor, and another the Ximian Desktop, and another one the Ximian Connector or some software from a third\-party software vendor. You can subscribe to individual channels to control the display of available packages and prevent the accidental installation of unwanted software. Operations are normally performed only on software from within channels to which you are subscribed, although you may alter this with the \fI\-\-allow\-unsubscribed\fR flag.
 .LP 
-Red Carpet applications, incding rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
+Red Carpet applications, including rug, use your operating system's native package management system (except on Solaris, where they use RPM), so you can use most other package management tools alongside them.
 .LP 
 Note: Previous versions of this software were known as \fIrc\fR, but due to a conflict with another package the application has been renamed. Other related software names, such as rcd, rcman, and red\-carpet, have not been affected. The \fIrug\fR command now uses the \fI.rugrc\fR configuration file and the \fIRUG_ARGS\fR environment variable. The older \fI.rcrc\fR and \fIRC_ARGS\fR are accepted if the new forms are absent.
 .SH "COMMANDS"
@@ -124,9 +124,13 @@ Sort packages by channel.
 patch\-info (pi) [patch]
 Show detailed information about a patch. Multiple patches may be listed, separated by spaces. Accepts the flag \fI\-u, \-\-allow\-unsubscribed\fR, to search in channels to which you are not subscribed, as well as subscribed channels.
 
+Patches are only supported on SUSE 9 platforms.
+
 .TP 
 patch\-install (pin) [patch]
 Install the specified patch or patches. Multiple patches may be listed, separated by spaces.
+
+Patches are only supported on SUSE 9 platforms.
 
 The patch-install command accepts the following option flags:
 .IP 
@@ -144,7 +148,11 @@ Install all patches in the channels specified. For example, \fBrug patch-install
 
 .TP 
 patch\-list (pl) [channelname] [channelname]
-List patches in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates. Accepts the flags:
+List patches in subscribed channels. Adding channels as arguments will limit the list to those channels you specify.  If you are not subscribed to a channel, it will never have updates available, even if you name it here; you must subscribe to list updates. 
+
+Patches are only supported on SUSE 9 platforms.
+
+Accepts the flags:
 .IP 
 \-\-no\-abbrev
 .br 
