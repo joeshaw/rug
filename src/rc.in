@@ -1,5 +1,23 @@
 #!/usr/bin/python
 
+###
+### Copyright 2002 Ximian, Inc.
+###
+### This program is free software; you can redistribute it and/or modify
+### it under the terms of the GNU General Public License as published by
+### the Free Software Foundation; either version 2 of the License, or
+### (at your option) any later version.
+###
+### This program is distributed in the hope that it will be useful,
+### but WITHOUT ANY WARRANTY; without even the implied warranty of
+### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+### GNU General Public License for more details.
+###
+### You should have received a copy of the GNU General Public License
+### along with this program; if not, write to the Free Software
+### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+###
+
 import sys
 import string
 import ximian_xmlrpclib
@@ -49,34 +67,23 @@ if not found_name:
     sys.exit(1)
 
 if not command:
-    print "Unknown command."
     print
     rccommand.usage()
     sys.exit(1)
 
-###
-### Build up a table of command-line options, consisting of both our global
-### options and of the command-specific options.
-###
+if "-?" in argv or "--help" in argv:
+    command.usage()
+    sys.exit(0)
 
-default_opt_table = [["u", "user",     "username", "User Name"],
-                     ["p", "password", "password", "Password"],
-                     ["h", "host",     "hostname", "Contact daemon on specified host"],
-                     ["n", "dry-run",  "",         "Don't perform operation"],
-                     ["v", "verbose",  "",         "Verbose output"],
-                     ["",  "version",  "",         "Print client version and exit"],
-                     ["t", "terse",    "",         "Terse output"],
-                     ["",  "batch",    "",         "Run in batch mode"],
-                     ["",  "debug",    "",         "Debugging output"],
-                     ["?", "help",     "",         "Get help on a specific command"]]
-
-opt_table = default_opt_table + command.opt_table()
 
 ###
-### Now compile our list of arguments into something that getopt can understand,
-### call getopt on argv, and then assemble the stuff returned by getopt into a nice
-### dictionary of option-value pairs.
+### Find the list of command line options associated with the command.
+### Then compile our list of arguments into something that getopt can understand,
+### call getopt on argv, and then assemble the stuff returned by getopt into a
+### nice dictionary of option-value pairs.
 ###
+
+opt_table = command.opt_table()
 
 short_opt_getopt = ""
 long_opt_getopt  = []

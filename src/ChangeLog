@@ -1,0 +1,16 @@
+2002-06-07  Jon Trowbridge  <trow@ximian.com>
+
+	* rc: Print usage info if --help or -? is passed on the command
+	line.  Small option-handling clean-ups.  Added license.
+
+	* rcformat.py (opt_table): Added.  Generates a formated description
+	of a list of command options.  Added license.
+
+	* rccommand.py: Changed command registration slightly.  Hacked
+	construct to accept unambiguous partial matches (i.e. "sub"
+	for "subscribe").  Added usage method to RCCommand.  Moved
+	default options into an RCCommand method.  Added license.
+
+	* rcchannelcmds.py: Added support for more options, improved
+	error handling.  Added license.
+
