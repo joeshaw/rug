@@ -1,5 +1,13 @@
 2002-08-12  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackagesCmd): Change --not-installed to
+	--uninstalled-only for consistency.
+	(TransactCmd): Move the generation of the exclude list here.
+	(PackageInstallCmd): Warn the user if an excluded package is
+	requested.
+
+2002-08-12  Joe Shaw  <joe@ximian.com>
+
 	* rcformat.py (transaction_status): No sense in doing a split and
 	then putting a lot of them back together.  Just split the first
 	colon.

@@ -219,12 +219,12 @@ class PackagesCmd(rccommand.RCCommand):
     def local_opt_table(self):
         return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
                 ["i", "installed-only", "", "Show only installed packages"],
-                ["n", "not-installed", "", "Show only uninstalled packages"],
+                ["u", "uninstalled-only", "", "Show only uninstalled packages"],
                 ["",  "sort-by-name", "", "Sort packages by name (default)"],
                 ["",  "sort-by-channel", "", "Sort packages by channel"]]
 
     def local_orthogonal_opts(self):
-        return [["installed-only", "not-installed"]]
+        return [["installed-only", "uninstalled-only"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -243,7 +243,7 @@ class PackagesCmd(rccommand.RCCommand):
                         query = map(lambda c:["channel", "=", str(c["id"])], clist)
                         if options_dict.has_key("installed-only"):
                             query.append(["name-installed", "=", "true"])
-                        elif options_dict.has_key("not-installed"):
+                        elif options_dict.has_key("uninstalled-only"):
                             query.append(["name-installed", "=", "false"])
 
                         if len(clist) > 1:
@@ -1135,6 +1135,34 @@ class TransactCmd(rccommand.RCCommand):
 
         return opts
 
+    def exclude_list(self):
+        exclude = []
+        
+        try:
+            rcexclude = open(os.path.expanduser("~/.rcexclude"), "r")
+            while 1:
+                line = rcexclude.readline()
+
+                # remove the trailing newline
+                line = string.strip(line)
+
+                # strip out comments
+                hash_pos = string.find(line, "#")
+                if hash_pos >= 0:
+                    line = line[0:hash_pos]
+
+                # skip empty lines
+                if not line:
+                    break
+
+                exclude.append(line)
+            rcexclude.close()
+        except IOError:
+            # Can't open the file, just continue.
+            pass
+
+        return exclude
+
     def transact(self, server, options_dict, install_packages, remove_packages, extra_reqs=[], verify=0):
         try:
             if verify:
@@ -1273,6 +1301,11 @@ class PackageInstallCmd(TransactCmd):
             if not p:
                 sys.exit(1)
 
+            if p["name"] in self.exclude_list():
+                rctalk.warning("Requesting excluded package '" +
+                               p["name"] + "'!")
+                              
+
             dups = filter(lambda x, pn=p:x["name"] == pn["name"],
                           packages_to_install)
 
@@ -1357,34 +1390,10 @@ class PackageUpdateCmd(TransactCmd):
         return "Download and install available updates"
 
     def execute(self, server, options_dict, non_option_args):
-        exclude = []
-        try:
-            rcexclude = open(os.path.expanduser("~/.rcexclude"), "r")
-            while 1:
-                line = rcexclude.readline()
-
-                # remove the trailing newline
-                line = string.strip(line)
-
-                # strip out comments
-                hash_pos = string.find(line, "#")
-                if hash_pos >= 0:
-                    line = line[0:hash_pos]
-
-                # skip empty lines
-                if not line:
-                    break
-
-                exclude.append(line)
-            rcexclude.close()
-        except IOError:
-            # Can't open the file, just continue.
-            pass
-
         up = get_updates(server, non_option_args)
 
         # x[1] is the package to be updated
-        packages_to_install = filter(lambda x, exl=exclude:not x["name"] in exl, map(lambda x:x[1], up))
+        packages_to_install = filter(lambda x, exl=self.exclude_list():not x["name"] in exl, map(lambda x:x[1], up))
 
         if not packages_to_install:
             rctalk.message("--- No packages to update ---")
