@@ -293,6 +293,9 @@ class LockDeleteCmd(rccommand.RCCommand):
     def aliases(self):
         return ["ld"]
 
+    def arguments(self):
+        return "<lock #>"
+
     def description_short(self):
         return "Remove a package log rule"
 
