@@ -43,10 +43,12 @@ def install_indicator(server, package):
         return ""
 
 def append_to_table(server, package_table, p, multi, no_abbrev):
-    if not p["channel"]:
-        channel_name = ""
-    else:
+    if p.has_key("channel_guess"):
+        channel_name = rcchannelcmds.channel_id_to_name(server, p["channel_guess"])
+    elif p["channel"]:
         channel_name = rcchannelcmds.channel_id_to_name(server, p["channel"])
+    else:
+        channel_name = "(unknown)"
 
     if no_abbrev:
         evr_fn = rcformat.evr_to_str
@@ -220,10 +222,13 @@ class PackageListCmd(rccommand.RCCommand):
         else:
             rctalk.message("--- No packages found ---")
 
-class PackagesCmd(rccommand.RCCommand):
+def pkg_to_key(p):
+    return p["name"]+":"+str(p["epoch"])+":"+p["version"]+":"+p["release"]
+
+class PackageSearchCmd(rccommand.RCCommand):
 
     def name(self):
-        return "frobnicate"
+        return "search"
 
     def local_opt_table(self):
         return [["", "match-all", "",              "Require packages to match all search strings (default)"],
@@ -231,9 +236,9 @@ class PackagesCmd(rccommand.RCCommand):
                 ["", "match-substrings", "",       "Match search strings against any part of the text"],
                 ["", "match-words",      "",       "Require search strings to match entire words"],
                 ["", "search-description", "",     "Look for search strings in package descriptions"],
-                ["", "installed-only",   "",       "Only show installed packages"],
-                ["", "uninstalled-only", "",       "Only show uninstalled packages"],
-                ["", "channel",         "channel", "Show packages from one specific channel"],
+                ["i", "installed-only",   "",       "Only show installed packages"],
+                ["u", "uninstalled-only", "",       "Only show uninstalled packages"],
+                ["c", "channel",         "channel", "Show packages from one specific channel"],
                 ["", "show-package-ids",   "",     "Show package IDs"],
                 ["", "no-abbrev", "",              "Don't abbreviate channel or version information"]]
 
@@ -278,80 +283,30 @@ class PackagesCmd(rccommand.RCCommand):
 
         packages = server.rcd.packsys.search(query)
 
+        # Keep track of all of the installed packages where
+        # we know that it comes from a certain channel.
+        # (It doesn't matter if we are doing a channel search,
+        # so we leave our dict empty in that case.)x
+        in_channel = {}
+        if not options_dict.has_key("channel"):
+            for p in packages:
+                if p["channel"] and p["installed"]:
+                    in_channel[pkg_to_key(p)] = 1
+
         package_table = []
         no_abbrev = options_dict.has_key("no-abbrev")
-        
+
         for p in packages:
-            append_to_table(server, package_table, p, 1, no_abbrev)
+            if p["channel"] != 0 or not in_channel.has_key(pkg_to_key(p)):
+                # FIXME: skip dups produced by the installed packages
+                # when we have the same package in a channel.
+                append_to_table(server, package_table, p, 1, no_abbrev)
 
         if package_table:
             sort_and_format_table(package_table, 1)
         else:
             rctalk.message("--- No packages found ---")
         
-
-class PackageSearchCmd(rccommand.RCCommand):
-
-    def name(self):
-        return "search"
-
-    def local_opt_table(self):
-        return [["n", "search-name", "", "Search name (default)"],
-                ["s", "search-summary", "", "Search summary"],
-                ["d", "search-description", "", "Search description"],
-                ["v", "search-version", "", "Search version"],
-                ["p", "show-package-ids", "", "Show package IDs for each package"],
-                ["c", "channel", "channel id", "Search in a specific channel"],
-                ["i", "installed-only", "", "List installed packages only"],
-                ["u", "uninstalled-only", "", "List uninstalled packages only"],
-                ["",  "no-abbrev", "", "Do not abbreviate channel or version information"]]
-
-
-    def execute(self, server, options_dict, non_option_args):
-
-        package_table = []
-        no_abbrev = options_dict.has_key("no-abbrev")
-
-        search_type = "name"
-        if options_dict.has_key("search-summary"):
-            search_type = "summary"
-        elif options_dict.has_key("search-description"):
-            search_type = "description"
-        elif options_dict.has_key("search-version"):
-            search_type = "version"
-
-        if not non_option_args:
-            self.usage()
-            sys.exit(1)
-
-        multi = 0
-        # FIXME: This should support multiple channels
-        if options_dict.has_key("channel"):
-            if string.lower(options_dict["channel"]) == "all":
-                channel = -1
-                multi = 1
-            else:
-                channel = int(options_dict["channel"])
-        else:
-            channel = 0
-
-        packages = server.rcd.packsys.search([[search_type, "contains", non_option_args[0]]])
-
-        if options_dict.has_key("installed-only"):
-            packages = filter(lambda x:x["installed"], packages)
-
-        if options_dict.has_key("uninstalled-only"):
-            packages = filter(lambda x:not x["installed"], packages)
-        
-        # FIXME: Check for -p
-        for p in packages:
-            if (channel == -1 and p["channel"] != 0) or (channel == p["channel"]):
-                append_to_table(server, package_table, p, multi, no_abbrev)
-
-        if package_table:
-            sort_and_format_table(package_table, multi)
-        else:
-            rctalk.message("--- No packages found ---")
 
 class PackageUpdatesCmd(rccommand.RCCommand):
 
@@ -676,7 +631,7 @@ class PackageRemoveCmd(rccommand.RCCommand):
 
         transact_and_poll(server, dep_install, packages_to_remove + dep_remove)
 
-class PackageUpdateCmd(rccommand.RCCommand):
+class PackageUpdateAllCmd(rccommand.RCCommand):
 
     def name(self):
         return "update-all"
@@ -721,12 +676,11 @@ class PackageUpdateCmd(rccommand.RCCommand):
         transact_and_poll(server, packages_to_install + dep_install, dep_remove)
 
 rccommand.register(PackageListCmd,    "List the packages in a channel")
-rccommand.register(PackageSearchCmd,  "Search for packages matching criteria")
 
-rccommand.register(PackagesCmd,       "Experimental searching command")
+rccommand.register(PackageSearchCmd,  "Search for a package")
 
 rccommand.register(PackageUpdatesCmd, "List pending updates")
 rccommand.register(PackageInfoCmd,    "Show info on a package")
 rccommand.register(PackageInstallCmd, "Install a package")
 rccommand.register(PackageRemoveCmd,  "Remove a package")
-rccommand.register(PackageUpdateCmd,  "Update all available packages")
+rccommand.register(PackageUpdateAllCmd, "Update all available packages")
