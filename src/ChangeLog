@@ -1,3 +1,8 @@
+2002-07-21  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageInfoRequirementsCmd): Assorted
+	polishing.
+
 2002-07-19  Joe Shaw  <joe@ximian.com>
 
 	* rcfault.py: Add cant_authenticate fault.

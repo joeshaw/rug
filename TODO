@@ -1,7 +1,5 @@
 Activation/registration.
 
-Need docs and a man page.
-
 We need to review all of the user-visible strings for grammar and
 intelligibility.  And we need to add long descriptions for the
 commands.  Aaron would probably be a good person to do this with,
@@ -11,6 +9,8 @@ Do we do anything in the way of checks to make sure that there is
 enough disk space to download the packages?  If not, we need to add
 this!  (libredcarpet should be doing this stuff!)
 
-Need to check through all the source files and check to make sure
-the license is GPL v2 only.  (not "at your option, any later version")
+If a solvedeps doesn't require any installs, or if the system verifies
+and doesn't need any changes to get it into a valid state, we should
+print some sort of message instead of just "Download complete / 
+Transaction finished"
 
