@@ -1,10 +1,6 @@
 Activation/registration.
 
-We need to review all of the user-visible strings for grammar and
-intelligibility.  And we need to add long descriptions for the
-commands.  Aaron would probably be a good person to do this with,
-since he knows about words and stuff.
-
 Do we do anything in the way of checks to make sure that there is
 enough disk space to download the packages?  If not, we need to add
 this!  (libredcarpet should be doing this stuff!)
+
