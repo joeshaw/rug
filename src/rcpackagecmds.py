@@ -464,6 +464,142 @@ class PackageUpdatesCmd(rccommand.RCCommand):
 
 
 ###
+### "summary" command
+###
+
+class SummaryCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "summary"
+
+    def aliases(self):
+        return ["sum"]
+
+    def arguments(self):
+        return ""
+
+    def description_short(self):
+        return "Display a summary of available updates"
+
+    def local_opt_table(self):
+        return [["", "no-abbrev", "", "Don't abbreviate channel names or importance levels"]]
+
+    def execute(self, server, options_dict, non_option_args):
+
+        no_abbrev = options_dict.has_key("no-abbrev")
+
+        update_list = get_updates(server, [])
+
+        if not update_list:
+            rctalk.message("There are no available updates at this time.")
+            sys.exit(0)
+
+        count = len(update_list)
+        necessary_count = 0
+        urgent_count = 0
+
+        seen_channels = {}
+        seen_importance = {}
+        tally = {}
+        tally_by_urgency = {}
+
+        for update_item in update_list:
+
+            old_pkg, new_pkg, descriptions = update_item
+
+            imp = new_pkg["importance_str"]
+
+            if imp == "necessary":
+                necessary_count = necessary_count + 1
+            if imp == "urgent":
+                urgent_count = urgent_count + 1
+
+            ch = rcchannelutils.channel_id_to_name(server, new_pkg["channel"])
+            seen_channels[ch] = 1
+
+            seen_importance[imp] = new_pkg["importance_num"]
+
+            key = ch + "||" + imp
+            if tally.has_key(key):
+                tally[key] = tally[key] + 1
+            else:
+                tally[key] = 1
+
+            if tally_by_urgency.has_key(imp):
+                tally_by_urgency[imp] = tally_by_urgency[imp] + 1
+            else:
+                tally_by_urgency[imp] = 1
+
+        rctalk.message("")
+
+
+        rctalk.message("There %s %d update%s available at this time." \
+                       % ((count != 1 and "are") or "is", count, (count != 1 and "") or "s"))
+
+        if necessary_count:
+            rctalk.message("%d update%s marked as 'necessary'." \
+                           % (necessary_count, (necessary_count != 1 and "s are") or " is"))
+
+        if urgent_count:
+            rctalk.message("%d update%s marked as 'urgent'." \
+                           % (urgent_count, (urgent_count != 1 and "s are") or " is"))
+
+        rctalk.message("")
+
+        channels = seen_channels.keys()
+        channels.sort(lambda x,y:cmp(string.lower(x), string.lower(y)))
+
+        importances = seen_importance.keys()
+        importances.sort(lambda x,y,f=seen_importance:cmp(f[x], f[y]))
+
+        header = ["Channel"]
+        if no_abbrev or len(importances) <= 4:
+            header = header + importances
+        else:
+            header = header + map(rcformat.abbrev_importance, importances)
+        header = header + ["total"]
+        
+        table = []
+
+        for ch in channels:
+
+            if no_abbrev:
+                row = [ch]
+            else:
+                row = [rcformat.abbrev_channel_name(ch)]
+
+            row_count = 0
+            
+            for imp in importances:
+                key = ch + "||" + imp
+                if tally.has_key(key):
+                    row.append(string.rjust(str(tally[key]), 3))
+                    row_count = row_count + tally[key]
+                else:
+                    row.append("")
+
+            if count:
+                row.append(string.rjust(str(row_count), 3))
+            else:
+                row.append("")
+                
+            table.append(row)
+
+        row = ["total"]
+        for imp in importances:
+            row.append(string.rjust(str(tally_by_urgency[imp]), 3))
+        row.append(string.rjust(str(count), 3))
+
+        table.append(row)
+
+        rcformat.tabular(header, table)
+
+        rctalk.message("")
+
+        
+            
+
+###
 ### "info" command
 ###
 
@@ -865,6 +1001,7 @@ class PackageVerifyCmd(rccommand.RCCommand):
 rccommand.register(PackagesCmd)
 rccommand.register(PackageSearchCmd)
 rccommand.register(PackageUpdatesCmd)
+rccommand.register(SummaryCmd)
 rccommand.register(PackageInfoCmd)
 rccommand.register(PackageInstallCmd)
 rccommand.register(PackageRemoveCmd)
