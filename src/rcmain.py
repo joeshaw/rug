@@ -55,7 +55,6 @@ def main(rc_version):
         sys.exit(0)
 
     command = None
-    command_name = None
     found_name = 0
     i = 0
     while i < len(argv) and not command:
@@ -63,7 +62,6 @@ def main(rc_version):
             found_name = 1
             command = rccommand.construct(argv[i])
             if command:
-                command_name = argv[i]
                 argv.pop(i)
         else:
             takes_arg = 0
@@ -107,13 +105,14 @@ def main(rc_version):
     # Try to read the .rcrc file.  It basically works like a .cvsrc file.
     if "--ignore-rc-file" not in argv:
         try:
-            rcrc = open("/home/trow/.rcrc", "r")
+            rcrc = open(os.path.expanduser("~/.rcrc"), "r")
+            print rcrc
             while 1:
                 line = rcrc.readline()
                 if not line:
                     break
                 pieces = string.split(line)
-                if len(pieces) and pieces[0] == command_name:
+                if len(pieces) and pieces[0] == command.name():
                     argv = join_args(pieces[1:], argv)
             rcrc.close()
         except IOError:

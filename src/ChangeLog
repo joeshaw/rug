@@ -1,5 +1,8 @@
 2002-06-26  Jon Trowbridge  <trow@ximian.com>
 
+	* rcmain.py: Call expanduser so that we can actually find
+	the .rcrc file.
+	
 	* rcmain.py: Support a .rcrc file.  Fixed bugs related to handling
 	of RC_ARGS, --read-from-file, etc.  Walk through our list of
 	options after calling getopt and remove all but the last of any
