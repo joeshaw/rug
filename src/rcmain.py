@@ -30,17 +30,6 @@ import rcutil
 import rctalk
 import rccommand
 import rcfault
-import rcsystemcmds
-import rcchannelcmds
-import rcpackagecmds
-import rcusercmds
-import rcwhatcmds
-import rclogcmds
-import rcnewscmds
-import rcprefscmds
-import rcmountcmds
-import rclockcmds
-import rctransactcmds
 
 rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2003 Ximian Inc.  All Rights Reserved."
@@ -49,12 +38,36 @@ rc_version = None
 # Whether we are connecting over Unix domain sockets or TCP.
 local = 0
 
-def main(ver):
+def import_commands(rug_dir):
+    import glob, imp
+    sysdir = rug_dir + "/commands"
+    sys.path.append(sysdir)
+
+    files = glob.glob("%s/*cmds.py" % sysdir)
+    for file in files:
+        (path, name) = os.path.split(file)
+        (name, ext) = os.path.splitext(name)
+        (file, filename, data) = imp.find_module(name, [path])
+
+        try:
+            module = imp.load_module(name, file, filename, data)
+        except ImportError:
+            rctalk.warning("Can't import module " + filename)
+
+        if file:
+            file.close()
+
+def main(ver, rug_dir):
 
     global local
     global rc_version
 
     rc_version = ver
+
+    if os.environ.has_key("RC_DEBUG"):
+        rctalk.show_debug = 1
+
+    import_commands(rug_dir)
 
     ###
     ### Grab the option list and extract the first non-option argument that
@@ -161,9 +174,6 @@ def main(ver):
 
     if opt_dict.has_key("terse"):
         rctalk.be_terse = 1
-
-    if os.environ.has_key("RC_DEBUG"):
-        rctalk.show_debug = 1
 
     if opt_dict.has_key("quiet"):
         rctalk.show_messages = 0

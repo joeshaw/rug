@@ -48,9 +48,9 @@ try:
         import profile
         sys.stderr.write("*** Profiling Enabled ***\n")
         sys.argv = filter(lambda x:x != "--rug-profile", sys.argv)
-        profile.run("rcmain.main(rug_version)")
+        profile.run("rcmain.main(rug_version, rug_dir)")
     else:
-        rcmain.main(rug_version)
+        rcmain.main(rug_version, rug_dir)
 except KeyboardInterrupt:
     # Just quietly exit if we got a ^C
     print

@@ -1,3 +1,13 @@
+2003-07-16  Tambet Ingo  <tambet@ximian.com>
+
+	* rug.in: Call rcmain.main with additional argument "rug_dir".
+
+	* Makefile.am: Split command files from 'rugsupport', install
+	them to $rugsupoort/commands.
+
+	* rcmain.py (import_commands): Implement. Import commands at
+	runtime. This implements very basic plugin system.
+
 2003-07-08  Joe Shaw  <joe@ximian.com>
 
 	* ximian_xmlrpclib.py (Transport.parse_response): Just move past
