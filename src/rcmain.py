@@ -76,7 +76,7 @@ def main(ver):
         command.usage()
         sys.exit(0)
 
-    argv = rccommand.get_user_default_args(argv)
+    argv = rccommand.get_user_default_args(argv, command)
 
     opt_dict, args = command.process_argv(argv)
 
