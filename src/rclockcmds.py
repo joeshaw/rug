@@ -39,6 +39,8 @@ def display_match(server, match, extra_head=[], extra_tail=[]):
 
     if match.has_key("channel"):
         str = rcchannelutils.channel_id_to_name(server, match["channel"])
+        if not str:
+            return 0
         table.append(("Channel:", str))
 
     if match.has_key("importance_num"):
@@ -53,6 +55,7 @@ def display_match(server, match, extra_head=[], extra_tail=[]):
     for label, val in table:
         rctalk.message("%s%s %s" % (" " * (maxlen - len(label)),
                                     label, val))
+    return 1
 
 def lock_to_table_row(server, lock, no_abbrev):
     name = "(any)"
@@ -67,7 +70,9 @@ def lock_to_table_row(server, lock, no_abbrev):
             
     if lock.has_key("channel"):
         channel = rcchannelutils.channel_id_to_name(server,
-                                                        lock["channel"])
+                                                    lock["channel"])
+        if not channel:
+            return None
         if not no_abbrev:
             channel = rcformat.abbrev_channel_name(channel)
 
@@ -83,7 +88,8 @@ def locks_to_table(server, locks, no_abbrev):
     table = []
     for l in locks:
         row = lock_to_table_row(server, l, no_abbrev)
-        table.append(row)
+        if row is not None:
+            table.append(row)
     return table
 
 def filter_package_dups(pkgs):
@@ -140,6 +146,8 @@ class LockListCmd(rccommand.RCCommand):
                     pkgs = server.rcd.packsys.search_by_package_match(l)
                     pkgs = filter_package_dups(pkgs)
 
+                visible = 1
+
                 if verbose:
                     extra_head = [("Lock #:", str(count))]
                     extra_tail = []
@@ -160,17 +168,23 @@ class LockListCmd(rccommand.RCCommand):
 
                             extra_tail.append((label, pkg_str))
                     
-                    display_match(server, l, extra_head, extra_tail)
-                    rctalk.message("")
+                    if display_match(server, l, extra_head, extra_tail):
+                        rctalk.message("")
+                    else:
+                        visible = 0
                             
                 else:
                     row = lock_to_table_row(server, l, no_abbrev)
-                    row.insert(0, str(count))
-                    if matches:
-                        row.append(str(len(pkgs)))
-                    table.append(row)
+                    if row is not None:
+                        row.insert(0, str(count))
+                        if matches:
+                            row.append(str(len(pkgs)))
+                        table.append(row)
+                    else:
+                        visible = 0
 
-                count = count + 1
+                if visible:
+                    count = count + 1
 
             if not verbose:
                 headers = ["#", "Pattern", "Channel", "Importance"]
