@@ -412,7 +412,7 @@ class InstallYouPatchCmd(rccommand.RCCommand):
                 if download_id != -1 and not download_complete:
                     rctalk.message("")
                     rctalk.message("Cancelling download...")
-                    v = server.rcd.packsys.abort_download(download_id)
+                    v = server.rcd.you.abort_download(download_id)
                     if v:
                         sys.exit(1)
                     else:

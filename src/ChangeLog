@@ -1,3 +1,8 @@
+2004-07-28  Tambet Ingo  <tambet@ximian.com>
+
+	* rcyoucmds.py (InstallYouPatchCmd.poll_transaction): Cancel
+	patch transaction, not the regular one. Doh!
+
 2004-06-17  Tambet Ingo  <tambet@ximian.com>
 
 	* rcmountcmds.py: Don't import rcchannelcmds. It's not used for
