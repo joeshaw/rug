@@ -1,0 +1,703 @@
+.\" Copyright (C) Ximian, Inc. 2002-2003.
+.\" Bitte besuchen Sie bugzilla.ximian.com, um Probleme mit der Software oder ihrer Dokumentation zu berichten.
+.TH "rug" "1" "1.0" "Ximian, Inc." "Ximian Red Carpet Software-Verwaltungswerkzeuge"
+.SH "NAME"
+.LP 
+rug \- rug ist die Oberfläche der Befehlszeile für den Ximian Red Carpet Dämon, rcd.
+.SH "SYNTAX"
+.LP 
+rug [\fB\-\-globale\-Optionen\fR] [Befehl] [\fB\-\-Befehlsoptionen\fR] [Argumente]
+.br
+rug \-\-version
+.br
+rug \fI\-\-help\fR
+.SH "BESCHREIBUNG"
+.LP
+rug ist das Komplement der Befehlszeile für das Ximian Red Carpet Software\-Verwaltungswerkzeug. Es arbeitet mit dem rcd Dämon, um Software entsprechend der von Ihnen erteilten Befehle zu installieren, zu aktualisieren oder zu entfernen. Die Software, die es installiert, kann von lokalen Dateien oder von Ximian Servern bzw. Spiegeln stammen und das System, von dem die Software verwaltet wird, kann ein Remote\-System sein (siehe die \fI\-\-host\fR Option und die rcd(8) Manpage), anstatt des lokalen Systems, das rug ausführt. Sie können einen oder mehrere Remote\-Server verwenden; diese werden als Dienste bezeichnet.
+.LP 
+Red Carpet Anwendungen sortieren Software nach Kategorie in Kanäle, welche Gruppen von ähnlicher Software sind. Ein Kanal könnte zum Beispiel Software von dem Betriebssystem Vendor enthalten, ein anderer könnte Ximian Desktop und noch ein weiterer Ximian Connector oder Software von einem dritten Software\-Händler umfassen. Sie können individuelle Kanäle abonnieren, um die Anzeige der verfügbaren Pakete zu kontrollieren und um die zufällige Installation unerwünschter Software zu verhindern. Operationen werden normalerweise nur an Software aus Kanälen, die Sie abonniert haben, durchgeführt. Sie können dies jedoch mit dem \fI\-\-allow\-unsubscribed\fR Kennzeichen ändern.
+.LP
+Red Carpet Anwendungen, einschließlich rug, verwenden das native Paket\-Verwaltungssystem Ihres Betriebssystems (außer auf Solaris, wo sie RPM verwenden), so dass Sie die meisten anderen Paket\-Verwaltungswerkzeuge neben Ihnen nutzen können.
+.LP 
+Hinweis: Frühere Versionen dieser Software waren als \fIrc\fR bekannt, aber aufgrund eines Konfliktes mit einem anderen Paket wurde die Anwendung umbenannt. Andere verwandte Software\-Namen, wie rcd, rcman und red\-carpet, sind davon nicht betroffen. Der \fIrug\fR Befehl verwendet jetzt die \fI.rugrc\fR Konfigurationsdatei sowie die \fIRUG_ARGS\fR Umgebungsvariable. Die alten Bezeichnungen \fI.rcrc\fR und \fIRC_ARGS\fR werden akzeptiert, wenn die neuen Formen fehlen.
+.SH "BEFEHLE"
+.LP 
+rug stellt eine Vielzahl von Befehlen bereit (im SYNTAX\-Abschnitt als [\fIBefehl\fR] angezeigt). Jeder Befehl akzeptiert die Optionskennzeichen, die im Abschnitt GLOBALE OPTIONEN aufgelistet sind. Zusätzlich haben viele Befehle spezifische Optionskennzeichen, die hier aufgelistet werden.
+.LP 
+Der am häufigsten verwendete Befehl ist \fIrug update\fR, welcher Updates in Kanälen, die Sie abonniert haben, herunterlädt und installiert. Wenn Sie nur Software aktualisieren möchten, dann ist dies der einzige Befehl, den Sie brauchen.
+.LP
+\fBBefehle der Paketverwaltung:\fR
+.TP
+Beachten Sie, dass Sie in Paketnamen Standard\-Shell\-Wildcards einfügen können, aber nicht in Kanalnamen. Wenn Sie einen Kanal angeben müssen, dann stellen Sie den Kanalnamen und einen Doppelpunkt dem Paket voran. Zum Beispiel: \fBrug in evolution\-devel\-snapshots:evolution\fR wird das "evolution" Paket von dem "evolution\-devel\-snapshots" Kanal installieren, anstatt von anderen Kanälen, wie "evolution\-snapshots". Wenn Sie keinen Kanal bestimmen, dann wird das neuste Paket installiert. Gibt es zwei gleiche Versionen, dann wird das Paket von dem Kanal mit der höheren Priorität (vom Server\-Administrator eingestellt) installiert.
+
+.TP 
+info [Paketname]
+Zeigt detaillierte Informationen über ein Paket an. Es können mehrere Pakete mit Leerzeichen getrennt aufgelistet werden. Akzeptiert das Kennzeichen \fI\-u, \-\-allow\-unsubscribed\fR, um sowohl in Kanälen, die Sie nicht abonniert haben, als auch in abonnierten Kanälen zu suchen.
+
+.TP
+install (in) [Paketname]
+Installiert das angegebene Paket oder die Pakete. Mehrere Pakete können mit Leerzeichen getrennt aufgelistet werden. Wenn \fIPaketname\fR ein Paket bestimmt, dass Sie bereits installiert haben, aber für das eine neuere Version verfügbar ist, dann wird die neue Version heruntergeladen und installiert.
+.IP
+Der install\-Befehl akzeptiert die folgenden Optionskennzeichen:
+.IP 
+\-d, \-\-download\-only
+.br 
+Lädt die Pakete herunter, aber installiert sie nicht. Siehe auch das \fI\-N\fR oder \fI\-\-dry\-run\fR Kennzeichen, welches für alle Befehle verfügbar ist.
+.IP
+\-y, \-\-no\-confirmation
+.br 
+Installiert ohne Bestätigung. Erlaubt aber nicht das Entfernen von in Konflikt stehenden Paketen ohne eine Bestätigung. Um das Entfernen von Konflikten ohne Bestätigung zu gestatten, müssen Sie auch \fI\-r\fR verwenden.
+.IP
+-r, \-\-allow\-removals
+.br 
+Erlaubt das Entfernen von Software ohne Bestätigung. Verwenden Sie dies mit Vorsicht, wenn Sie es zusammen mit der \fI\-y\fR Option nutzen.
+.IP
+\-u, \-\-allow\-unsubscribed
+.br
+Erlaubt, dass erforderliche Software von Kanälen, die Sie nicht abonniert haben, abgerufen wird.
+.IP
+\-\-entire\-channel [Kanalname]
+.br
+Installiert alle Pakete in dem angegebenen Kanal. Zum Beispiel würde \fBrug install \-\-entire\-channel ximian\-desktop\fR alles vom "ximian\-desktop" Kanal installieren. Beachten Sie, dass eine Installation nicht notwendigerweise Upgrades für Pakete, die Sie bereits haben, enthält, es sei denn, diese werden ausdrücklich von der neu installierten Software verlangt. Um sicherzugehen, dass Sie wirklich jedes Paket in einem Kanal haben, führen Sie nach der Installation mit diesem Kennzeichen den Befehl \fBrug update [Kanalname]\fR aus.
+
+.TP 
+lock\-add (la) [Optionen] [Paketname]  \fI[[Beziehung] [Version]]\fR
+Fügt eine Paket\-Sperrregel hinzu. Dies verhindert Änderungen am Installationsstatus des Paketes, die nicht ausdrücklich erfordert werden. Der Paketname kann individuell, mit Wildcard\-Mustern oder sogar mit Beziehungen von Versionsnummern, bestimmt werden. Zum Beispiel würde der Befehl \fIrug lock\-add gnome*<2.0\fR verweigern, dass alle mit 'gnome' beginnenden Pakete, die Versionen über 2.0 hätten, installiert werden. Akzeptiert die folgenden zusätzlichen Kennzeichen:
+.IP 
+\-c, \-\-channel=[Kanal]
+.br
+Bestimmt einen Kanal, der übereinstimmen muss.
+.IP
+\-i, \-\-importance=[Wichtigkeit]
+.br 
+Setzt das Mindest\-Wichtigkeitslevel für die Sperre. Pakete, die weniger bedeutend als die von Ihnen bestimmte Wichtigkeitsebene sind, werden blockiert, und diejenigen, die wenigstens so bedeutend sind, werden die Sperre außer Kraft setzen. Mögliche Wichtigkeitslevel, von am wenigstens zu am meisten bedeutend, sind: minor (gering), feature (Funktion), suggested (vorgeschlagen), urgent (dringend) und necessary (notwendig).
+
+.TP 
+lock\-delete (ld) [Optionen] [Sperrnummer]
+Löscht die Sperre, die Sie mit ihrer Nummer angegeben haben. Sie können die Nummer für jede Sperre mit dem \fBlock\-list (ll)\fR Befehl finden. Akzeptiert das \fI\-\-\-no\-confirmation\fR Kennzeichen, was das Entfernen ohne Bestätigung erlaubt.
+
+.TP 
+lock\-list (ll) [Optionen]
+Listet die angelegten Sperren auf. Die Sperren werden nach ID\-Nummer sortiert. Akzeptiert diese Optionskennzeichen:
+.IP 
+\-\-no\-abbrev
+.br
+Kanalinformationen werden nicht abgekürzt.
+.IP
+\-m, \-\-matches
+.br 
+Zeigt Informationen über zusammenpassende Pakete an.
+
+.TP 
+packages (pa) [Kanalname]
+Listet alle Pakete in einem Kanal auf. Wenn kein Kanal angegeben wird, dann werden alle Pakete in allen Kanälen aufgelistet. Sie können den vollständigen Kanalnamen oder den Alias\-Namen verwenden. Mehrere Kanäle können getrennt mit Leerzeichen angegeben werden.
+.IP
+Die Ausgabe für diesen Befehl erfolgt in drei Spalten. Die erste Spalte zeigt den Status an, die zweite den Namen des Paketes und die dritte die Version des Paketes. Die Spalte mit dem Paketstatus ist leer, wenn das Paket nicht installiert ist; sie zeigt ein "i" an, wenn das Paket installiert ist, oder ein "v", wenn das Paket installiert ist, aber eine andere Version hat, als die, die in der Liste angezeigt wird. Wenn das Paket gesperrt ist (siehe die Einträge für die rug\-Befehle \fBlock\-add\fR, \fBlock\-delete\fR und \fBlock\-list\fR), wird die Status\-Spalte auch ein L anzeigen.
+.IP
+Akzeptiert die folgenden Optionen:
+.IP
+\-\-no\-abbrev
+.br
+Kanal\- oder Versionsinformationen werden nicht abgekürzt.
+.IP
+\-i, \-\-installed\-only
+.br
+Zeigt nur die installierten Pakete an.
+.IP
+\-u, \-\-uninstalled\-only
+.br
+Zeigt nur die nicht installierten Pakete an.
+.IP
+\-\-sort\-by\-name
+.br
+Sortiert Pakete nach Namen (Voreinstellung).
+.IP
+\-\-sort\-by\-channel
+.br
+Sortiert Pakete nach Kanal.
+
+.TP  
+remove (rm, erase) [Paketname]
+Entfernt Pakete. Akzeptiert das Kennzeichen \fI\-y\fR oder \fI\-\-no\-confirmation\fR, um Aktionen ohne Bestätigung durchzuführen. Um Entfernungen zu erlauben, die Installationen begleiten, müssen Sie \fBrug install\fR mit dem \fI\-y\fR und dem \fI\-r\fR (\fI\-\-allow\-removal\fR) Kennzeichen verwenden.
+
+.TP 
+rollback (ro) [Optionen] [Zeit]
+Setzt die Pakettransaktion auf die Zeit und das Datum, welches Sie bestimmen, zurück. Die Zeit, zu der Sie zurücksetzen, muss nach dem Zeitpunkt liegen, zu dem Sie die Option "rollback" mit \fBrug set\fR auf "true" (wahr) gesetzt haben (siehe rcd.conf(5) für zusätzliche Informationen). Das Zurücksetzen funktioniert nur auf RPM\-basierten Systemen. Versionen, zu denen Sie abrüsten, müssen auf Ihrem Red Carpet Enterprise Server verfügbar sein.
+.IP
+\-N, \-\-dry\-run
+.br 
+Testet die angeforderten Aktionen, aber führt sie nicht wirklich aus.
+.IP
+\-y, \-\-no\-confirmation
+.br
+Fragt beim Abrüsten nicht nach einer Bestätigung. Das Entfernen von Software, die nicht abgerüstet wird, erfordert immer noch die Bestätigung, es sei denn, dies wird mit dem \fI\-r\fR Kennzeichen kombiniert.
+.IP
+\-r, \-\-allow\-removals
+.br
+Erlaubt das Entfernen von Software ohne eine Bestätigung.
+.IP
+\-d, \-\-download\-only
+.br
+Lädt alle Software, die für das Abrüsten erforderlich ist, herunter, aber installiert sie nicht.
+
+.TP 
+search [Abfragezeichenkette]
+Sucht in der Liste der Pakete nach der Abfragezeichenkette. Akzeptiert die folgenden Optionen:
+.IP
+\fIOptionen der Suchzeichenkette:\fR
+.br 
+\-\-match\-all
+.br 
+Sucht nur nach einem Treffer des gesamten Suchausdruckes (Voreinstellung).
+.IP
+\-\-match\-any
+.br 
+Zeigt Ergebnisse an, die mit irgendeinem Suchausdruck übereinstimmen.
+.IP
+\-\-match substrings
+.br 
+Zeigt Ergebnisse an, die mit Teilzeichenketten von irgendeinem Teil eines Wortes übereinstimmen (Voreinstellung).
+.IP
+\-\-match\-words
+.br
+Sucht nur nach einem vollständigen Wort als Treffer.
+.IP
+\-\-search\-description
+.br 
+Sucht nur in der Paketbeschreibung und nicht in den Paketnamen.
+.IP
+\-i, installed\-only
+.br 
+Sucht nur in installierten Paketen.
+.IP
+\-u, \-\-uninstalled\-only
+.br 
+Sucht nur in Paketen, die nicht installiert sind.
+.IP
+\-c, \-\-channel=[Kanal]
+.br 
+Sucht nur in dem von Ihnen angegebenen Kanal.
+.IP
+\fIAusgabe\-Optionen:\fR
+.br
+\-\-show\-package\-ids
+.br
+Zeigt sowohl Paket\-IDs als auch Paketnamen an.
+.IP
+\-\-sort\-by\-name
+.br
+Sortiert Pakete nach Namen (Voreinstellung).
+.IP
+\-\-sort\-by\-channel
+.br 
+Sortiert Pakete nach Kanal.
+.IP
+\-\-no\-abbrev
+.br
+Kanal\- oder Versionsinformationen werden nicht abgekürzt.
+
+.TP 
+summary (sum)
+Zeigt eine Zusammenfassung der verfügbaren Updates an. Akzeptiert ein Kennzeichen: \fI\-\-no\-abbrev\fR, was bedeutet, dass Kanalnamen und Wichtigkeitsebenen nicht abgekürzt werden.
+
+.TP 
+list\-updates (lu) [Kanalname] [Kanalname]
+Listet Updates in abonnierten Kanälen auf. Das Hinzufügen von Kanälen als Argumente beschränkt die Liste auf die von Ihnen angegebenen Kanäle. Wenn Sie keinen Kanal abonniert haben, werden niemals Updates verfügbar sein, selbst wenn Sie es hier angeben. Sie müssen Listen\-Updates abonnieren. Akzeptiert diese Kennzeichen:
+.IP 
+\-\-no\-abbrev
+.br 
+Kanal\- oder Versionsinformationen werden nicht abgekürzt.
+
+.TP
+update (up) [Kanalname] [Kanalname]
+Lädt Updates herunter und installiert sie. Ohne Argumente wird dies alle Updates für abonnierte Kanäle abrufen. Um bestimmte Kanäle aufzulisten, müssen Sie diese, getrennt mit Leerzeichen, als Argumente angeben. Verwenden Sie für einzelne Pakete \fBrug install\fR. Wenn Sie keinen Kanal abonniert haben, dann werden niemals Updates bereitstehen; Sie müssen Kanäle abonnieren, um Updates installieren zu können. Wenn Sie Software von einem Kanal, den Sie nicht abonniert haben, installieren oder aktualisieren möchten, dann verwenden Sie \fBrug install \-u\fR. Akzeptiert die folgenden Optionskennzeichen:
+.IP
+\-N, \-\-dry\-run
+.br 
+Testet die angeforderten Aktionen und zeigt sie an, aber führt sie nicht wirklich aus.
+.IP
+\-y, \-\-no\-confirmation
+.br
+Installiert Pakete ohne Bestätigung. Erlaubt nicht das Entfernen von in Konflikt stehenden Paketen ohne eine Bestätigung. Um das Entfernen ohne Bestätigung zu gewähren, müssen Sie auch \fI\-r\fR verwenden.
+.IP
+\-i, \-\-importance=[Wichtigkeit]
+.br 
+Installiert nur Updates, die genauso wichtig oder wichtiger sind, wie der von Ihnen bestimmte Wert. Der Wert kann 'minor' (gering), 'feature' (Funktion), 'suggested' (vorgeschlagen), 'necessary' (erforderlich) oder 'urgent' (dringend) lauten.
+.IP
+\-r, \-\-allow\-removals
+.br 
+Erlaubt, dass Software, wenn erforderlich, entfernt wird, um die Installation abzuschließen.
+
+.TP 
+verify    
+.br 
+Überprüft Systemabhängigkeiten. Wenn die Systemabhängigkeiten nicht erfüllt werden, wird rug das Entfernen oder die Installation von Paketen vorschlagen, die zur Lösung der Konflikte erforderlich sind. Akzeptiert diese Kennzeichen:
+.IP 
+\-r, \-\-allow\-removals
+.br 
+Erlaubt rug, Software ohne Bestätigung zu entfernen.
+.IP
+\-y, \-\-no\-confirmation
+.br
+Erlaubt die Installation ohne Bestätigung. Verwenden Sie dies zusammen mit \fI\-r\fR, um alle Aktionen ohne Bestätigung zu erlauben.
+
+.LP 
+\fBKanalbefehle:\fR
+.TP 
+channels (ch) 
+Listet verfügbare Kanäle auf. Die Ausgabe erfolgt in drei Spalten: Die erste Spalte zeigt an, ob Sie den Kanal abonniert haben, die zweite zeigt den kurzen Alias\-Namen des Kanals an und die dritte gibt den vollständigen Kanalnamen an. Akzeptiert die folgenden zusätzlichen Kennzeichen:
+.IP 
+\-s, \-\-subscribed
+.br 
+Listet nur Kanäle auf, die Sie abonniert haben.
+.IP
+\-u, \-\-unsubscribed
+.br 
+Listet nur Kanäle auf, die Sie nicht abonniert haben.
+
+.TP 
+subscribe (sub) [Kanalname]
+Abonniert einen Kanal. Sie können den vollständigen Kanalnamen oder den Alias\-Namen verwenden. Verwenden Sie das \fI\-s\fR oder \fI \-\-strict\fR Kennzeichen, damit die Aktion scheitert, wenn versucht wird, einen Kanal zu abonnieren, den Sie bereits abonniert haben.
+
+.TP 
+unsubscribe (unsub) [Kanalname]
+Widerruft das Abonnement eines Kanals. Sie können den vollständigen Kanalnamen oder den Alias\-Namen verwenden. Verwenden Sie das \fI\-s\fR oder \fI \-\-strict\fR Kennzeichen, damit die Aktion scheitert, wenn Sie das Abonnement bereits widerrufen haben.
+
+.LP 
+\fBBefehle der Abhängigkeitsanalyse:\fR
+.TP
+Wenn Sie Informationen über Pakete suchen, können Sie einen Kanal mit der Syntax "channel:package" bestimmen. Geben Sie keinen Kanal an, wird der Dämon einen für Sie auswählen, und zwar unter Verwendung der Prioritätsregeln für Kanäle, die auf dem Server gesetzt sind.
+
+.TP 
+dangling\-requires
+Geht durch alle Pakete in allen Kanälen auf dem Server, um zu prüfen, ob es irgendwelche Abhängigkeiten gibt, die von nichts anderem auf dem Server bereitgestellt werden. Der Befehl akzeptiert keine Argumente oder Optionen. Er wird normalerweise von Red Carpet Enterprise Server\-Administratoren verwendet, die die Kohärenz von Software, die für eine bestimmte Client\-Maschine verfügbar ist, prüfen wollen.
+
+.TP 
+info\-conflicts (ic) [Paketname]
+Listet alle Pakete auf, die mit \fIPaketname\fR in Konflikt stehen.
+
+.TP 
+info\-provides (ip)  [Paketname]
+Zeigt die Funktionalität oder die Bibliotheken an, die ein Paket bereitstellt. Wenn Sie einen bestimmten Kanal angeben möchten, von dem Sie das Paket abrufen wollen, verwenden Sie die Syntax [Kanal\-Alias + ':'][Paketname], wie im Abschnitt BEISPIELE beschrieben.
+
+.TP 
+info\-requirements (ir) [Paketname]
+Listet die Software auf, die vorhanden sein muss, bevor das Paket installiert werden kann.
+
+.TP 
+solvedeps (solve) [Zeichenkette]
+Installiert oder entfernt Software, um die Paket\-, Anwendungs\- und Bibliotheksanforderungen zu erfüllen. Dies kann Versionsnummern oder Bereiche enthalten. Der ! Operator wird verwendet, um das Entfernen anzuzeigen. Zum Beispiel wird der Befehl \fBrug solvedeps "!rpm\-python" "rpm404\-python"\fR das rpm\-python Paket entfernen und es durch das rpm404\-python Paket ersetzen.
+
+.TP 
+what\-conflicts (wc) [Paketname]
+Listet Pakete auf, die mit dem Eintrag, den Sie bestimmen, in Konflikt stehen. Akzeptiert die folgenden Optionskennzeichen:
+.IP 
+\-\-no\-abbrev
+.br 
+Kanal\- oder Versionsinformationen werden nicht abgekürzt.
+.IP
+\-i, installed\-only
+.br 
+Sucht nur in den installierten Paketen.
+.IP
+\-u, \-\-uninstalled\-only
+.br 
+Sucht nur in den Paketen, die nicht installiert sind.
+.IP
+\-\-sort\-by\-name
+.br 
+Sortiert Pakete nach Namen (Voreinstellung).
+.IP
+\-\-sort\-by\-channel
+.br 
+Sortiert Pakete nach Kanal.
+
+.TP 
+what\-provides (wp) [Abfragezeichenkette]
+Listet Pakete auf, die die Bibliothek, das Programm oder das Paket, welches Sie bestimmen, bereitstellen. Akzeptiert die folgenden Optionskennzeichen:
+.IP 
+\-\-no\-abbrev
+.br 
+Kanal\- oder Versionsinformationen werden nicht abgekürzt.
+.IP
+\-i, installed\-only
+.br 
+Sucht nur in den installierten Paketen.
+.IP
+\-u, \-\-uninstalled\-only
+.br 
+Sucht nur in den Paketen, die nicht installiert sind.
+.IP
+\-\-sort\-by\-name
+.br 
+Sortiert Pakete nach Namen (Voreinstellung).
+.IP
+\-\-sort\-by\-channel
+.br 
+Sortiert Pakete nach Kanal.
+
+.TP 
+what\-requires (wr) [Abfragezeichenkette]
+Listet Pakete auf, die die Bibliothek, das Programm oder das Paket, welches Sie bestimmen, erfordern. Akzeptiert die folgenden Optionskennzeichen:
+.IP 
+\-\-no\-abbrev
+.br 
+Kanal\- oder Versionsinformationen werden nicht abgekürzt.
+.IP
+\-i, installed\-only
+.br 
+Sucht nur in den installierten Paketen.
+.IP
+\-u, \-\-uninstalled\-only
+.br 
+Sucht nur in den Paketen, die nicht installiert sind.
+.IP
+\-\-sort\-by\-name
+.br 
+Sortiert Pakete nach Namen (Voreinstellung).
+.IP
+\-\-sort\-by\-channel
+.br 
+Sortiert Pakete nach Kanal.
+
+.LP 
+\fBBefehle der Einstellungsverwaltung:\fR
+.TP 
+get\-prefs (get, prefs) [Token]
+Zeigt den Wert des Einstellungstokens, den Sie benennen, an. Wenn Sie keinen Token bereitstellen, dann werden alle Einstellungen angezeigt.
+
+.TP 
+set\-prefs (set) [Token] [Wert]
+Setzt die Einstellungsvariable \fIToken\fR auf den Wert \fIWert\fR. Optionen werden normalerweise in der rcd.conf Datei gespeichert (siehe rcd.conf(5) für zusätzliche Informationen) und können durch direkte Bearbeitung dieser Datei geändert werden. Zusätzliche Red Carpet Module können jedoch zusätzliche Einstellungen anlegen, die nicht notwendigerweise in rcd.conf aufbewahrt werden, aber trotzdem mit \fBrug set\fR eingestellt werden. Das grundlegende Set der Optionen ist dieses:
+.IP
+\fBbind\-ip:\fR Für Systeme, die mehr als eine IP\-Adresse verwenden, wählt diese Option die Adresse, an die sich rcd binden wird. Lassen Sie es leer, um an alle Adressen zu binden.
+.IP 
+\fBcache\-cleanup\-enabled:\fR Löscht Pakete aus dem Cache, wenn dieser zu groß oder zu alt wird. Voreinstellung lautet True (Wahr).
+.IP 
+\fBcache\-directory:\fR Das Verzeichnis, in dem Cache\-Daten gespeichert werden. Die Voreinstellung ist /var/cache/redcarpet.
+.IP
+\fBcache\-enabled:\fR Wenn True (Wahr), dann hat der Cache Pakete und Metadaten heruntergeladen. Es ist auf True voreingestellt.
+.IP
+\fBcache\-max\-age\-in\-days:\fR Die Anzahl der Tage, die Pakete im Cache verbleiben (wenn \fBcache\-cleanup\-enabled\fR auf true (wahr) gesetzt ist). Voreinstellung ist 30.
+.IP 
+\fBcache\-max\-size\-in\-mb:\fR Maximale Größe des Cache, bevor er geleert wird (wenn cleanup aktiviert ist). Voreinstellung ist 300.
+.IP 
+\fBdebug\-level:\fR Stellt die Menge der Debug\-Ausgabe an stderr ein. Werte können von 0 (keine) bis 6 (viel) reichen. Die Voreinstellung lautet 4.
+.IP 
+\fBheartbeat\-interval:\fR Das Intervall in Sekunden zwischen automatischen Aktualisierungen von Kanal\- und Paketdaten. Die Voreinstellung lautet 7200 (zwei Stunden). Beachten Sie, dass dies nicht das Abfrageintervall für Transaktionen, welches mit dem \fBserver\-poll\-interval\fR Token gesetzt wird, beeinflusst.
+.IP 
+\fBhttp\-1.0:\fR Verwendet das HTTP/1.0 Protokoll für die Kommunikation mit dem Server. Es ist auf False (Falsch) voreingestellt.
+.IP 
+\fBmax\-downloads:\fR Maximale Anzahl von gleichzeitigen Paket\-Downloads. Der voreingestellte Wert lautet 5.
+.IP 
+\fBproxy\-password:\fR Passwort für den Proxy, wenn vorhanden.
+.IP      
+\fBproxy\-url:\fR URL für den Proxy\-Server, wenn vorhanden.
+.IP 
+\fBproxy\-username:\fR Benutzername für den Proxy, wenn vorhanden.
+.IP 
+\fBremote\-enabled:\fR Erlaubt Clients, über das Netz (remote) zu diesem Dämon zu verbinden. Es ist auf "true" (wahr) voreingestellt.
+.IP 
+\fBremote\-port:\fR Der Port, der für Verbindungen von Remote\-Clients verwendet wird. Es ist auf 505 voreingestellt.
+.IP 
+\fBrequire\-signatures:\fR Erfordert, das Pakete signiert sind, bevor sie installiert werden. Es ist auf "true" (wahr) voreingestellt.
+.IP 
+\fBrequire\-verified\-certificates:\fR Überprüft SSL\-Zertifikate vom Server. Nutzer von Red Carpet Enterprise sollten diese auf "false" (falsch) setzen, es sei denn, sie haben ein signiertes SSL\-Zertifikat (erzeugt oder gekauft). Es ist auf "true" (wahr) voreingestellt.
+.IP 
+\fBrollback:\fR Speichert eine detailliertere Transaktionshistorie und aktiviert somit die Funktion Zurücksetzen. Die Voreinstellung lautet "false" (falsch).
+.IP 
+\fBserver\-poll\-interval:\fR Intervall in Sekunden, in dem eine Prüfung auf Änderungen von Transaktionsinformationen erfolgt. Der voreingestellte Wert lautet 3600 oder eine Stunde. Beachten Sie, dass dies nicht das Intervall der Kanal\- und Paketaktualisierung, welches mit dem \fBheartbeat\-interval\fR Token gesetzt wird, beeinflusst.
+.IP 
+\fBsyslog\-level:\fR Stellt die Menge der Protokollausgabe, die in syslog gespeichert wird, ein. Werte können von 0 (keine) bis 6 (viel) reichen. Die Voreinstellung lautet 4.
+.IP
+\fBHinweis:\fR Seit rug 2.0 ist die "host" Option nicht mehr vorhanden; Server werden stattdessen mit dem \fBrug service\-add\fR Befehl definiert. Auch die "enable\-premium" Option wurde entfernt; Premium\-Server werden jetzt automatisch erkannt.
+
+.LP 
+\fBSystem\-Befehle:\fR
+.TP
+activate (act) [Aktivierungscode] [E\-Mail\-Adresse]
+Aktiviert die Maschine für einen Premium\-Server und erlaubt ihr, auf private Kanäle, die hier bereitgestellt werden, zuzugreifen.
+.IP 
+\-n, \-\-no\-refresh
+.br 
+Kanaldaten werden nach der Aktivierung nicht aktualisiert.
+.IP
+\-s, \-\-service=
+Wenn Sie mehrere Server verwenden, dann nutzen Sie diese Option, um einen zu bestimmen. Folgt dem Kennzeichen mit einem Leerzeichen und der URL, dem Namen oder der Nummer des Dienstes. Verwenden Sie \fBrug service\-list\fR für die Anzeige der verfügbaren Dienste.
+.IP
+\-a, \-\-alias
+.br 
+Bestimmt den Alias\-Namen für diese Maschine. Der Alias\-Name wird dem Server\-Administrator angezeigt. Diese Option ist nur für Red Carpet Enterprise Server nützlich.
+
+.TP
+dump
+Gibt die Systeminformationen in XML\-Format aus. Wird normalerweise für Debug\-Zwecke verwendet. Die Ausgabe von diesem Befehl wird am besten zu einer Datei geleitet und komprimiert.
+
+.TP 
+mount [Pfad]
+Lädt ein Verzeichnis als einen Kanal und fügt alle Pakete innerhalb des Verzeichnisses zu dem Kanal hinzu. Es wird angenommen, dass die Plattform für den Kanal die gleiche ist, wie die des Servers. Akzeptiert die folgenden Optionen:
+.IP 
+\-\-no\-abbrev
+.br 
+Kanal\- und Versionsinformationen werden nicht abgekürzt.
+.IP
+\-\-sort\-by\-name
+.br
+Sortiert Pakete nach Namen (Voreinstellung).
+.IP
+\-\-sort\-by\-channel
+.br
+Sortiert Pakete nach Kanal.
+
+.TP 
+mirrors [Dienst] [Spiegelnummer]
+Listet verfügbare Spiegel auf oder wählt einen Spiegel aus. Wenn Sie mehrere Dienste verwenden, müssen Sie auch den Dienst bestimmen. Nicht alle Server haben Spiegel; nutzen Sie die \fI\-\-list\-only\fR oder \-l Option, um eine Liste der verfügbaren Spiegel anzuzeigen.
+
+.TP 
+ping [Servername]
+Pingt den rcd\-Prozess auf dem Server. Wenn kein Server angegeben ist, wird der aktuelle Server gepingt.
+
+.TP 
+recurring (rec)
+Zeigt Informationen über wiederkehrende Ereignisse an, einschließlich AutoPull und der Taktfrequenz (automatische Kanalaktualisierung). Der Befehl stellt das Kennzeichen für die Transaktion, die Gesamtanzahl, die sie aufgetreten ist, sowie das Datum und die Zeit der nächsten und vorherigen Transaktion bereit.
+
+.TP 
+refresh (ref)
+Aktualisiert die Kanaldaten für alle Kanäle. Der Zeitmesser für die Taktfrequenz startet bei Ausführung dieses Befehls von vorn. Eine Aktualisierung führt nicht zu einer Abfrage von neuen server\-initiierten Transaktionen und beeinflusst auch nicht den \fBserver\-poll\-interval\fR Zähler.
+
+.TP
+service\-add (sa) \fI[URL\-des\-Servers]\fR
+Fügt einen Server zu denjenigen hinzu, die der Dämon auf Updates überprüft. Sie können mehrere Server hinzufügen und der Dämon wird während der Aktualisierung zu jedem verbinden. Server\-Informationen werden in der /var/lib/rcd/services.xml Datei gespeichert. Wenn Sie von rug 1.4 aufrüsten und keine services.xml Datei haben, wird Ihr Host\-Eintrag nur ein einziges Mal aus rcd.conf gelesen und dann in services.xml gespeichert. Es ist nicht empfehlenswert, die services.xml Datei per Hand zu bearbeiten.
+
+.TP 
+service\-list (sl)
+Listet die Server auf, die rcd kennt und kontaktieren kann.
+
+.TP
+service\-delete (sd) [Server]
+Löscht einen Server von der Liste der Server, die der Dämon auf Updates überprüft. Sie können den Server mit Namen, URL oder seiner Nummer, wie in \fBrug sl\fR angezeigt, angeben.
+
+.TP 
+shutdown
+Stoppt den rcd\-Prozess des Servers.
+
+.TP 
+unmount [Kanal]
+Macht das Laden eines Verzeichnisses, das als ein Kanal geladen wurde, rückgängig.
+
+.LP 
+\fBBefehle der Benutzerverwaltung:\fR
+.TP 
+user\-add (ua) [Benutzername] [Privilegien]
+Legt ein Konto mit dem Red Carpet Dämon an, so dass jemand Software auf Ihrem System verwalten kann, ohne sich direkt an ihm anzumelden. Dieser Befehl kann auch verwendet werden, um Verwaltungszugriff für lokale Nutzer, die nicht Root sind, zu gewähren. Sie können den Benutzernamen und die Namen der zu gewährenden Privilegien als Argumente bereitstellen. Tun Sie dies nicht, werden Sie danach gefragt. Nach dem Hinzufügen des Nutzers werden die Benutzer\-Update Werkzeuge gestartet, um die Privilegien einzustellen. Zum Beenden drücken Sie \fBEnter\fR in einer leeren Zeile. Siehe den Abschnitt BEISPIELE für Beispiele zur Verwendung dieses Befehls.
+
+.TP 
+user\-delete (ud) [Benutzername]
+Löscht einen bestimmten Benutzer.
+
+.TP 
+user\-edit (ue) [Benutzername]
+Zeigt eine Liste der Privilegien des Nutzers an. Dieser Befehl ist interaktiv: Er wird zuerst die Privilegien auflisten und Ihnen dann eine Prompt anbieten. Geben Sie ein Plus\- (+) oder Minus\- (-) Zeichen und dann den Namen des Privilegs ein; danach drücken Sie \fBEnter\fR. Um beispielsweise dem Nutzer die Installation von Software zu erlauben, würden Sie \fB+install\fR eingeben. Zum Speichern und Beenden müssen Sie in einer leeren Zeile \fBEnter\fR drücken.
+
+.TP 
+user\-list (ul)
+Listet alle Benutzer auf, die dem Dämon bekannt sind.
+
+.LP
+\fBAndere Befehle:\fR
+.TP 
+help [Befehl]
+Gibt detaillierte Hilfe über einen Befehl aus. Wird kein Befehl angegeben, zeigt dies eine Liste aller verfügbaren Befehle an.
+
+.TP
+history [Suchbegriff]
+Durchsucht Protokolleinträge nach dem Suchbegriff, den Sie bestimmen. Standardmäßig werden Paketnamen nach dem Begriff durchsucht und der Versionsverlauf des Paketes angezeigt. Verwenden Sie die folgenden Optionskennzeichen für die Durchführung einer anderen Suche:
+.IP 
+\-n, \-\-search\-name
+.br 
+Durchsucht Protokolle nach Paketnamen (Voreinstellung).
+.IP
+\-a, \-\-search\-action
+.br
+Durchsucht Protokolle nach Aktionen, die durchgeführt wurden.
+.IP
+\-\-search\-host
+.br 
+Durchsucht Protokolle nach verwendetem Host.
+.IP
+\-\-search\-user
+.br 
+Sucht nach Benutzern, die die Aktionen durchgeführt haben.
+.IP
+\-\-match\-all
+.br 
+Ergebnisse müssen mit allen Suchzeichenketten übereinstimmen (Voreinstellung).
+.IP
+\-\-match\-any
+.br
+Ergebnisse können mit jeder beliebigen Suchzeichenkette übereinstimmen.
+.IP
+\-\-match\-substrings
+.br
+Zeigt Ergebnisse an, die mit Teilzeichenketten von irgendeinem Teil eines Wortes übereinstimmen.
+.IP
+\-\-match\-word
+.br
+Sucht nur nach einem vollständigen Wort als Treffer.
+.IP
+\-d, \-\-days\-back=[Anzahl_der_Tage]
+.br
+Maximale Anzahl der Tage, die Sie in den Protokollen zurückgehen können (Voreinstellung ist 30).
+
+.TP 
+news
+Zeigt die Red Carpet News an. Akzeptiert diese Kennzeichen:
+.IP 
+\-c, \-\-channel=[Kanal]
+.br 
+Zeigt nur News für den angegebenen Kanal an.
+.IP
+\-s, \-\-subscribed\-only
+.br
+Zeigt nur News an, die mit abonnierten Kanälen in Verbindung stehen.
+.IP
+\-u, \-\-unsubscribed\-only
+.br 
+Zeigt nur News für Kanäle an, die Sie nicht abonniert haben.
+.SH "GLOBALE OPTIONEN"
+.LP 
+Die folgenden Optionen können auf jede rug\-Transaktion angewendet werden:
+.TP 
+\fB\-\-batch\fR
+Führt im Batch\-Modus aus.
+
+.TP 
+\fB\-\-debug\fR
+Druckt während der Ausführung zusätzliche Debug\-Informationen. Dies unterscheidet sich vom Debug\-Befehl, der ein Coredump sammelt.
+
+.TP 
+\fB\-h, \-\-host=<\fIHostname\fB>\fR
+Bestimmt das Host\-System, auf dem die Transaktion ausgeführt wird. Das Host\-System muss den rcd\-Dämon ausführen.
+
+.TP 
+\fB\-\-help\fR
+Ohne Angabe eines Befehls zeigt dieses Kennzeichen eine Liste der Befehle an und beendet. Mit Angabe eines Befehls zeigt dies eine Liste der verfügbaren Optionen für den Befehl an.
+
+.TP 
+\fB\-\-ignore\-env\fR
+Ignoriert die RC_ARGS Umgebungsvariable für diese Transaktion.
+
+.TP 
+\fB\-\-ignore\-rc\-file\fR
+Ignoriert bei Ausführung der Transaktion die Einstellungen in der .rugrc Datei.
+
+.TP 
+\fB\-N, \-\-dry\-run\fR
+Führt die eigentliche Transaktion nicht aus, aber zeigt an, was gemacht worden wäre.
+
+.TP 
+\fB\-\-normal\-output\fR
+Normale Ausgabe (der voreingestellte Modus). Dies liegt irgendwo zwischen "verbose" (umfangreich) und "terse" (kurz).
+
+.TP 
+\fB\-P, \-\-password <Passwort>\fR
+Bestimmt das Passwort, das verwendet wird.
+
+.TP 
+\fB\-q, \-\-quiet\fR
+Ruhige Ausgabe: Druckt nur Fehlernachrichten.
+
+.TP 
+\fB\-\-read\-from\-file <Dateiname>\fR
+Gibt zusätzliche Argumente für die von Ihnen angegebene Datei aus.
+
+.TP 
+\fB\-\-read\-from\-stdin\fR
+Gibt Argumente von stdin aus.
+
+.TP 
+\fB\-t, \-\-terse\fR
+Kurze Ausgabe.
+
+.TP 
+\fB\-U, \-\-user, <Benutzername>\fR
+Bestimmt einen Benutzernamen für diese Transaktion.
+
+.TP 
+\fB\-V, \-\-verbose\fR
+Umfangreicher Modus; zeigt zusätzliche Informationen für die Transaktion an, wenn welche verfügbar sind.
+
+.TP 
+\fB\-\-version\fR
+Zeigt die Versionsnummer des Programms an und beendet.
+
+
+.SH "DATEIEN"
+.TP 
+\fI.rugrc\fR
+Die \fI.rugrc\fR Ressource\-Datei ist optional. Wenn sie existiert, werden ihre Inhalte als zusätzliche Argumente für den rug\-Befehl, der ausgeführt wird, behandelt. Dies ist dem Verhalten der \fIRUG_ARGS\fR Umgebungsvariable ähnlich. Beachten Sie außerdem, dass sich die verwendete \fI.rugrc\fR Datei in dem Home\-Verzeichnis des Benutzers, der rc ausführt, befindet und wenn Sie rug als sudo anstatt direket als Root ausführen, werden Sie nicht die \fI.rugrc\fR Datei des Root\-Nutzers verwenden.
+.IP
+Wenn \fI.rugrc\fR nicht existiert, wird stattdessen die ältere \fI.rcrc\fR Datei akzeptiert.
+
+.TP
+\fI/etc/ximian/rcd.conf\fR
+Die Red Carpet Dämon Konfigurationsdatei. Siehe die rcd.conf(5) Manpage für Einzelheiten.
+
+.TP 
+\fI/var/lib/rcd/services.xml\fR
+Die Datei der Dienste des Red Carpet Dämons. Bestimmt die Server, auf die der Dämon zugreift. Siehe die rcd(8) Manpage für Einzelheiten. Sie wird im Allgemeinen nicht per Hand bearbeitet; verwenden Sie stattdessen den \fBrug service\-add\fR Befehl.
+.SH "UMGEBUNGSVARIABLEN"
+.TP 
+\fBRUG_ARGS\fP
+Diese Umgebungsvariable wird allen Optionen der Befehlszeile, die an rug geleitet werden, vorangestellt, und agiert als ein zusätzliches Set von Argumenten. Die Variable wird ignoriert, wenn das \fI\-\-ignore\-env\fR Kennzeichen gesetzt ist. Versuchen Sie nicht, das \fI\-\-ignore\-env\fR Kennzeichen in der \fIRUG_ARGS\fR Variable zu setzen; dies ist absurd.
+.IP
+Wenn \fIRUG_ARGS\fR nicht gesetzt ist, wird stattdessen die \fIRC_ARGS\fR Umgebungsvariable akzeptiert.
+.SH "BEISPIELE"
+.LP 
+In den meisten Fällen sind Nicht\-Root\-Nutzer in der Lage, das System abzufragen, aber sie können keine Änderungen vornehmen. System\-Administratoren können jedoch den \fBuser\-add (ua)\fR Befehl verwenden, um rcd\-Konten für Nicht\-Root\-Nutzer anzulegen.
+.LP
+Beachten Sie, dass rug die \fI.rugrc\fR Datei in dem Home\-Verzeichnis des Benutzers, der das Programm ausführt, verwenden wird, und das einfach das Platzieren der Datei in dem Home\-Verzeichnis von Root nicht sicherstellt, dass sie jedesmal verwendet wird.
+.LP
+Hier sind einige Standard\-Arten, in denen das Programm verwendet werden kann:
+.TP 
+\fBrug update \-y\fR
+Lädt alle Updates für gegenwärtig installierte Pakete in aktuell abonnierten Kanälen herunter und installiert sie. Es entfernt keine Software, die mit diesen Updates in Konflikt stehen kann. Dies ist das gleiche wie die Verwendung der Option \fI\-\-no\-confirmation\fR.
+
+.TP 
+\fBrug update \-yr\fR
+Lädt alle Updates für gegenwärtig installierte Pakete in aktuell abonnierten Kanälen herunter und installiert sie und entfernt auch alle widersprüchlichen Pakete, ohne nach einer Bestätigung zu fragen. Dies ist eine praktische Option, aber sie sollte nur bei Servern verwendet werden, denen Sie absolut vertrauen. Es ist das gleiche wie die Verwendung der Optionen \fI\-\-no\-confirmation\fR und \fI\-\-allow\-removals\fR.
+
+.TP 
+\fBrug \-Vu \-\-host=[Hostname] install [Paketname]\fR
+Dies wird im umfangreichen Modus arbeiten und den rcd\-Dämon auf dem angegebenen Host kontaktieren, um das bestimmte Paket zu installieren, ungeachtet dessen, ob es in einem Kanal ist, den der Benutzer abonniert hat.
+
+.TP 
+\fBrug act \-\-service https://my.rc.server/data \-\-alias mein\-Alias Aktivierungscode meineadresse@email.com\fR
+Aktiviert diese Maschine beim Red Carpet Enterprise Server, der unter my.rc.server bereitgestellt wird, und verwendet dabei den Alias\-Namen "mein\-Alias". Der Aktivierungscode wird von Ihrem RCE\-Administrator bereitgestellt. Siehe die Red Carpet Enterprise Anleitung für Administratoren, um Einzelheiten über Aktivierungsmechanismen zu erfahren.
+
+.TP 
+\fBrug solvedeps \fI"library.so.1" "Anwendung < 1.2"\fR
+Installiert das Paket, das \fIlibrary.so.1\fR und eine Version von \fIAnwendung\fR, die niedriger als 1.2 ist, bereitstellt.
+
+.TP 
+\fBrug info\-provides meinkanal:meinpaket\fR
+Zeigt die Funktionalität an, die von der "meinpaket" Software von "meinkanal" bereitgestellt wird.
+
+.TP 
+\fBrug install rc*\fR
+Installiert alle Pakete, die in abonnierten Kanälen sind und deren Namen mit "rc" beginnen.
+
+.TP 
+\fBrug ua donna install\fR
+Fügt einen Nutzer mit dem Namen "donna" hinzu, der das Privileg install (installieren) hat. Nach der Eingabe dieses Befehls werden Sie aufgefordert, ein Passwort für donna zu erstellen und es zu bestätigen sowie die Privilegien, die ihr gewährt werden, zu bestätigen oder zu ändern.
+.SH "AUTOREN"
+.LP 
+Copyright (C) 2002\-2003 Ximian, Inc.
+.br
+http://www.ximian.com/
+.SH "SIEHE AUCH"
+.LP 
+rcd(8), rcd.conf(5), rcman(1), rcreports(1), rcmirror(1)
+.LP 
+Der grafische Red Carpet Client, red\-carpet, besitzt ein Handbuch, das über das GNOME\-Hilfesystem erreichbar ist. Wählen Sie Einträge aus dem Hilfe\-Menü innerhalb der Anwendung aus, um es zu lesen. Besuchen Sie http://ximian.com für zusätzliche Informationen über rc, die Familie der Ximian Red Carpet Produkte und Dienste sowie über andere Software von Ximian.
+Berichten Sie Probleme mit dieser Software oder ihrer Dokumentation unter http://bugzilla.ximian.com.
