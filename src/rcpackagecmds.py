@@ -17,6 +17,7 @@
 
 import sys
 import string
+import time
 import rctalk
 import rcformat
 import rccommand
@@ -151,40 +152,6 @@ class PackageSearchCmd(rccommand.RCCommand):
         else:
             rctalk.message("--- No packages found ---")
 
-class PackageInstallCmd(rccommand.RCCommand):
-
-    def name(self):
-        return "install"
-
-    def execute(self, server, options_dict, non_option_args):
-        packages_to_install = []
-        
-        for a in non_option_args:
-            channel = -1
-            package = None
-
-            off = string.find(a, ":")
-            if off != -1:
-                channel = a[:off]
-                package = a[off+1:]
-            else:
-                package = a
-
-            p = find_package(server, channel, package)
-
-            if not p:
-                rctalk.error("Unable to find package '" + package + "'")
-                sys.exit(1)
-                
-            packages_to_install.append(p)
-
-        if not packages_to_install:
-            rctalk.message("--- No packages to install ---")
-            sys.exit(0)
-
-        server.rcd.packsys.transact(packages_to_install, [])
-
-
 class PackageUpdatesCmd(rccommand.RCCommand):
 
     def name(self):
@@ -252,9 +219,63 @@ class PackageUpdatesCmd(rccommand.RCCommand):
                 rctalk.message("No updates are available in the specified channels.")
             else:
                 rctalk.message("No updates are available.")
+
+class PackageInstallCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "install"
+
+    def execute(self, server, options_dict, non_option_args):
+        packages_to_install = []
+        
+        for a in non_option_args:
+            channel = -1
+            package = None
+
+            off = string.find(a, ":")
+            if off != -1:
+                channel = a[:off]
+                package = a[off+1:]
+            else:
+                package = a
+
+            p = find_package(server, channel, package)
+
+            if not p:
+                rctalk.error("Unable to find package '" + package + "'")
+                sys.exit(1)
+                
+            packages_to_install.append(p)
+
+        if not packages_to_install:
+            rctalk.message("--- No packages to install ---")
+            sys.exit(0)
+
+        tid = server.rcd.packsys.transact(packages_to_install, [])
+        message_offset = 0
+        download_percent = 0.0
+
+        while 1:
+            tid_info = server.rcd.system.poll_pending(tid)
+
+            if tid_info["percent_complete"] > download_percent:
+                download_percent = tid_info["percent_complete"]
+                print "Download " + str(int(download_percent)) + "% complete"
+
+            message_len = len(tid_info["messages"])
+
+            if message_len > message_offset:
+                for e in tid_info["messages"][message_offset:]:
+                    print e
+                message_offset = message_len
+
+            if tid_info["status"] == "finished" or tid_info["status"] == "failed":
+                break
+
+            time.sleep(1)
         
 
 rccommand.register(PackageListCmd, "List the packages in a channel")
 rccommand.register(PackageSearchCmd, "Search for packages matching criteria")
-rccommand.register(PackageInstallCmd, "Install a package")
 rccommand.register(PackageUpdatesCmd, "List pending updates")
+rccommand.register(PackageInstallCmd, "Install a package")
