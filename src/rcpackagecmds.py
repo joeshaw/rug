@@ -61,10 +61,12 @@ def find_package_in_channel(server, channel, package):
         [package] = server.rcd.packsys.search([["name",      "is", package],
                                                ["installed", "is", "false"],
                                                ["channel",   "is", channel]])
+        inform = 0
     else:
         package = server.rcd.packsys.find_latest_version(package)
+        inform = 1
 
-    return package
+    return package, inform
 
 def find_package_on_system(server, package):
     [package] = server.rcd.packsys.search([["name",      "is", package],
@@ -260,15 +262,15 @@ def transact_and_poll(server, packages_to_install, packages_to_remove):
     while 1:
         tid_info = server.rcd.system.poll_pending(tid)
 
-        if tid_info["percent_complete"] > download_percent:
+        if rctalk.show_verbose and tid_info["percent_complete"] > download_percent:
             download_percent = tid_info["percent_complete"]
-            print "Download " + str(int(download_percent)) + "% complete"
+            rctalk.message("Download " + str(int(download_percent)) + "% complete")
             
         message_len = len(tid_info["messages"])
             
         if message_len > message_offset:
             for e in tid_info["messages"][message_offset:]:
-                print e
+                rctalk.message(rcformat.transaction_status(e))
             message_offset = message_len
                     
         if tid_info["status"] == "finished" or tid_info["status"] == "failed":
@@ -295,11 +297,14 @@ class PackageInstallCmd(rccommand.RCCommand):
             else:
                 package = a
 
-            p = find_package_in_channel(server, channel, package)
+            p, inform = find_package_in_channel(server, channel, package)
 
             if not p:
                 rctalk.error("Unable to find package '" + package + "'")
                 sys.exit(1)
+
+            if inform:
+                rctalk.message("Using " + p["name"] + " " + rcformat.display_version(p) + " from the '" + rcchannelcmds.channel_id_to_name(server, p["channel"]) + "' channel")
                 
             packages_to_install.append(p)
 

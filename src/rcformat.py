@@ -184,4 +184,24 @@ def display_version(package):
 
     return version
 
-        
+###
+### Format transaction status messages into readable text
+###
+
+def transaction_status(message):
+    messages = {"download"  : "Downloading Packages",
+                "verify"    : "Verifying",
+                "prepare"   : "Preparing Transaction",
+                "install"   : "Installing",
+                "remove"    : "Removing",
+                "configure" : "Configuring",
+                "finish"    : "Transaction finished",
+                "failed"    : "Transaction failed:"}
+
+    status = string.split(message, ":", 0)
+
+    m = messages[status[0]]
+    if len(status) > 1:
+        return m + " " + string.join(status[1:], ":")
+    else:
+        return m
