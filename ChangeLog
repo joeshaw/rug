@@ -1,3 +1,8 @@
+2003-05-19 Aaron Weber <aaron@ximian.com>
+
+	* rug.1: s/rc/rug, s/rcrc/rugrc/.
+	* Makefile.am: s/rc.1/rug.1
+	
 2003-05-08  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: Bump up version to 1.5.0

@@ -8,5 +8,5 @@ endif
 
 SUBDIRS = $(UNMARSHALLER_DIR) src
 
-man_MANS = rc.1
-EXTRA_DIST = rc.1
+man_MANS = rug.1
+EXTRA_DIST = rug.1
