@@ -1,5 +1,7 @@
 2003-09-11  Joe Shaw  <joe@ximian.com>
 
+	* rcmountcmds.py (MountCmd): Add a -r/--recurse flag.
+
 	* rcformat.py (package_to_row): If the package doesn't match any
 	channel, display "(none)" instead of "unknown".
 

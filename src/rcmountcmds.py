@@ -41,7 +41,8 @@ class MountCmd(rccommand.RCCommand):
 
     def local_opt_table(self):
         return [["a", "alias", "alias", "Alias for new channel"],
-                ["n", "name",  "channel name", "Name for new channel"]]
+                ["n", "name",  "channel name", "Name for new channel"],
+                ["r", "recurse", "", "Recurse into the directory"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -73,12 +74,16 @@ class MountCmd(rccommand.RCCommand):
                            (old_alias, alias))
 
         name = options_dict.get("name", path)
+        recursive = options_dict.has_key("recurse")
+
         try:
-            server.rcd.packsys.mount_directory(path, name, alias)
+            server.rcd.packsys.mount_directory(path, name, alias, recursive)
         except ximian_xmlrpclib.Fault, f:
             if f.faultCode == rcfault.invalid_service:
                 rctalk.error(f.faultString)
                 sys.exit(1)
+            else:
+                raise
         else:
             rctalk.message("Mounted '%s' as a channel." % path)
 
