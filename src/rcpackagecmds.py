@@ -217,9 +217,14 @@ class PackagesCmd(rccommand.RCCommand):
         return "package"
 
     def local_opt_table(self):
-        return [["", "no-abbrev", "", "Do not abbreviate channel or version information"],
-                ["", "sort-by-name", "", "Sort packages by name (default)"],
-                ["", "sort-by-channel", "", "Sort packages by channel"]]
+        return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
+                ["i", "installed-only", "", "Show only installed packages"],
+                ["n", "not-installed", "", "Show only uninstalled packages"],
+                ["",  "sort-by-name", "", "Sort packages by name (default)"],
+                ["",  "sort-by-channel", "", "Sort packages by channel"]]
+
+    def local_orthogonal_opts(self):
+        return [["installed-only", "not-installed"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -236,7 +241,12 @@ class PackagesCmd(rccommand.RCCommand):
 
                     if rcchannelutils.validate_channel_list(a, clist):
                         query = map(lambda c:["channel", "=", str(c["id"])], clist)
-                        if len(query) > 1:
+                        if options_dict.has_key("installed-only"):
+                            query.append(["name-installed", "=", "true"])
+                        elif options_dict.has_key("not-installed"):
+                            query.append(["name-installed", "=", "false"])
+
+                        if len(clist) > 1:
                             query.insert(0, ["", "begin-or", ""])
                             query.append(["", "end-or", ""])
 
@@ -278,8 +288,6 @@ class PackagesCmd(rccommand.RCCommand):
             rcformat.tabular(headers, package_table)
         else:
             rctalk.message("--- No packages found ---")
-
-
 
 
 
@@ -1349,11 +1357,34 @@ class PackageUpdateCmd(TransactCmd):
         return "Download and install available updates"
 
     def execute(self, server, options_dict, non_option_args):
+        exclude = []
+        try:
+            rcexclude = open(os.path.expanduser("~/.rcexclude"), "r")
+            while 1:
+                line = rcexclude.readline()
+
+                # remove the trailing newline
+                line = string.strip(line)
+
+                # strip out comments
+                hash_pos = string.find(line, "#")
+                if hash_pos >= 0:
+                    line = line[0:hash_pos]
+
+                # skip empty lines
+                if not line:
+                    break
+
+                exclude.append(line)
+            rcexclude.close()
+        except IOError:
+            # Can't open the file, just continue.
+            pass
 
         up = get_updates(server, non_option_args)
 
         # x[1] is the package to be updated
-        packages_to_install = map(lambda x:x[1], up)
+        packages_to_install = filter(lambda x, exl=exclude:not x["name"] in exl, map(lambda x:x[1], up))
 
         if not packages_to_install:
             rctalk.message("--- No packages to update ---")

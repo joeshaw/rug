@@ -353,10 +353,10 @@ def transaction_status(message):
                 "finish"    : "Transaction finished",
                 "failed"    : "Transaction failed:"}
 
-    status = string.split(message, ":", 0)
+    status = string.split(message, ":", 1)
 
     m = messages[status[0]]
     if len(status) > 1:
-        return m + " " + string.join(status[1:], ":")
+        return m + " " + status[1]
     else:
         return m
