@@ -1,3 +1,9 @@
+2003-07-07  Joe Shaw  <joe@ximian.com>
+
+	* ximian_xmlrpclib.py: Use rcutil.hexstr() since we might be
+	running on python 1.5 which doesn't have md5.hexdigest().  Also
+	fix a potential fd leak.
+
 2003-06-12  Joe Shaw  <joe@ximian.com>
 
 	* rctransactcmds.py (TransactCmd.display): If the package has

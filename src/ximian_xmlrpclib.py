@@ -122,7 +122,7 @@ Exported functions:
   dumps          Convert an argument tuple or a Fault instance to an XML-RPC
 """
 
-import re, string, time, operator
+import re, socket, string, time, operator
 import ximian_unmarshaller
 import threading
 from types import *
@@ -690,18 +690,20 @@ class Transport:
 
         auth_info = parse_keqv_list(parse_http_list(auth))
 
-        A1 = md5.new(username + ":" +
-                     auth_info["realm"] + ":" +
-                     password).hexdigest()
-        A2 = md5.new("POST:" + handler).hexdigest()
+        import rcutil
 
-        cnonce = md5.new("%s:%s:%s" % (str(self),
-                                       str(os.getpid()),
-                                       str(time.time()))).hexdigest()
+        A1 = rcutil.hexstr(md5.new(username + ":" +
+                                   auth_info["realm"] + ":" +
+                                   password).digest())
+        A2 = rcutil.hexstr(md5.new("POST:" + handler).digest())
+
+        cnonce = rcutil.hexstr(md5.new("%s:%s:%s" % (str(self),
+                                                     str(os.getpid()),
+                                                     str(time.time()))).digest())
         
-        response = md5.new(A1 + ":" + auth_info["nonce"] +
-                           ":00000001:" + cnonce +
-                           ":auth:" + A2).hexdigest()
+        response = rcutil.hexstr(md5.new(A1 + ":" + auth_info["nonce"] +
+                                         ":00000001:" + cnonce +
+                                         ":auth:" + A2).digest())
 
         self.__auth_data = 'Digest username="%s", realm="%s", nonce="%s", ' \
                            'cnonce="%s", nc=00000001, qop=auth, uri="%s", ' \
@@ -792,11 +794,12 @@ class RawTransport(Transport):
 
         self.send_content(sock, request_body)
 
-        return self.parse_response(sock.makefile("rb"))
+        file = sock.makefile("rb")
+        sock.close()
+
+        return self.parse_response()
     
     def make_connection(self, host):
-        import socket
-
         sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         sock.connect(host)
 
