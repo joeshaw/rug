@@ -1,3 +1,9 @@
+2003-09-05  Joe Shaw  <joe@ximian.com>
+
+	* rcsystemcmds.py (ShutdownCmd, RestartCmd): Set is_local to 1
+	here, since these APIs will never change and we don't want it to
+	check the protocol version and fail if they're not in sync.
+
 2003-09-05  Tambet Ingo  <tambet@ximian.com>
 
 	* rcservicecmds.py (ServiceActivateCmd.execute): "email" argument

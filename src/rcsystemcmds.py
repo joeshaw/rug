@@ -75,6 +75,11 @@ class ShutdownCmd(rccommand.RCCommand):
     def category(self):
         return "system"
 
+    # This API will never change, so setting this to local prevents checking
+    # the protocol version.  We want to be able to shut down no matter what.
+    def is_local(self):
+        return 1
+
     def local_opt_table(self):
         return [["n", "no-wait", "", "Don't wait for confirmation that the daemon was shut down"]]
 
@@ -117,6 +122,11 @@ class RestartCmd(rccommand.RCCommand):
 
     def category(self):
         return "system"
+
+    # This API will never change, so setting this to local prevents checking
+    # the protocol version.  We want to be able to restart no matter what.
+    def is_local(self):
+        return 1
 
     def local_opt_table(self):
         return [["n", "no-wait", "", "Don't wait for confirmation that the daemon has restarted"]]

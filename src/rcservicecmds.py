@@ -86,13 +86,13 @@ class ServiceListCmd(rccommand.RCCommand):
             else:
                 name = "(No name available)"
             
-            row = [str(row_no), serv["url"], name]
+            row = [str(row_no), serv["id"], serv["url"], name]
             table.append(row)
 
             row_no = row_no + 1
 
         if table:
-            rcformat.tabular(["#", "Service URI", "Name"], table)
+            rcformat.tabular(["#", "Service ID", "Service URI", "Name"], table)
         else:
             rctalk.message("*** No services are mounted ***")
 
