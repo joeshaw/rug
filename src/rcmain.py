@@ -178,9 +178,6 @@ def main(ver):
         rctalk.error("Unable to connect to the daemon: " + str(e))
         rctalk.error("Please ensure that the service is running.")
         sys.exit(1)
-    except socket.sslerror, e:
-        rctalk.error("Unable to make a secure connection to the daemon: " + str(e))
-        sys.exit(1)
     except ximian_xmlrpclib.ProtocolError, e:
         if e.errcode == 401:
             rctalk.error("Unable to authenticate with the daemon; you must")
@@ -194,7 +191,17 @@ def main(ver):
             rctalk.error("You do not have permissions to perform the requested action.")
         else:
             raise
-        
+    except:
+        try:
+            try:
+                raise
+            except socket.sslerror, e:
+                rctalk.error("Unable to make a secure connection to the daemon: " + str(e))
+                sys.exit(1)
+        except (AttributeError, NameError):
+            rctalk.error("This system's python is build without SSL support.  SSL is required for remote connections")
+            sys.exit(1)
+
     ### Whitespace is nice, so we always print a blank line after
     ### executing the command
 

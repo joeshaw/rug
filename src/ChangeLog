@@ -1,3 +1,10 @@
+2002-08-26  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py: Debian doesn't ship with SSL support in their socket
+	implementation by default, so we have to do some nasty nested try,
+	except, and raise statements to see if we can even catch
+	socket.sslerror exceptions.
+
 2002-08-23  Joe Shaw  <joe@ximian.com>
 
 	* rcfault.py: Add no_icon fault.
