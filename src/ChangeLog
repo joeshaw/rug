@@ -1,5 +1,9 @@
 2002-08-23  Joe Shaw  <joe@ximian.com>
 
+	* rcfault.py: Add no_icon fault.
+
+2002-08-23  Joe Shaw  <joe@ximian.com>
+
 	* rcmain.py (main): Blah.  Catching the KeyboardInterrupt here
 	wasn't enough.
 
