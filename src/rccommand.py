@@ -193,7 +193,7 @@ def extract_command_from_argv(argv):
 
     if not command:
         rctalk.warning("No command found on command line.")
-        if "--help" in argv:
+        if "--help" in argv or "-?" in argv:
             usage_full()
         else:
             usage_basic()
