@@ -41,7 +41,7 @@
 #
 # Copyright (c) 1999-2001 by Secret Labs AB.
 # Copyright (c) 1999-2001 by Fredrik Lundh.
-# Copyright (C) 2002 Ximian, Inc.
+# Copyright (c) 2002 Ximian, Inc.
 #
 # info@pythonware.com
 # http://www.pythonware.com
