@@ -1,3 +1,15 @@
+2002-11-13  Joe Shaw  <joe@ximian.com>
+
+	* rcmain.py (main): Allow "http://" or "https://" to be passed in
+	as part of the host.
+
+	* ximian_xmlrpclib.py (Transport.make_connection,
+	SafeTransport.make_connection): Check for a ValueError back from
+	the HTTP or HTTPS constructors.  Python 2.2's httplib doesn't
+	throw a socket exception like 1.5's did when it has an invalid
+	port, and it tries to do an int() on an invalid string literal.
+	Bah.
+
 2002-11-08  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelutils.py (refresh_channels): Use pending.get() instead

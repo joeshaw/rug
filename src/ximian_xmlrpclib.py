@@ -942,8 +942,17 @@ class Transport:
     def make_connection(self, host):
         # create a HTTP connection object from a host descriptor
         import httplib
-        return httplib.HTTP(host)
-
+        try:
+            return httplib.HTTP(host)
+        except ValueError:
+            # This is lame.  The Python 2.2 httplib seems to have
+            # regressed.  Before if you passed in a nonnumeric port
+            # you'd get a socket.error exception telling you so.  Now
+            # httplib just spews an invalid literal error on int().
+            from socket import error
+                
+            raise error, "nonnumeric port"
+        
     def send_request(self, connection, handler, request_body):
         connection.putrequest("POST", handler)
 
@@ -1048,7 +1057,16 @@ class SafeTransport(Transport):
             raise NotImplementedError,\
                   "your version of httplib doesn't support HTTPS"
         else:
-            return apply(HTTPS, (host, None), x509)
+            try:
+                return apply(HTTPS, (host, None), x509)
+            except ValueError:
+                # This is lame.  The Python 2.2 httplib seems to have
+                # regressed.  Before if you passed in a nonnumeric port
+                # you'd get a socket.error exception telling you so.  Now
+                # httplib just spews an invalid literal error on int().
+                from socket import error
+                
+                raise error, "nonnumeric port"
 
     def send_host(self, connection, host):
         if isinstance(host, TupleType):

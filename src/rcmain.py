@@ -112,10 +112,16 @@ def main(ver):
         else:
             host = "localhost"
 
-        if string.find(host, ":") == -1:
-            host = host + ":505"
+        # Prepend "https://" if it isn't already specified
+        if string.find(host, "http://") == -1 \
+               and string.find(host, "https://") == -1:
+            host = "https://" + host
 
-        url = "https://" + host + "/RPC2"
+        # Append the port number (505) if one isn't specified
+        hparts = string.split(host, ":", 2)
+        if len(hparts) < 3:
+            hparts.append("505")
+        url = string.join(hparts, ":") + "/RPC2"
 
         if (opt_dict.has_key("user")):
             username = opt_dict["user"]
