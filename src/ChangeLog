@@ -1,3 +1,8 @@
+2004-01-27  Tambet Ingo  <tambet@ximian.com>
+
+	* rctransactcmds.py (date_converter): Pyton 2.3 uses slightly different
+	missing time value notation, fix it.
+
 2004-02-17  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageForFileCmd.execute): Get the absolute

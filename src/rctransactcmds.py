@@ -719,7 +719,9 @@ def date_converter(date_str):
     # day field (the third field) to see if it's 0, because 0 is not a
     # valid day of the month.  If that's the case, get the date using
     # localtime() and build a new tuple with our time settings.
-    if date and date[2] == 0:
+    # Python 2.3 adds even more fun: The default return value of any missig
+    # field is used from (1900, 1, 1, 0, 0, 0, 0, 1, -1)
+    if date and (date[2] == 0 or (date[:3] == (1900, 1, 1))):
         new_date = list(time.localtime())
         new_date[3:6] = list(date[3:6])
         date = tuple(new_date)
