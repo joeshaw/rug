@@ -1,5 +1,20 @@
 2002-06-26  Jon Trowbridge  <trow@ximian.com>
 
+	* rcmain.py: Support a .rcrc file.  Fixed bugs related to handling
+	of RC_ARGS, --read-from-file, etc.  Walk through our list of
+	options after calling getopt and remove all but the last of any
+	orthogonal options.  Catch getopt exceptions.
+
+	* rccommand.py (default_orthogonal_opts): Added.  A list of
+	groups of orthogonal options from our list of defaults.
+	(RCCommand.default_orthogonal_opts): Added.
+	(RCCommand.local_orthogonal_opts): Added.
+	(RCCommand.orthogonal_opts): Added.
+
+	* rc.in: Only handle the ImportError exception, so we'll get an
+	intelligible error message if we have a syntax error or something
+	in one of our modules.
+
 	* rcpackagecmds.py (PackagesCmd): Added.  An implementation of my
 	new interface for the "packages" command.  This is still
 	experimental: it still isn't totally clear what the right

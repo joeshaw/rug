@@ -30,7 +30,7 @@ sys.path.append("@DDIR@/rc")
 
 try:
     import rcmain
-except:
+except ImportError:
     print "ERROR: The Red Carpet Command Line Client doesn't appear to be"
     print "ERROR: installed properly.  Please check your installation."
     sys.exit(1)

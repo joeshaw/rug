@@ -72,19 +72,25 @@ default_opt_table = [
     ["N", "dry-run",  "",         "Don't perform operation"],
     ["",  "version",  "",         "Print client version and exit"],
     ["V", "verbose",  "",         "Verbose output"],
+    ["",  "normal-output", "",    "Normal output (default)"],
     ["t", "terse",    "",         "Terse output"],
     ["",  "quiet",    "",         "Quiet output, print only error messages"],
     ["",  "debug",    "",         "Debugging output"],
     ["",  "batch",    "",         "Run in batch mode"],
     ["",  "read-from-file", "filename",   "Get args from file"],
     ["",  "read-from-stdin", "",  "Get args from stdin"],
+    ["",  "ignore-rc-file", "",   "Don't read rc's startup file (~/.rcrc)"],
+    ["",  "ignore-env", "",       "Ignore the RC_ARGS environment variable"],
     ["?", "help",     "",         "Get help on a specific command"]
 ]
+
+default_orthogonal_opts = [["verbose", "terse", "normal-output", "quiet"]]
 
 class RCCommand:
 
     def name(self):
         return "Unknown!"
+
 
     def default_opt_table(self):
         return default_opt_table;
@@ -94,6 +100,17 @@ class RCCommand:
 
     def opt_table(self):
         return self.default_opt_table() + self.local_opt_table()
+
+
+    def default_orthogonal_opts(self):
+        return default_orthogonal_opts
+
+    def local_orthogonal_opts(self):
+        return []
+
+    def orthogonal_opts(self):
+        return self.default_orthogonal_opts() + self.local_orthogonal_opts()
+
 
     def usage(self):
         opts = self.default_opt_table()

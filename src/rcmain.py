@@ -55,6 +55,7 @@ def main(rc_version):
         sys.exit(0)
 
     command = None
+    command_name = None
     found_name = 0
     i = 0
     while i < len(argv) and not command:
@@ -62,6 +63,7 @@ def main(rc_version):
             found_name = 1
             command = rccommand.construct(argv[i])
             if command:
+                command_name = argv[i]
                 argv.pop(i)
         else:
             takes_arg = 0
@@ -92,16 +94,35 @@ def main(rc_version):
         sys.exit(0)
 
     ###
-    ### Handle RC_ARGS, --read-from-file and --read-from-stdin
+    ### Handle .rcrc, RC_ARGS, --read-from-file and --read-from-stdin
     ###
 
-    def add_args(arglist):
-        global argv
-        argv = map(string.strip, arglist) + argv
+    # We add arguments to the beginning of argv.  This means we can
+    # override an magically added arg by explicitly putting the
+    # orthogonal arg on the command line.
+    def join_args(arglist, argv):
+        return map(string.strip, arglist) + argv
 
-    if os.environ.has_key("RC_ARGS"):
+
+    # Try to read the .rcrc file.  It basically works like a .cvsrc file.
+    if "--ignore-rc-file" not in argv:
+        try:
+            rcrc = open("/home/trow/.rcrc", "r")
+            while 1:
+                line = rcrc.readline()
+                if not line:
+                    break
+                pieces = string.split(line)
+                if len(pieces) and pieces[0] == command_name:
+                    argv = join_args(pieces[1:], argv)
+            rcrc.close()
+        except IOError:
+            pass
+        
+
+    if "--ignore-env" not in argv and os.environ.has_key("RC_ARGS"):
         args = string.split(os.environ["RC_ARGS"])
-        add_args(args)
+        argv = join_args(args, argv)
 
     # FIXME: Should support --read-from-file=foo.txt syntax!
     if "--read-from-file" in argv:
@@ -111,20 +132,19 @@ def main(rc_version):
             f = open(filename, "r")
             # FIXME: error checking!
             lines = f.readlines()
-            add_args(lines)
+            argv = join_args(lines, argv)
         else:
             rctalk.error("No filename provided for --read-from-file option")
             sys.exit(1)
 
     if "--read-from-stdin" in argv:
         lines = sys.stdin.readlines()
-        add_args(lines)
+        argv = add_args(lines, argv)
 
     ###
     ### Find the list of command line options associated with the command.
     ### Then compile our list of arguments into something that getopt can
-    ### understand, call getopt on argv, and then assemble the stuff returned
-    ### by getopt into a nice dictionary of option-value pairs.
+    ### understand.  Finally, call getopt on argv
     ###
 
     opt_table = command.opt_table()
@@ -160,15 +180,56 @@ def main(rc_version):
             long_opt_getopt.append(long_opt)
 
 
-    optlist, args = getopt.getopt(argv, short_opt_getopt, long_opt_getopt)
+    try:
+        optlist, args = getopt.getopt(argv, short_opt_getopt, long_opt_getopt)
+    except getopt.error:
+        rctalk.error("Unrecognized arguments")
+        command.usage()
+        sys.exit(1)
+
+    ###
+    ### Walk through our list of options and replace short options with the
+    ### corresponding long option.
+    ###
+    
+    i = 0
+    while i < len(optlist):
+        key = optlist[i][0]
+        if key[0:2] != "--":
+            optlist[i][0] = opt_dict[short2long_dict[key[1:]]]
+        i = i + 1
+
+
+    ###
+    ### Get the list of "orthogonal" options for this command and, if our
+    ### list of options contains orthogonal elements, remove all but the
+    ### last such option.
+    ### (i.e. if we are handed --quiet --verbose, we drop the --quiet)
+    ### 
+
+    optlist.reverse()
+    for oo_list in command.orthogonal_opts():
+        i = 0
+        seen_oo = 0
+        while i < len(optlist):
+            key = optlist[i][0]
+            if key[2:] in oo_list:
+                if seen_oo:
+                    del optlist[i]
+                    i = i - 1
+                seen_oo = 1
+            i = i + 1
+    optlist.reverse()
+
+
+    ###
+    ### Store our options in a dictionary
+    ###
 
     opt_dict = {}
 
     for key, value in optlist:
-        if key[0:2] == "--":
             opt_dict[key[2:]] = value
-        else:
-            opt_dict[short2long_dict[key[1:]]] = value
 
 
     ###
