@@ -97,10 +97,11 @@ class PrefsListCmd(rccommand.RCCommand):
         return "prefs"
 
     def execute(self, server, options_dict, non_option_args):
-        headers = ["Name", "Value", "Description"]
+        headers = ["Name", "Value"]
         pref_table = []
         
         if not non_option_args:
+            headers.append("Description")
             pref_table = map(lambda p:[p["name"], str(p["value"]), p["description"]],
                              server.rcd.prefs.list_prefs())
         else:
