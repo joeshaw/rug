@@ -20,6 +20,7 @@ import string
 import rctalk
 import rcformat
 import rccommand
+import rcpoll
 
 ###
 ### Useful channel-related subroutines
@@ -177,10 +178,13 @@ class SubscribeCmd(rccommand.RCCommand):
             sys.exit(1)
 
         for c in to_do:
-            if c and \
-               (options_dict.has_key("dry-run") or
-                server.rcd.packsys.subscribe(c["id"])):
-                rctalk.message("Subscribed to channel "+channel_to_str(c))
+            if c:
+                success = options_dict.has_key("dry-run") or \
+                          server.rcd.packsys.subscribe(c["id"])
+                if success:
+                    rctalk.message("Subscribed to channel "+channel_to_str(c))
+                else:
+                    rctalk.warning("Attempt to subscribe to channel "+channel_to_str(c)+" failed")
 
 
 class UnsubscribeCmd(rccommand.RCCommand):
@@ -211,10 +215,13 @@ class UnsubscribeCmd(rccommand.RCCommand):
             sys.exit(1)
 
         for c in to_do:
-            if c and \
-               (options_dict.has_key("dry-run") or \
-                server.rcd.packsys.unsubscribe(c["id"])):
-                rctalk.message("Unsubscribed from channel "+channel_to_str(c))
+            if c:
+                success = options_dict.has_key("dry-run") or \
+                          server.rcd.packsys.unsubscribe(c["id"])
+                if success:
+                    rctalk.message("Unsubscribed from channel "+channel_to_str(c))
+                else:
+                    rctalk.warning("Attempt to unsubscribe to channel "+channel_to_str(c)+" failed")
 
 
 class RefreshChannelCmd(rccommand.RCCommand):
@@ -247,6 +254,8 @@ class RefreshChannelCmd(rccommand.RCCommand):
                    (options_dict.has_key("dry-run") or \
                     server.rcd.packsys.refresh_channel(int(c["id"]))):
                     rctalk.message("Refreshing channel "+channel_to_str(c))
+
+        rcpoll.poll_all_with_status(server)
 
 
 

@@ -1,5 +1,12 @@
 2002-06-24  Jon Trowbridge  <trow@ximian.com>
 
+	* rcformat.py (pending_to_str): Better pending->string conversion.
+
+	* rcchannelcmds.py (SubscribeCmd.execute): If the XML-RPC
+	subscribe method fails, report it to the user.
+	(UnsubscribeCmd.execute): If the XML-RPC unsubscribe method
+	fails, report it to the user.
+
 	* rc.in: Check for a magic --profile option, and run rc under the
 	python profiler if it is present.
 

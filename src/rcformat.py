@@ -123,18 +123,28 @@ def abbrev_importance(str):
 ## Format pending strings
 
 def pending_to_str(p):
-    pc = p["percent_complete"]
-    elap = p["elapsed_sec"]
-    if p.has_key("remaining_sec"):
-        rem = p["remaining_sec"]
-    else:
-        rem = -1
 
+    pc = p["percent_complete"]
     msg = str(int(pc)) + "% complete"
-    if elap >= 0:
-        msg = msg + ", " + str(elap) + "s elapsed"
-    if rem >= 0:
-        msg = msg + ", " + str(rem) + "s remaining"
+
+    status = p["status"]
+
+    if status in ("pre_begin", "blocking", "running"):
+
+        if p.has_key("elapsed_sec"):
+            elap = p["elapsed_sec"]
+            if elap >= 0:
+                msg = msg + ", " + str(elap) + "s elapsed"
+
+                if p.has_key("remaining_sec"):
+                    rem = p["remaining_sec"]
+                    if rem >= 0:
+                        msg = msg + ", " + str(rem) + "s remaining"
+
+    else:
+
+        msg = msg + ", " + status
+                        
 
     return msg
                                   
