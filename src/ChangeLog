@@ -1,3 +1,9 @@
+2003-08-22  Joe Shaw  <joe@ximian.com>
+
+	* rcsystemcmds.py (ActivateCmd): Only call rcd.system.activate()
+	and remove the conditional check to see if the daemon supports
+	activation.
+
 2003-08-21  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelutils.py (refresh_channels): When we're through with

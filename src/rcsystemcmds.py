@@ -181,22 +181,15 @@ class ActivateCmd(rccommand.RCCommand):
 
         err_str = None
 
+        args = [non_option_args[0], non_option_args[1]]
+
+        if options_dict.has_key("alias"):
+            args.append(options_dict["alias"])
+
         try:
-            if options_dict.has_key("alias"):
-                success = server.rcd.system.activate_with_alias(non_option_args[0],
-                                                                non_option_args[1],
-                                                                options_dict["alias"])
-            else:
-                success = server.rcd.system.activate(non_option_args[0],
-                                                     non_option_args[1])
+            success = apply(server.rcd.system.activate, args)
         except ximian_xmlrpclib.Fault, f:
-            if f.faultCode == rcfault.undefined_method:
-                if options_dict.has_key("alias"):
-                    rctalk.error("This daemon does not support activation with aliases")
-                else:
-                    rctalk.error("This daemon does not support activation")
-                sys.exit(1)
-            elif f.faultCode == rcfault.cant_activate:
+            if f.faultCode == rcfault.cant_activate:
                 err_str = f.faultString
                 success = 0
             else:
