@@ -350,7 +350,8 @@ def tabular(headers, table):
 
 def transaction_status(message):
     messages = {"verify"       : "Verifying",
-                "verify-nosig" : "Unable to verify package signature for",
+                "verify-undef" : "Unable to verify package signature for",
+                "verify-nosig" : "There is no package signature for",
                 "prepare"      : "Preparing Transaction",
                 "install"      : "Installing",
                 "remove"       : "Removing",
