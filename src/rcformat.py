@@ -349,11 +349,12 @@ def tabular(headers, table):
 ###
 
 def transaction_status(message):
-    messages = {"verify"    : "Verifying",
-                "prepare"   : "Preparing Transaction",
-                "install"   : "Installing",
-                "remove"    : "Removing",
-                "configure" : "Configuring"}
+    messages = {"verify"       : "Verifying",
+                "verify-nosig" : "Unable to verify package signature for",
+                "prepare"      : "Preparing Transaction",
+                "install"      : "Installing",
+                "remove"       : "Removing",
+                "configure"    : "Configuring"}
     
     status = string.split(message, ":", 1)
 
