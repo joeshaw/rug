@@ -123,6 +123,9 @@ class PrefsListCmd(rccommand.RCCommand):
                 else:
                     pref_table.append([a, str(p)])
 
+        pref_table.sort(lambda x,y:cmp(string.lower(x[0]),
+                                       string.lower(y[0])))
+
         if pref_table:
             rcformat.tabular(headers, pref_table)
 
