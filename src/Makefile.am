@@ -29,6 +29,10 @@ rugcmds_DATA = 			\
 	rcusercmds.py		\
 	rcwhatcmds.py
 
+if ENABLE_PATCHES
+rugcmds_DATA += rcyoucmds.py
+endif
+
 EXTRA_DIST = $(rugsupport_DATA) $(rugcmds_DATA)
 
 install-exec-hook:

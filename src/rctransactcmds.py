@@ -29,13 +29,6 @@ import rcchannelutils
 import rcpackageutils
 import ximian_xmlrpclib
 
-###
-### Transacting commands 
-###
-
-DRY_RUN       = 1
-DOWNLOAD_ONLY = 2
-
 def extract_package(dep_or_package):
     # Check to see if we're dealing with package op structures or real
     # package structures.  Package structures won't have a "package" key.
@@ -331,9 +324,9 @@ class TransactCmd(rccommand.RCCommand):
                                 install_packages + extract_packages(install_deps))
 
         if options_dict.has_key("dry-run"):
-            flags = DRY_RUN
+            flags = rcmain.DRY_RUN
         elif options_dict.has_key("download-only"):
-            flags = DOWNLOAD_ONLY
+            flags = rcmain.DOWNLOAD_ONLY
         else:
             flags = 0
 
@@ -827,9 +820,9 @@ class PackageRollbackCmd(TransactCmd):
         self.confirm(options_dict, remove_packages)
 
         if options_dict.has_key("dry-run"):
-            flags = DRY_RUN
+            flags = rcmain.DRY_RUN
         elif options_dict.has_key("download-only"):
-            flags = DOWNLOAD_ONLY
+            flags = rcmain.DOWNLOAD_ONLY
         else:
             flags = 0
 

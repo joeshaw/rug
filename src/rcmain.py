@@ -40,6 +40,14 @@ xmlrpc_protocol_version = 2
 # Whether we are connecting over Unix domain sockets or TCP.
 local = 0
 
+###
+### Transacting commands 
+###
+
+DRY_RUN       = 1
+DOWNLOAD_ONLY = 2
+
+
 def import_commands(rug_dir):
     import glob, imp
     sysdir = rug_dir + "/commands"

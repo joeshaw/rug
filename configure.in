@@ -31,6 +31,12 @@ AC_ARG_ENABLE(unmarshaller,
 	[   ---disable-unmarshaller    does not build the fast unmarshaller],
 	use_fast_unmarshaller="disabled")
 
+dnl SuSE YaST2 patches
+
+use_patches=no
+AC_ARG_ENABLE(patches,
+	[   --enable-patches           Enable YOU patch support],
+	use_patches=yes)
 
 dnl Check for python distutils --- we need them to build the fast
 dnl unmarshaller, but they aren't shipped as part of python 1.5
@@ -53,7 +59,7 @@ if test "x$have_distutils" = "xno"; then
 fi
 
 AM_CONDITIONAL(FAST_UNMARSHALLER, test x"$use_fast_unmarshaller" = "xyes")
-
+AM_CONDITIONAL(ENABLE_PATCHES, test x"$use_patches" = "xyes")
 
 DDIR=`echo $datadir | sed -e "s,"'${prefix}'",$prefix,"`
 AC_SUBST(DDIR)
@@ -78,5 +84,6 @@ Configuration:
 
   Python Distutils:   ${have_distutils}
   Fast Unmarshaller:  ${use_fast_unmarshaller}
+  SuSE YOU patches:   ${use_patches}
 
 "

@@ -1,3 +1,7 @@
+2004-06-10  Tambet Ingo  <tambet@ximian.com>
+
+	* configure.in: Add optional argument "--enable-patches".
+
 2004-04-27  James Willcox  <james@ximian.com>
 
 	* configure.in: 2.2.0
