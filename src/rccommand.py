@@ -408,6 +408,9 @@ class RCCommand:
     def is_basic(self):
         return 0
 
+    def is_local(self):
+        return 0
+
     def category(self):
         return "other"
 
@@ -590,6 +593,9 @@ class HelpCmd(RCCommand):
         return "help"
 
     def is_basic(self):
+        return 1
+
+    def is_local(self):
         return 1
 
     def description_short(self):

@@ -35,6 +35,8 @@ rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2003 Ximian Inc.  All Rights Reserved."
 rc_version = None
 
+xmlrpc_protocol_version = 2
+
 # Whether we are connecting over Unix domain sockets or TCP.
 local = 0
 
@@ -199,6 +201,25 @@ def main(ver, rug_dir):
 
     if not rctalk.be_terse:
         rctalk.message("")
+
+    ### If this isn't a local command, first check to make sure the
+    ### server is the right protocol version.
+    if not command.is_local():
+
+        try:
+            version = server.rcd.system.protocol_version()
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.undefined_method:
+                version = 1 # Assume protocol v1 if method not present.
+            else:
+                raise
+
+        if version != xmlrpc_protocol_version:
+            rctalk.error("This version of rug (version %d) is incompatible "
+                         "with this" % xmlrpc_protocol_version)
+            rctalk.error("daemon (version %d)." % version)
+            sys.exit(1)
+                
 
     ###
     ### Execute the command

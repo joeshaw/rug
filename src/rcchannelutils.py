@@ -153,6 +153,7 @@ def add_channel_name(server, pkg):
 def refresh_channels(server, service=None):
     stuff_to_poll = []
 
+    rctalk.message("Refreshing channel data")
     try:
         if service:
             stuff_to_poll = server.rcd.service.refresh(service)
@@ -173,7 +174,6 @@ def refresh_channels(server, service=None):
             sys.exit(1)
         else:
             raise
-        rctalk.message("Refreshing channel data")
 
     if stuff_to_poll:
         try:

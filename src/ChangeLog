@@ -1,3 +1,15 @@
+2003-08-29  Joe Shaw  <joe@ximian.com>
+
+	* rccommand.py (RCCommand): Add a is_local() method which
+	determines whether to check the protocol version on the daemon.
+	Returns 0 by default.
+	(HelpCmd): Make is_local() return 1.
+
+	* rcmain.py: Add xmlrpc_protocol_version, set to 2.
+	(main): If the command isn't local, check the protocol version.
+	Assume version 1 if we get a undefined_method fault back.  If they
+	don't match, print an error and exit.
+
 2003-08-28  Joe Shaw  <joe@ximian.com>
 
 	* rcchannelcmds.py: Move channel refreshing out of here.
