@@ -1,3 +1,7 @@
+2003-02-18 Aaron Weber <aaron@ximian.com>
+	
+	* rc.1: add rc --entire-channel install to the man page.
+	
 2003-02-07  Frank Belew  <frb@ximian.com>
 
 	* unmarshaller/setup.py: link glib statically
