@@ -1,3 +1,17 @@
+2002-10-17  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd): Added the ability to filter
+	searchs to include only locked or unlocked packages.
+
+	* rclockcmds.py: Added.  Implements commands to list, add
+	and remove locks.  ('add' is still sort of weak.)
+
+	* rcmain.py: import rclockcmds
+
+	* rcformat.py (importance_str_to_num): Added.
+	(importance_num_to_str): Added.
+	(importance_str_summary): Added.
+
 2002-10-15  Ian Peters  <itp@ximian.com>
 
 	* rcpackagecmds.py (exclude_list): don't break the loop when we

@@ -379,6 +379,8 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["d", "search-descriptions", "",   "Search in package descriptions, but not package names"],
                 ["i", "installed-only",   "",      "Show only packages that are already installed"],
                 ["u", "uninstalled-only", "",      "Show only packages that are not currently installed"],
+                ["",  "locked-only", "",           "Show only locked packages"],
+                ["",  "unlocked-only", "",         "Show only unlocked packages"],
                 ["c", "channel",        "channel", "Show only the packages from the channel you specify"],
                 ["", "sort-by-name",     "",       "Sort packages by name (default)"],
                 ["", "sort-by-channel",  "",       "Sort packages by channel, not by name"],
@@ -388,7 +390,8 @@ class PackageSearchCmd(rccommand.RCCommand):
         return [["match-any", "match-all"],
                 ["match-substrings", "match-words"],
                 ["installed-only", "uninstalled-only"],
-                ["sort-by-name", "sort-by-channel"]]
+                ["sort-by-name", "sort-by-channel"],
+                ["locked-only", "unlocked-only"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -425,6 +428,12 @@ class PackageSearchCmd(rccommand.RCCommand):
             query.append(["channel", "=", str(c["id"])])
 
         packages = server.rcd.packsys.search(query)
+
+        if options_dict.has_key("locked-only") or options_dict.has_key("unlocked-only"):
+            if options_dict.has_key("locked-only"):
+                packages = filter(lambda p:p["locked"], packages)
+            elif options_dict.has_key("unlocked-only"):
+                packages = filter(lambda p:not p["locked"], packages)
 
         # Keep track of all of the installed packages where
         # we know that it comes from a certain channel.
@@ -600,7 +609,7 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
         return [["",  "sort-by-name", "", "Sort updates by name"],
                 ["",  "sort-by-channel", "", "Sort updates by channel"],
                 ["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
-                ["i", "importance", "importance", "Show only updates as or more important than 'importance' (valid are " + str(update_importances.keys()) + ")"]]
+                ["i", "importance", "importance", "Show only updates as or more important than 'importance' (valid are " + rcformat.importance_str_summary() + ")"]]
 
     def execute(self, server, options_dict, non_option_args):
 

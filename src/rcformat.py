@@ -367,3 +367,33 @@ def transaction_status(message):
         return m + " " + status[1]
     else:
         return m
+
+###
+### Importance Strings <-> Numbers
+### (It is sort of bad to embed this stuff here, since now we depend
+### on it never changing in libredcarpet.  Oh well...)
+###
+
+importance_table = ( ("minor",     4),
+                     ("feature",   3),
+                     ("suggested", 2),
+                     ("urgent",    1),
+                     ("necessary", 0) )
+
+importance_s2n_dict = {}
+importance_n2s_dict = {}
+
+for imp_str, imp_num in importance_table:
+    importance_s2n_dict[imp_str] = imp_num
+    importance_n2s_dict[imp_num] = imp_str
+
+def importance_str_to_num(importance_str):
+    return importance_s2n_dict.get(string.lower(importance_str), -1)
+
+def importance_num_to_str(importance_num):
+    return importance_n2s_dict.get(importance_num, "?unknown?")
+
+def importance_str_summary():
+    return string.join(map(lambda x:"'%s'"  % x[0], importance_table), ", ")
+
+
