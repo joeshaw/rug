@@ -17,5 +17,7 @@ rcsupport_DATA = 		\
 	rcwhatcmds.py		\
 	ximian_xmlrpclib.py
 
+EXTRA_DIST = $(rcsupport_DATA)
+
 install-exec-hook:
 	chmod 0755 $(rcexecdir)/$(rcexec_DATA)

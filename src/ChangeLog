@@ -1,3 +1,8 @@
+2002-07-11  Frank Belew  <frb@ximian.com>
+
+	* Makefile.am: add the data files as EXTRA_DIST so they get put in a 
+	tarball
+
 2002-07-11  Aaron Weber  <aaron@ximian.com>
 
 	* rcprefscmds.py (PrefsListCmd.description_short): improve description
