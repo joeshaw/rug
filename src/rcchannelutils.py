@@ -70,7 +70,7 @@ def get_channel_alias(c):
             
     return alias
 
-def get_channels_by_name(server, in_str):
+def get_channels_by_name(server, in_str, service=None):
     channels = get_channels(server)
     matches = []
 
@@ -78,6 +78,9 @@ def get_channels_by_name(server, in_str):
 
     # Make a first pass through the channels, looking for matches.
     for c in channels:
+        if service and service["id"] != c.get("service"):
+            continue
+
         match = 0
 
         chan_name = string.lower(c["name"])

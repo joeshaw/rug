@@ -140,18 +140,32 @@ class SubscribeCmd(rccommand.RCCommand):
 
     def local_opt_table(self):
         return [["s", "strict", "", "Fail if attempting to subscribe to an already-subscribed channel"],
-                ["a", "all", "", "Subscribe to all channels"]]
+                ["a", "all", "", "Subscribe to all channels"],
+                ["", "service", "service", "Subscribe channel from service"]]
 
     def execute(self, server, options_dict, non_option_args):
+
+        service = None
+        if options_dict.has_key("service"):
+            services = rcserviceutils.get_services(server)
+            service = rcserviceutils.find_service(services,
+                                                  options_dict["service"])
+
+            if not service:
+                rctalk.error("Unknown service '%s'" % options_dict["service"])
+                sys.exit(1)
 
         failed = 0
         to_do = []
         if options_dict.has_key("all"):
             to_do = filter(lambda c:not c["hidden"],
                            rcchannelutils.get_channels(server))
+            if service:
+                to_do = filter(lambda c,s=service:c.get("service") == s["id"],
+                               to_do)
         else:
             for a in non_option_args:
-                clist = rcchannelutils.get_channels_by_name(server, a)
+                clist = rcchannelutils.get_channels_by_name(server, a, service)
                 if not rcchannelutils.validate_channel_list(a, clist):
                     failed = 1
                 else:
@@ -197,19 +211,32 @@ class UnsubscribeCmd(rccommand.RCCommand):
 
     def local_opt_table(self):
         return [["s", "strict", "", "Fail if attempting to unsubscribe from a non-subscribed channel"],
-                ["a", "all", "", "Subscribe to all channels"]]
-
+                ["a", "all", "", "Unsubscribe to all channels"],
+                ["", "service", "service", "Unsubscribe channel from service"]]
 
     def execute(self, server, options_dict, non_option_args):
+
+        service = None
+        if options_dict.has_key("service"):
+            services = rcserviceutils.get_services(server)
+            service = rcserviceutils.find_service(services,
+                                                  options_dict["service"])
+
+            if not service:
+                rctalk.error("Unknown service '%s'" % options_dict["service"])
+                sys.exit(1)
 
         failed = 0
         to_do = []
         if options_dict.has_key("all"):
             to_do = filter(lambda c:not c["hidden"],
                            rcchannelutils.get_channels(server))
+            if service:
+                to_do = filter(lambda c,s=service:c.get("service") == s["id"],
+                               to_do)
         else:
             for a in non_option_args:
-                clist = rcchannelutils.get_channels_by_name(server, a)
+                clist = rcchannelutils.get_channels_by_name(server, a, service)
                 if not rcchannelutils.validate_channel_list(a, clist):
                     failed = 1
                 else:

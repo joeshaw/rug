@@ -1,3 +1,11 @@
+2004-07-29  Tambet Ingo  <tambet@ximian.com>
+
+	* rcchannelutils.py (get_channels_by_name): Add optional argument
+	"service" to return channels only by given service.
+
+	* rcchannelcmds.py (SubscribeCmd): Add "--service" options.
+	(UnsubscribeCmd): Ditto.
+
 2004-07-28  Tambet Ingo  <tambet@ximian.com>
 
 	* rcyoucmds.py (InstallYouPatchCmd.poll_transaction): Cancel
