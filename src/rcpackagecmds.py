@@ -238,7 +238,7 @@ class PackageSearchCmd(rccommand.RCCommand):
                 ["", "search-description", "",     "Look for search strings in package descriptions"],
                 ["i", "installed-only",   "",       "Only show installed packages"],
                 ["u", "uninstalled-only", "",       "Only show uninstalled packages"],
-                ["c", "channel",         "channel", "Show packages from one specific channel"],
+                ["c", "channel",        "channel", "Show packages from one specific channel"],
                 ["", "show-package-ids",   "",     "Show package IDs"],
                 ["", "no-abbrev", "",              "Don't abbreviate channel or version information"]]
 
@@ -250,7 +250,7 @@ class PackageSearchCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
 
         if options_dict.has_key("search-descriptions"):
-            key = "name" ## should be name_or_desc
+            key = "text"
         else:
             key = "name"
 

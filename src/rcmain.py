@@ -208,14 +208,24 @@ def main(rc_version):
     ### Walk through our list of options and replace short options with the
     ### corresponding long option.
     ###
-    
+
     i = 0
     while i < len(optlist):
         key = optlist[i][0]
         if key[0:2] != "--":
-            optlist[i][0] = opt_dict[short2long_dict[key[1:]]]
+            optlist[i] = ("--" + short2long_dict[key[1:]], optlist[i][1])
         i = i + 1
 
+    print optlist
+
+    ###
+    ### Store our options in a dictionary
+    ###
+
+    opt_dict = {}
+
+    for key, value in optlist:
+        opt_dict[key[2:]] = value
 
     ###
     ### Get the list of "orthogonal" options for this command and, if our
@@ -237,16 +247,6 @@ def main(rc_version):
                 seen_oo = 1
             i = i + 1
     optlist.reverse()
-
-
-    ###
-    ### Store our options in a dictionary
-    ###
-
-    opt_dict = {}
-
-    for key, value in optlist:
-            opt_dict[key[2:]] = value
 
 
     ###

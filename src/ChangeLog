@@ -1,3 +1,11 @@
+2002-07-02  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd.execute): If
+	--search-descriptions is set, use the "text" key for the search.
+
+	* rcmain.py: Fixed some options handling breakage.  I think
+	something got screwed up on my last merge.
+
 2002-07-01  Jon Trowbridge  <trow@ximian.com>
 
 	* rcpackagecmds.py (PackageUpdateAllCmd) Renamed, used to be
