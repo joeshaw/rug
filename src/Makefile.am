@@ -20,4 +20,4 @@ rcsupport_DATA = 		\
 EXTRA_DIST = $(rcsupport_DATA)
 
 install-exec-hook:
-	chmod 0755 $(rcexecdir)/$(rcexec_DATA)
+	chmod 0755 $(DESTDIR)$(rcexecdir)/$(rcexec_DATA)

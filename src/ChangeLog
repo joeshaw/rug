@@ -1,5 +1,9 @@
 2002-07-11  Frank Belew  <frb@ximian.com>
 
+	* Makefile.am: added DESTDIR to install-exec-hook
+
+2002-07-11  Frank Belew  <frb@ximian.com>
+
 	* Makefile.am: add the data files as EXTRA_DIST so they get put in a 
 	tarball
 
