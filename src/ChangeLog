@@ -1,3 +1,7 @@
+2002-06-17  Jon Trowbridge  <trow@ximian.com>
+
+	* rclogcmds.py: Added.  A primitive log list/query command.
+
 2002-06-14  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoCmd): Added.  Shows some detailed
