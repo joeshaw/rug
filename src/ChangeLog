@@ -1,3 +1,15 @@
+2004-06-16  Tambet Ingo  <tambet@ximian.com>
+
+	* rcyoucmds.py (InstallYouPatchCmd.execute): Implement
+	"entire-channel" installation.
+	(ListYouPatchesCmd.arguments): Add available arguments for help
+	system.
+	(ListYouPatchesCmd.local_opt_table): Ditto.
+	(ListYouPatchesCmd.execute): Fix "installed-only" and
+	"uninstalled-only" flag queries.
+	(InstallYouPatchCmd.arguments): We can take more than one patch at
+	time.
+
 2004-06-14  Tambet Ingo  <tambet@ximian.com>
 
 	* rcyoucmds.py (ListYouPatchesCmd.execute): Use the new API which

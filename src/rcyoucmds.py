@@ -42,8 +42,18 @@ class ListYouPatchesCmd(rccommand.RCCommand):
     def description_short(self):
         return "List YOU patches"
 
+    def arguments(self):
+        return "<channel> <channel> ..."
+
     def category(self):
         return "YOU patches"
+
+    def local_opt_table(self):
+        return [["",  "no-abbrev", "", "Do not abbreviate channel or version information"],
+                ["i", "installed-only", "", "Show only installed patches"],
+                ["u", "uninstalled-only", "", "Show only uninstalled patches"],
+                ["",  "sort-by-name", "", "Sort patches by name (default)"],
+                ["",  "sort-by-channel", "", "Sort patches by channel"]]
 
     def execute(self, server, options_dict, non_option_args):
 
@@ -70,9 +80,9 @@ class ListYouPatchesCmd(rccommand.RCCommand):
             query.append(["", "end-or", ""])
 
         if options_dict.has_key("installed-only"):
-            query.append(["installed", "=", "true"])
+            query.append(["name-installed", "=", "true"])
         elif options_dict.has_key("uninstalled-only"):
-            query.append(["installed", "=", "false"])
+            query.append(["patch-installed", "=", "false"])
 
         if len(clist) == 1:
             multiple_channels = 0
@@ -312,14 +322,12 @@ class InstallYouPatchCmd(rccommand.RCCommand):
         return "YOU patches"
 
     def arguments(self):
-        return "<patch-name>"
+        return "<patch-name> ..."
 
     def local_opt_table(self):
-        opts = [["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"],
+        return [["u", "allow-unsubscribed", "", "Include unsubscribed channels when searching for software"],
                 ["d", "download-only", "", "Only download packages, don't install them"],
                 ["", "entire-channel", "", "Install all of the packages in the channels specified on the command line"]]
-
-        return opts
 
     def check_licenses(self, server, patches):
         try:
@@ -427,7 +435,35 @@ class InstallYouPatchCmd(rccommand.RCCommand):
             allow_unsub = 0
 
         if options_dict.has_key("entire-channel"):
-            pass
+            channel_list = []
+            for a in non_option_args:
+                matches = rcchannelutils.get_channels_by_name(server, a)
+                if not rcchannelutils.validate_channel_list(a, matches):
+                    sys.exit(1)
+                channel_list.append(matches[0])
+
+            contributors = 0
+            for c in channel_list:
+                query = [["channel", "=", c["id"]],
+                         ["patch-installed", "=", "false"]]
+                patches = server.rcd.you.search(query)
+                install_list.extend(patches)
+                if len(patches) > 0:
+                    contributors = contributors + 1
+                msg = "Found %d %s in channel '%s'" % \
+                      (len(patches),
+                       (len(patches) != 1 and "patches") or "patch",
+                       c["name"])
+                rctalk.message(msg)
+
+            if contributors > 1:
+                msg = "Found a total of %d %s" % \
+                      (len(install_list),
+                       (len(install_list) != 1 and "patches")
+                       or "patch")
+                rctalk.message(msg)
+
+            rctalk.message("")
         else:
             for a in non_option_args:
                 plist = find_patch(server, a,
