@@ -1,3 +1,6 @@
+2003-01-29: Aaron Weber <aaron@ximian.com>
+	* rc.1: Add rc dangling-provides.
+
 2002-12-18  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.1.91

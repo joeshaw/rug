@@ -99,6 +99,11 @@ Unsubscribe from a channel.  You may use the full channel name or its alias.
 
 .LP 
 \fBDependency analysis commands:\fR 
+
+.TP 
+dangling\-requires
+This command takes no arguments or options, and designed more for administrators to check the coherence of shipped software. It walks across all packages in all channels on the server, to see if there are any dependencies that are not provided by something else on the server. 
+
 .TP 
 info\-conflicts (ic) \fI<packagename>\fR
 List all packages that conflict with \fIpackagename.\fR
