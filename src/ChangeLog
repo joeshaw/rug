@@ -1,3 +1,26 @@
+2003-08-13  Joe Shaw  <joe@ximian.com>
+
+	* rccommand.py: Add a "service" category
+
+	* rcfault.py: Add the invalid_service fault
+
+	* rcmain.py: First try to load local modules, for ease in
+	doing development.
+
+	* rcnews.py: Print out the server name if it's available
+
+	* rcsystemcmds.py (PingCmd): Remove a bunch of stuff that isn't
+	sent along with a ping anymore, like distro info and server info.
+	(ServiceListCmd, ServiceAddCmd, ServiceDeleteCmd): Added.
+	Commands for manipulating services.
+
+	* rctransactcmds.py (PackageSolveCmd): Take "sd" off as a alias
+	for solvedeps... we need it for service-delete and i don't think
+	anyone was using it.
+
+	* ximian_xmlrpclib.py: Make the verbose mode print out both the
+	request XML as well as the response XML.
+
 2003-07-16  Tambet Ingo  <tambet@ximian.com>
 
 	* rug.in: Call rcmain.main with additional argument "rug_dir".

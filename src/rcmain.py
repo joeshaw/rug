@@ -43,16 +43,28 @@ def import_commands(rug_dir):
     sysdir = rug_dir + "/commands"
     sys.path.append(sysdir)
 
-    files = glob.glob("%s/*cmds.py" % sysdir)
+    loaded_modules = []
+
+    # First load modules in our current directory, for developers, and then
+    # out of the system dir.
+    files = glob.glob("*cmds.py")
+    files = files + glob.glob("%s/*cmds.py" % sysdir)
+    
     for file in files:
         (path, name) = os.path.split(file)
         (name, ext) = os.path.splitext(name)
+        
+        if name in loaded_modules:
+            continue
+        
         (file, filename, data) = imp.find_module(name, [path])
 
         try:
             module = imp.load_module(name, file, filename, data)
         except ImportError:
             rctalk.warning("Can't import module " + filename)
+        else:
+            loaded_modules.append(name)
 
         if file:
             file.close()

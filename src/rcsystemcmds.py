@@ -56,26 +56,8 @@ class PingCmd(rccommand.RCCommand):
             else:
                 rctalk.warning("Daemon did not return copyright information.")
 
-            if results.has_key("distro_info"):
-                rctalk.message("  System type: " + results["distro_info"])
-            else:
-                rctalk.warning("Daemon did not return system type information.")
-
-            rctalk.message("")
-
-            if results.has_key("server_url"):
-                rctalk.message("  Server URL: " + results["server_url"])
-            else:
-                rctalk.warning("Daemon did not return server URL")
-
-            if results.has_key("server_premium"):
-                if results["server_premium"]:
-                    rctalk.message("  Server supports enhanced features.")
-            else:
-                rctalk.warning("Daemon did not return server type")
-
             # Exit normally if we could ping the server
-            sys.exit(0)
+            return
 
         # And exit abnormally if we couldn't.
         sys.exit(1)
@@ -286,3 +268,106 @@ class RecurringCmd(rccommand.RCCommand):
             rctalk.message("*** No recurring events are scheduled. ***")
 
 rccommand.register(RecurringCmd)
+
+class ServiceListCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "service-list"
+
+    def aliases(self):
+        return ["sl"]
+
+    def description_short(self):
+        return "List the current services"
+
+    def category(self):
+        return "service"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        services = server.rcd.system.list_services()
+
+        table = []
+        for serv in services:
+            if serv.has_key("is_invisible") and serv["is_invisible"]:
+                continue
+
+            if serv.has_key("name"):
+                name = serv["name"]
+            else:
+                name = "(No name available)"
+            
+            row = [serv["url"], name]
+            table.append(row)
+
+        if table:
+            rcformat.tabular(["Service URI", "Name"], table)
+        else:
+            rctalk.message("*** No services are mounted ***")
+
+rccommand.register(ServiceListCmd)
+
+class ServiceAddCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "service-add"
+
+    def aliases(self):
+        return ["sa"]
+
+    def arguments(self):
+        return "<service uri> ..."
+
+    def description_short(self):
+        return "Add a new service"
+
+    def category(self):
+        return "service"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        for o in non_option_args:
+            try:
+                server.rcd.system.add_service(o)
+            except ximian_xmlrpclib.Fault, f:
+                if f.faultCode != rcfault.invalid_service:
+                    raise
+
+                rctalk.error(f.faultString)
+            else:
+                rctalk.message("Service '%s' successfully added." % o)
+
+rccommand.register(ServiceAddCmd)
+
+class ServiceDeleteCmd(rccommand.RCCommand):
+
+    def name(self):
+        return "service-delete"
+
+    def aliases(self):
+        return ["sd"]
+
+    def arguments(self):
+        return "<service uri> ..."
+
+    def description_short(self):
+        return "Delete a service"
+
+    def category(self):
+        return "service"
+
+    def execute(self, server, options_dict, non_option_args):
+
+        for o in non_option_args:
+            try:
+                server.rcd.system.remove_service(o)
+            except ximian_xmlrpclib.Fault, f:
+                if f.faultCode != rcfault.invalid_service:
+                    raise
+
+                rctalk.error(f.faultString)
+            else:
+                rctalk.message("Service '%s' successfully removed." % o)
+
+rccommand.register(ServiceDeleteCmd)
+

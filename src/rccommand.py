@@ -88,6 +88,7 @@ category_data = {"package":["Package management", -1000],
                  "dependency":["Dependency analysis", 0],
                  "user":["User management", 0],
                  "prefs":["Preference management", 0],
+                 "service":["Service management", 0],
                  "other":["Other", 10000000]}
 
 def command_sort(a, b):

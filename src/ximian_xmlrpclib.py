@@ -596,6 +596,9 @@ class Transport:
         if verbose:
             h.set_debuglevel(1)
 
+        if verbose:
+            print "request:", repr(request_body)
+
         self.send_request(h, handler, request_body)
         self.send_host(h, host)
         self.send_user_agent(h)
@@ -743,7 +746,7 @@ class Transport:
                 break
 
             if self.verbose:
-                print "body:", repr(response)
+                print "response:", repr(response)
 
             # FIXME: This is evil and wrong and papers over what appears
             # to be a race in rcd.  Essentially there is garbage on the
@@ -805,6 +808,9 @@ class RawTransport(Transport):
         self.verbose = verbose
         
         sock = self.make_connection(host)
+
+        if verbose:
+            print "request:", repr(request_body)
 
         self.send_content(sock, request_body)
 

@@ -793,7 +793,7 @@ class PackageSolveCmd(TransactCmd):
         return "solvedeps"
 
     def aliases(self):
-        return ["sd", "solve"]
+        return ["solve"]
 
     def arguments(self):
         return "<package-dep>"
