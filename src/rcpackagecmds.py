@@ -633,6 +633,15 @@ class PackageInfoCmd(rccommand.RCCommand):
             rctalk.message("Name: " + p["name"])
             rctalk.message("Version: " + p["version"])
             rctalk.message("Release: " + p["release"])
+            if p["installed"]:
+                rctalk.message("Installed: Yes")
+                update = rcpackageutils.find_latest_package(server, a, allow_unsub, 1)
+                if not len(update):
+                    rctalk.message("Status: up-to-date")
+                else:
+                    rctalk.message("Status: update available (%s)" % update[0]["version"])
+            else:
+                rctalk.message("Installed: No")
             if pinfo.get("file_size", 0):
                 rctalk.message("Package size: " + str(pinfo["file_size"]))
             if pinfo.get("installed_size", 0):
