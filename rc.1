@@ -1,5 +1,6 @@
+.\" Copyright Ximian, Inc. 2002. 
 .\" Please visit bugzilla.ximian.com to report problems with the software or its documentation.
-.TH "rc" "1" "1.0" "Ximian, Inc." "System tools"
+.TH "rc" "1" "1.0" "Aaron Weber <aaron@ximian.com>" "System tools"
 .SH "NAME"
 .LP 
 rc \- rc is the command\-line interface to the Ximian Red Carpet daemon rcd.
@@ -33,7 +34,7 @@ Install the specified package or packages. Multiple packages may be listed, sepa
 
 .TP 
 packages \fI<"channelname">\fR\fR
-List the packages in a channel. If no channel is specified, all packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested.  You may truncate channel names to any unique substring. Multiple channel names may be used, separated by spaces.
+List the packages in a channel. If no channel is specified, all packages will be listed. If an ambiguous channel name is specified, specific channels will be suggested. You may use the full channel name or an alias. Multiple channel names may be used, separated by spaces.
  
 .TP  
 remove (rm, erase) \fI<packagename>\fR
@@ -67,11 +68,11 @@ List available channels
 
 .TP 
 subscribe (sub)\fI<channelname>\fR
-Subscribe to a channel. You may truncate channel names to any unique substring of the name.
+Subscribe to a channel. You may use the full channel name or the alias.
 
 .TP 
 unsubscribe (unsub) \fI<channelname>\fR
-Unsubscribe from a channel.  You may truncate channel names to any unique substring of the name.
+Unsubscribe from a channel.  You may use the full channel name or its alias.
 
 .LP 
 \fBDependency analysis commands:\fR 
@@ -170,7 +171,6 @@ Run in batch mode.
 .TP 
 \fB\-\-debug\fR
 Print extra debugging information while running. This is different from the debug command, which collects a coredump.
-
 
 .TP 
 \fB\-h, \-\-host=<\fIhostname\fB>\fR
@@ -346,6 +346,20 @@ Output Options:
 .br 
 .B \fI\-\-sort\-by\-channel\fR: Sort packages by channel.
 
+
+.TP 
+\fBrc user\-add\fR
+.B \fI\-P\fR: Specify the password for this user.
+.B \fI\-U\fR: Specify the user name for this user.
+
+.TP 
+\fBrc user\-delete\fR
+.B No options for this command.
+
+.TP 
+\fBrc user\-list\fR
+.B  No options for this command.
+
 .TP 
 \fBrc verify\fR
 .B \fI\-d, \-\-allow\-removals\fR: Permit rc to remove software without confirmation.
@@ -410,10 +424,10 @@ This will operate in verbose mode and contact the rcd daemon on the specified ho
 Installs the package that provides \fIlibrary.so.1\fR and a version of \fIapplication\fR lower than 1.2.
 .SH "AUTHORS"
 .LP 
-Copyright 2002 Ximian, Inc. 
+Copyright 2002 Ximian, Inc.
 http://www.ximian.com/
 .SH "SEE ALSO"
 .LP 
 rcd(8), red\-carpet(1), rcman(1)
 .LP 
-Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian.
+Visit http://ximian.com for more information about rc, the Ximian Red Carpet family of products and services, and other software from Ximian. To report problems with this software or its documentation, visit http://bugzilla.ximian.com.  
