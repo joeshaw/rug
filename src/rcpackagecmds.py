@@ -31,10 +31,10 @@ def find_package_in_channel(server, channel, package, allow_unsub):
     if channel != -1:
         plist = server.rcd.packsys.search([["name",      "is", package],
                                            ["installed", "is", "false"],
-                                           ["channel",   "is", channel]])
+                                           ["channel",   "is", str(channel)]])
 
         if not plist:
-            return None
+            return (None, 0)
         else:
             p = plist[0]
             
@@ -625,7 +625,7 @@ class PackageInfoCmd(rccommand.RCCommand):
             allow_unsub = 0
 
         for a in non_option_args:
-            channel = -1
+            channel = None
             package = None
 
             off = string.find(a, ":")
@@ -635,10 +635,15 @@ class PackageInfoCmd(rccommand.RCCommand):
             else:
                 package = a
 
-            if channel == -1:
+            if not channel:
                 p = find_package_on_system(server, package)
             else:
-                p, inform = find_package_in_channel(server, channel, package, allow_unsub)
+                clist = rcchannelutils.get_channels_by_name(server, channel)
+                if not rcchannelutils.validate_channel_list(channel, clist):
+                    sys.exit(1)
+
+                c = clist[0]
+                p, inform = find_package_in_channel(server, c["id"], package, allow_unsub)
 
             if not p:
                 if allow_unsub:
@@ -782,7 +787,7 @@ class PackageInstallCmd(rccommand.RCCommand):
             allow_unsub = 0
 
         for a in non_option_args:
-            channel = -1
+            channel = None
             package = None
 
             off = string.find(a, ":")
@@ -792,7 +797,15 @@ class PackageInstallCmd(rccommand.RCCommand):
             else:
                 package = a
 
-            p, inform = find_package_in_channel(server, channel, package, allow_unsub)
+            if not channel:
+                c = -1
+            else:
+                clist = rcchannelutils.get_channels_by_name(server, channel)
+                if not rcchannelutils.validate_channel_list(channel, clist):
+                    sys.exit(1)
+                c = clist[0]["id"]
+            
+            p, inform = find_package_in_channel(server, c, package, allow_unsub)
 
             if not p:
                 inform = 0
@@ -806,8 +819,10 @@ class PackageInstallCmd(rccommand.RCCommand):
                     p = package
 
             if inform:
-                rctalk.message("Using " + p["name"] + " " + rcformat.evr_to_str(p) + " from the '" + \
-                               rcchannelutils.channel_id_to_name(server, p["channel"]) + "' channel")
+                rctalk.message("Using " + p["name"] + " " +
+                               rcformat.evr_to_str(p) + " from the '" +
+                               rcchannelutils.channel_id_to_name(server, p["channel"]) +
+                               "' channel")
                 
             packages_to_install.append(p)
 
