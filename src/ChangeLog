@@ -1,3 +1,8 @@
+2002-11-21  Jon Trowbridge  <trow@ximian.com>
+
+	* rc.in: Defined rc_lib_dir as a path for finding binary
+	extensions.
+
 2002-11-19  Joe Shaw  <joe@ximian.com>
 
 	* rcpackagecmds.py (PackageInfoCmd.execute): If no packages are

@@ -1,0 +1,4 @@
+2002-11-21  Jon Trowbridge  <trow@ximian.com>
+
+	* Added initial versions of Makefile.am, unmarshaller.c, setup.py.
+

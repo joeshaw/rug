@@ -1,3 +1,10 @@
+2002-11-21  Jon Trowbridge  <trow@ximian.com>
+
+	* Makefile.am (SUBDIRS): Added unmarshaller.
+
+	* configure.in: Defined LIBDIR.  Added unmarshaller/Makefile to
+	AC_OUTPUT.
+
 2002-11-19  Joe Shaw  <joe@ximian.com>
 
 	* configure.in: 1.1.1

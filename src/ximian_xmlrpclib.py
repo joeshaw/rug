@@ -319,6 +319,13 @@ try:
 except (AttributeError, ImportError):
     FastParser = FastUnmarshaller = None
 
+have_ximian_unmarshaller = 0
+try:
+    import ximian_unmarshaller
+    have_ximian_unmarshaller = 1
+except (AttributeError, ImportError):
+    pass
+
 #
 # the SGMLOP parser is about 15x faster than Python's builtin
 # XML parser.  SGMLOP sources can be downloaded from:
@@ -781,7 +788,22 @@ def getparser():
         target = FastUnmarshaller(True, False, binary, datetime)
         parser = FastParser(target)
     else:
-        target = Unmarshaller()
+        if have_ximian_unmarshaller:
+            def binary_cb(data):
+                b = Binary()
+                b.decode(data)
+                return b
+            def boolean_cb(value):
+                if value == "0":
+                    return False
+                elif value == "1":
+                    return True
+                else:
+                    raise TypeError, "bad boolean value"
+            target = ximian_unmarshaller.new(binary_cb, boolean_cb)
+        else:
+            target = Unmarshaller()
+            
         if FastParser:
             parser = FastParser(target)
         elif SgmlopParser:

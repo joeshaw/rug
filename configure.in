@@ -26,8 +26,13 @@ fi
 DDIR=`echo $datadir | sed -e "s,"'${prefix}'",$prefix,"`
 AC_SUBST(DDIR)
 
+# FIXME: We assume exec_prefix == prefix, which is probably bad
+LIBDIR=`echo $libdir | sed -e "s,"'${exec_prefix}'",$prefix,"`
+AC_SUBST(LIBDIR)
+
 AC_OUTPUT([
 Makefile
+unmarshaller/Makefile
 src/Makefile
 src/rc
 ])
