@@ -1,3 +1,8 @@
+2003-06-09  Aaron Weber <aaron@ximian.com>
+
+	* rug.1: formatting issues-- had missed a few linebreaks in the
+	options lists.
+
 2003-05-19  Joe Shaw  <joe@ximian.com>
 
 	* Rename to rug.
