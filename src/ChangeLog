@@ -1,3 +1,9 @@
+2004-11-03  Joe Shaw  <joeshaw@novell.com>
+
+	* rcchannelcmds.py (ListChannelCmds): Add a --show-services in the
+	vein of --show-ids, which adds a column for services.  Helps a lot
+	when you have a bunch of services like me.
+
 2004-09-01  Tambet Ingo  <tambet@ximian.com>
 
 	* rcyoucmds.py (InstallYouPatchCmd.poll_transaction): Don't trace when

@@ -49,8 +49,9 @@ class ListChannelsCmd(rccommand.RCCommand):
         return [["s", "subscribed", "", "Only list subscribed channels"],
                 ["u", "unsubscribed", "", "Only list unsubscribed channels"],
                 ["m", "mounted", "", "Only list mounted channels"],
-                ["", "service", "service", "Only list channels in this service"],
-                ["", "show-ids", "", "Show channel IDs"]]
+                ["",  "service", "service", "Only list channels in this service"],
+                ["",  "show-ids", "", "Show channel IDs"],
+                ["n", "show-services", "", "Show service names"]]
 
     def local_orthogonal_opts(self):
         return [["subscribed", "unsubscribed"]]
@@ -75,6 +76,8 @@ class ListChannelsCmd(rccommand.RCCommand):
         headers = ["subd?", "Alias", "Name"]
         if options_dict.has_key("show-ids"):
             headers.insert(2, "ID")
+        if options_dict.has_key("show-services"):
+            headers.append("Service")
 
         for c in channels:
 
@@ -102,6 +105,10 @@ class ListChannelsCmd(rccommand.RCCommand):
                 row = [subflag, rcchannelutils.get_channel_alias(c), c["name"]]
                 if options_dict.has_key("show-ids"):
                     row.insert(2, c["id"])
+                if options_dict.has_key("show-services"):
+                    services = rcserviceutils.get_services(server)
+                    service = rcserviceutils.find_service(services, c["service"])
+                    row.append(service["name"])
                 channel_table.append(row)
 
         if channel_table:
