@@ -40,3 +40,4 @@ not_supported          = -614
 license_not_found      = -615
 cant_set_preference    = -616
 invalid_service        = -617
+transaction_failed     = -618

@@ -1,3 +1,7 @@
+2003-09-03  Joe Shaw  <joe@ximian.com>
+
+	* rcfault.py: Add transaction_failed (-618)
+
 2003-09-02  Joe Shaw  <joe@ximian.com>
 
 	* rcnewscmds.py (NewsCmd.execute): Change "server" to "service_name"
