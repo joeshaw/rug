@@ -1,4 +1,4 @@
-AC_INIT(src/rc)
+AC_INIT(src/rc.in)
 
 MAJOR_VERSION=0
 MINOR_VERSION=0
