@@ -1253,11 +1253,11 @@ class PackageInstallCmd(TransactCmd):
             if not p:
                 sys.exit(1)
 
-            dups = filter(lambda x, pn=p:x == pn["name"],
-                          map(lambda x:x["name"], packages_to_install))
+            dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                          packages_to_install)
 
             if dups:
-                rctalk.error("Duplicate entry found: " + dups[0])
+                rctalk.error("Duplicate entry found: " + dups[0]["name"])
                 sys.exit(1)
                 
             packages_to_install.append(p)
@@ -1301,11 +1301,11 @@ class PackageRemoveCmd(TransactCmd):
                 rctalk.error("Unable to find package '" + a + "'")
                 sys.exit(1)
 
-            dups = filter(lambda x, pn=p:x == pn["name"],
-                          map(lambda x:x["name"], packages_to_remove))
+            dups = filter(lambda x, pn=p:x["name"] == pn["name"],
+                          packages_to_remove)
 
             if dups:
-                rctalk.warning("Duplicate entry found: " + dups[0])
+                rctalk.warning("Duplicate entry found: " + dups[0]["name"])
             else:
                 packages_to_remove.append(p)
 
@@ -1437,11 +1437,10 @@ class PackageSolveCmd(TransactCmd):
                 dep["version"] = "foo"
                 dep["release"] = "bar"
 
-            dups = filter(lambda x, d=dep:x == d["name"],
-                          map(lambda x:x["name"], dlist))
+            dups = filter(lambda x, d=dep:x["name"] == d["name"], dlist)
 
             if dups:
-                rctalk.warning("Duplicate entry found: " + dups[0])
+                rctalk.warning("Duplicate entry found: " + dups[0]["name"])
 
             dlist.append(dep)
 
