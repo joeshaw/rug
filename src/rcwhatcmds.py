@@ -22,7 +22,7 @@ import rctalk
 import rcformat
 import rcchannelutils
 import rccommand
-
+import rcpackageutils
 
 def dep_table(server, pairs, dep_name, by_channel = 0, no_abbrev = 0):
 
@@ -112,19 +112,11 @@ class WhateverCmd(rccommand.RCCommand):
 
     def execute(self, server, options_dict, non_option_args):
 
-        if len(non_option_args) < 1:
+        if len(non_option_args) != 1:
             self.usage()
             sys.exit(1)
-        
-        dep_name = non_option_args[0]
 
-        dep = {}
-        dep["name"] = dep_name
-        dep["relation"] = "(any)"
-        dep["has_epoch"] = 0
-        dep["epoch"] = 0
-        dep["version"] = "foo"
-        dep["release"] = "bar"
+        dep = rcpackageutils.parse_dep_str(server, non_option_args[0])
 
         what = self.query_fn(server)(dep)
 
@@ -133,7 +125,7 @@ class WhateverCmd(rccommand.RCCommand):
         elif options_dict.has_key("uninstalled-only"):
             what = filter(lambda p:not p[0]["installed"], what)
         
-        dep_table(server, what, dep_name,
+        dep_table(server, what, non_option_args[0],
                   options_dict.has_key("sort-by-channel"),
                   options_dict.has_key("no-abbrev"))
 

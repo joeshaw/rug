@@ -403,7 +403,8 @@ class PackageListUpdatesCmd(rccommand.RCCommand):
             else:
                 min_importance = rcpackageutils.update_importances[options_dict["importance"]]
 
-        update_list = rcpackageutils.get_updates(server, non_option_args)
+        update_list = rcpackageutils.get_updates(server, non_option_args,
+                                                 allow_dups=1)
 
         if min_importance != None:
             up = []

@@ -869,42 +869,7 @@ class PackageSolveCmd(TransactCmd):
         dlist = []
 
         for d in non_option_args:
-            dep = {}
-            package = string.split(d)
-
-            if len(package) > 1:
-                valid_relations = ["=", "<", "<=", ">", ">=", "!="]
-
-                if not package[1] in valid_relations:
-                    rctalk.error("Invalid relation.")
-                    sys.exit(1)
-
-                dep["name"] = package[0]
-                dep["relation"] = package[1]
-
-                version_regex = re.compile("^(?:(\d+):)?(.*?)(?:-([^-]+))?$")
-                match = version_regex.match(package[2])
-
-                if match.group(1):
-                    dep["has_epoch"] = 1
-                    dep["epoch"] = int(match.group(1))
-                else:
-                    dep["has_epoch"] = 0
-                    dep["epoch"] = 0
-                    
-                dep["version"] = match.group(2)
-
-                if match.group(3):
-                    dep["release"] = match.group(3)
-                else:
-                    dep["release"] = ""
-            else:
-                dep["name"] = d
-                dep["relation"] = "(any)"
-                dep["has_epoch"] = 0
-                dep["epoch"] = 0
-                dep["version"] = "*"
-                dep["release"] = "*"
+            dep = rcpackageutils.parse_dep_str(server, d)
 
             dups = filter(lambda x, d=dep:x["name"] == d["name"], dlist)
 

@@ -17,6 +17,7 @@
 
 import errno
 import os
+import re
 import string
 import sys
 
@@ -26,6 +27,29 @@ import rcchannelutils
 import rcmain
 import rctalk
 import ximian_xmlrpclib
+
+def split_channel_and_name(server, s):
+    # Try to split the string into "channel:name"
+    off = string.find(s, ":")
+    if off != -1:
+        channel = s[:off]
+        name = s[off+1:]
+    else:
+        channel = None
+        name = s
+
+    # Validate the channel
+    if channel:
+        clist = rcchannelutils.get_channels_by_name(server, channel)
+
+        if not rcchannelutils.validate_channel_list(channel, clist):
+            sys.exit(1)
+            
+        channel_id = clist[0]["id"]
+    else:
+        channel_id = None
+
+    return (channel_id, name)
 
 # This isn't the most efficient way of doing things, but we need to do it
 # because rcd.packsys.find_latest_version() doesn't do globbing.  So we
@@ -195,21 +219,12 @@ def find_package(server, str, allow_unsub, allow_system=1):
         return [p]
 
     # Okay, try to split the string into "channel:package"
-    off = string.find(str, ":")
-    if off != -1:
-        channel = str[:off]
-        package = str[off+1:]
-    else:
-        package = str
+    channel_id, package = split_channel_and_name(server, str)
 
     # Channel is set, so just get the package(s) from the channel.
-    if channel:
-        clist = rcchannelutils.get_channels_by_name(server, channel)
-        if not rcchannelutils.validate_channel_list(channel, clist):
-            sys.exit(1)
-
-        c = clist[0]
-        plist = find_package_in_channel(server, c["id"], package, allow_unsub)
+    if channel_id:
+        plist = find_package_in_channel(server, channel_id,
+                                        package, allow_unsub)
 
         return plist
 
@@ -252,7 +267,7 @@ update_importances = {"minor"     : 4,
                       "urgent"    : 1,
                       "necessary" : 0}
 
-def get_updates(server, non_option_args):
+def get_updates(server, non_option_args, allow_dups=0):
     up = server.rcd.packsys.get_updates()
 
     # If channels are specified by the command line, filter out all except
@@ -278,6 +293,22 @@ def get_updates(server, non_option_args):
 
         up = filter(lambda x, cidl=channel_id_list:x[1]["channel"] in cidl, up)
 
+    # Filter out exact duplicates
+    if not allow_dups:
+        def pkg_to_key(p):
+            return "%s:%d:%s:%s" % \
+                   (p["name"], p["epoch"], p["version"], p["release"])
+
+        dup_dict = {}
+        for u in up:
+            key = pkg_to_key(u[1]) # u[1] is the new version of the package
+            if not dup_dict.has_key(key):
+                dup_dict[key] = u
+
+        up = dup_dict.values()
+
+        del dup_dict
+
     return up
 
 def filter_visible_channels(server, packages):
@@ -296,3 +327,53 @@ def filter_visible_channels(server, packages):
                   or not p.has_key("channel_guess"),
                   packages)
 
+def parse_dep_str(server, dep_str):
+    dep = {}
+    package = string.split(dep_str)
+
+    if len(package) > 1:
+        valid_relations = ["=", "<", "<=", ">", ">=", "!="]
+
+        if not package[1] in valid_relations:
+            rctalk.error("Invalid relation.")
+            sys.exit(1)
+
+        channel_id, name = split_channel_and_name(server, package[0])
+
+        if channel_id:
+            dep["channel"] = channel_id
+
+        dep["name"] = name
+
+        dep["relation"] = package[1]
+
+        version_regex = re.compile("^(?:(\d+):)?(.*?)(?:-([^-]+))?$")
+        match = version_regex.match(package[2])
+
+        if match.group(1):
+            dep["has_epoch"] = 1
+            dep["epoch"] = int(match.group(1))
+        else:
+            dep["has_epoch"] = 0
+            dep["epoch"] = 0
+
+        dep["version"] = match.group(2)
+
+        if match.group(3):
+            dep["release"] = match.group(3)
+        else:
+            dep["release"] = ""
+    else:
+        channel_id, name = split_channel_and_name(server, dep_str)
+
+        if channel_id:
+            dep["channel"] = channel_id
+
+        dep["name"] = name
+        dep["relation"] = "(any)"
+        dep["has_epoch"] = 0
+        dep["epoch"] = 0
+        dep["version"] = "*"
+        dep["release"] = "*"
+    
+    return dep

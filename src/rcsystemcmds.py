@@ -96,10 +96,14 @@ class ShutdownCmd(rccommand.RCCommand):
                 server.rcd.system.ping()
             except socket.error, e:
                 eno, str = e
-                if eno == errno.ENOENT or eno == errno.ECONNREFUSED:
+                if eno == errno.ENOENT \
+                       or eno == errno.ECONNREFUSED \
+                       or eno == errno.ECONNRESET:
                     rctalk.message("Daemon shut down.")
                     sys.exit(0)
                 else:
+		    print eno
+                    print str
                     raise
             except ximian_xmlrpclib.ProtocolError, e:
                 if e.errcode == -1:
@@ -145,7 +149,9 @@ class RestartCmd(rccommand.RCCommand):
                 server.rcd.system.ping()
             except socket.error, e:
                 eno, str = e
-                if eno == errno.ENOENT or eno == errno.ECONNREFUSED:
+                if eno == errno.ENOENT \
+                       or eno == errno.ECONNREFUSED \
+                       or eno == ernno.ECONNRESET:
                     is_down = 1
                 else:
                     raise

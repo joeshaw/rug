@@ -1,3 +1,37 @@
+2003-10-29  Joe Shaw  <joe@ximian.com>
+
+	* rcpackageutils.py (split_channel_and_name): Added.  Code
+	originally in find_package(), it splits out the "channel:package"
+	notation used in "rug install" and such.
+	(find_package): Call split_channel_and_name().
+	(parse_dep_str): Added.  Originally in the solvedeps code, it
+	uses regexp magic to split out dependency relations and versions.
+	It now also calls split_channel_and_name so you can do "rug
+	solvedeps rhl9:libgnome".
+
+	* rcsystemcmds.py (ShutdownCmd, RestartCmd): Allow ECONNRESET as a
+	valid socket error to indicate that the daemon has shut down or
+	restarted.
+
+	* rctransactcmds.py (PackageSolveCmd): Use
+	rcpackageutils.parse_dep_str().
+
+	* rcwhatcmds.py (WhateverCmd): Use rcpackageutils.parse_dep_str(),
+	which adds the ability to now be able to specify channels,
+	relations and versions to the what commands, so you can now do
+	"rug what-provides libgnome < 2.4".
+
+2003-10-28  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageListUpdatesCmd.execute): Pass in
+	allow_dups=1 to rcpackageutils.get_updates() so that we see exact
+	updates in multiple channels.
+
+	* rcpackageutils.py (get_updates): If allow_dups is not set,
+	filter out exact dups from multiple channels and just pick one.
+	Basically equivalent to the rc_world_get_best_upgrade() function
+	in libredcarpet.
+
 2003-10-21  Joe Shaw  <joe@ximian.com>
 
 	* rcservicecmds.py (ServiceDeleteCmd.execute): If no args are
