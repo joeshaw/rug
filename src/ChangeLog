@@ -1,5 +1,14 @@
 2002-08-21  Joe Shaw  <joe@ximian.com>
 
+	* rcmain.py: Make rc_version a global, and set it when main() gets
+	called.
+
+	* rcpackagecmds.py (transact_and_poll): Send rcmain.rc_name and
+	rcmain.rc_version as the fourth and fifth arguments to
+	rcd.packsys.transact().
+
+2002-08-21  Joe Shaw  <joe@ximian.com>
+
 	* rcpackagecmds.py (PackageUpdateCmd): We need to inherit
 	TransactCmd's local_opt_table.
 

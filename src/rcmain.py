@@ -41,13 +41,17 @@ import rcprefscmds
 
 rc_name = "Red Carpet Command Line Client"
 rc_copyright = "Copyright (C) 2000-2002 Ximian Inc.  All Rights Reserved."
+rc_version = None
 
 # Whether we are connecting over Unix domain sockets or TCP.
 local = 0
 
-def main(rc_version):
+def main(ver):
 
     global local
+    global rc_version
+
+    rc_version = ver
 
     ###
     ### Grab the option list and extract the first non-option argument that

@@ -1087,7 +1087,8 @@ class PackageInfoConflictsCmd(rccommand.RCCommand):
 def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
     tid = server.rcd.packsys.transact(packages_to_install,
                                       packages_to_remove,
-                                      ximian_xmlrpclib.Boolean(dry_run))
+                                      ximian_xmlrpclib.Boolean(dry_run),
+                                      rcmain.rc_name, rcmain.rc_version)
     message_offset = 0
     download_percent = 0.0
     download_completed = 0
