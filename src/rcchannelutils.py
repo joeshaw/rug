@@ -17,6 +17,7 @@
 
 import sys
 import string
+import re
 import rctalk
 
 ###
@@ -44,6 +45,25 @@ def check_subscription_by_id(server, id):
     c = get_channel_by_id(server, id)
     return c and c["subscribed"]
 
+def get_channel_alias(c):
+    alias = c["alias"]
+    if not alias:
+        alias = string.strip(string.lower(c["name"]))
+        alias = string.replace(alias, " ", "-")
+        
+        # FIXME: hackish evil to generate nicer fallback aliases.
+        # This should be removed once we actually get aliases
+        # into the channel XML.
+        alias = re.sub("-devel[a-z]*-", "-dev-", alias)
+        alias = re.sub("snapshots?", "snaps", alias)
+        alias = string.replace(alias, "gnome-2.0", "gnome2")
+        alias = string.replace(alias, "evolution", "evo")
+        alias = string.replace(alias, "-gnome-", "-")
+        if string.find(alias, "red-hat") == 0:
+          alias = "redhat"
+            
+    return alias
+
 def get_channels_by_name(server, in_str):
     channels = get_channels(server)
     matches = []
@@ -54,6 +74,8 @@ def get_channels_by_name(server, in_str):
         match = 0
 
         chan_name = string.lower(c["name"])
+        chan_alias = get_channel_alias(c)
+        
         chan_initials = reduce(lambda x,y:x+y,
                                map(lambda x:x[0],
                                    string.split(string.replace(chan_name, ".", " "))))
@@ -62,6 +84,7 @@ def get_channels_by_name(server, in_str):
                                        string.split(chan_name)))
 
         if str(c["id"]) == s \
+           or (chan_alias and chan_alias == s) \
            or string.find(chan_name, s) == 0 \
            or chan_initials == s \
            or chan_initials_alt == s \

@@ -1,5 +1,14 @@
 2002-07-23  Jon Trowbridge  <trow@ximian.com>
 
+	* rcchannelcmds.py (ListChannelsCmd.execute): Display aliases
+	when listing the channels.
+
+	* rcchannelutils.py (get_channel_alias): An accessor for the
+	alias, with some (hackish) fallback code to create aliases if none
+	is specified.
+	(get_channels_by_name): Compare the input string to channel
+	aliases.
+
 	* rccommand.py (register): Get the command's category, store it in
 	the command_dict along with the rest of the information.
 	(print_command_list): Added.  Breaks out the code (previously in

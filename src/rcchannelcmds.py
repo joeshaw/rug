@@ -71,11 +71,13 @@ class ListChannelsCmd(rccommand.RCCommand):
                     show = 0
 
             if show:
-                channel_table.append([subflag, c["name"]])
+                channel_table.append([subflag,
+                                      rcchannelutils.get_channel_alias(c),
+                                      c["name"]])
 
         if channel_table:
-            channel_table.sort(lambda x, y:cmp(x[1],y[1]))
-            rcformat.tabular(["subd?", "Name"], channel_table)
+            channel_table.sort(lambda x, y:cmp(x[2],y[2]))
+            rcformat.tabular(["subd?", "Alias", "Name"], channel_table)
         else:
             if options_dict.has_key("unsubscribed"):
                 rctalk.message("--- No unsubscribed channels ---")
