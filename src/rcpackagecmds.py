@@ -390,7 +390,7 @@ class PackageSearchCmd(rccommand.RCCommand):
         in_channel = {}
         if not options_dict.has_key("channel"):
             for p in packages:
-                if p["installed"]:
+                if p["installed"] and p["channel"]:
                     in_channel[pkg_to_key(p)] = 1
 
         package_table = []

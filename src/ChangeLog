@@ -1,3 +1,10 @@
+2002-09-20  Joe Shaw  <joe@ximian.com>
+
+	* rcpackagecmds.py (PackageSearchCmd.execute): Make sure we have a
+	guessed channel before we add it to the in_channel dictionary.
+	Fixes searching for packages which were installed but didn't match
+	any channels.
+
 2002-09-18  Jon Trowbridge  <trow@ximian.com>
 
 	* rcmain.py (main): Cal expand_synthetic_args first.  This means
