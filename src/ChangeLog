@@ -1,5 +1,10 @@
 2002-07-08  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py: Handle -N/--dry-run for all the packaging
+	operations, add a boolean parameter to the transact RPC call.
+
+2002-07-08  Joe Shaw  <joe@ximian.com>
+
 	* rcsystemcmds.py (PingCmd.execute): Show the distribution info.
 
 2002-07-08  Joe Shaw  <joe@ximian.com>

@@ -706,8 +706,8 @@ class PackageInfoCmd(rccommand.RCCommand):
             
             
 
-def transact_and_poll(server, packages_to_install, packages_to_remove):
-    tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove)
+def transact_and_poll(server, packages_to_install, packages_to_remove, dry_run):
+    tid = server.rcd.packsys.transact(packages_to_install, packages_to_remove, ximian_xmlrpclib.Boolean(dry_run))
     message_offset = 0
     download_percent = 0.0
 
@@ -786,6 +786,11 @@ class PackageInstallCmd(rccommand.RCCommand):
         else:
             allow_unsub = 0
 
+        if options_dict.has_key("dry-run"):
+            dry_run = 1
+        else:
+            dry_run = 0
+
         for a in non_option_args:
             channel = None
             package = None
@@ -861,7 +866,7 @@ class PackageInstallCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        transact_and_poll(server, packages_to_install + dep_install, dep_remove)
+        transact_and_poll(server, packages_to_install + dep_install, dep_remove, dry_run)
 
 
 ###
@@ -885,6 +890,11 @@ class PackageRemoveCmd(rccommand.RCCommand):
     def execute(self, server, options_dict, non_option_args):
         packages_to_remove = []
         
+        if options_dict.has_key("dry-run"):
+            dry_run = 1
+        else:
+            dry_run = 0
+
         for a in non_option_args:
             p = find_package_on_system(server, a)
 
@@ -925,7 +935,7 @@ class PackageRemoveCmd(rccommand.RCCommand):
                 rctalk.message("Aborted.")
                 sys.exit(0)
 
-        transact_and_poll(server, dep_install, packages_to_remove + dep_remove)
+        transact_and_poll(server, dep_install, packages_to_remove + dep_remove, dry_run)
 
 
 ###
@@ -948,6 +958,11 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
                 ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
 
     def execute(self, server, options_dict, non_option_args):
+        if options_dict.has_key("dry-run"):
+            dry_run = 1
+        else:
+            dry_run = 0
+
         up = get_updates(server, non_option_args)
 
         # x[1] is the package to be updated
@@ -987,7 +1002,7 @@ class PackageUpdateAllCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        transact_and_poll(server, packages_to_install + dep_install, dep_remove)
+        transact_and_poll(server, packages_to_install + dep_install, dep_remove, dry_run)
 
 
 ###
@@ -1010,6 +1025,11 @@ class PackageVerifyCmd(rccommand.RCCommand):
                 ["y", "no-confirmation", "", "Perform the actions without confirmation"]]
 
     def execute(self, server, options_dict, non_option_args):
+        if options_dict.has_key("dry-run"):
+            dry_run = 1
+        else:
+            dry_run = 0
+
         try:
             dep_install, dep_remove = server.rcd.packsys.verify_dependencies()
         except ximian_xmlrpclib.Fault, f:
@@ -1037,7 +1057,7 @@ class PackageVerifyCmd(rccommand.RCCommand):
             rctalk.warning("Removals are required.  Use the -d option or confirm interactively.")
             sys.exit(1)
 
-        transact_and_poll(server, dep_install, dep_remove)
+        transact_and_poll(server, dep_install, dep_remove, dry_run)
 
 
 
