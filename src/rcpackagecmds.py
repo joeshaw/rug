@@ -247,9 +247,9 @@ class PackagesCmd(rccommand.RCCommand):
                     if rcchannelutils.validate_channel_list(a, clist):
                         query = map(lambda c:["channel", "=", str(c["id"])], clist)
                         if options_dict.has_key("installed-only"):
-                            query.append(["name-installed", "=", "true"])
+                            query.append(["package-installed", "=", "true"])
                         elif options_dict.has_key("uninstalled-only"):
-                            query.append(["name-installed", "=", "false"])
+                            query.append(["package-installed", "=", "false"])
 
                         if len(clist) > 1:
                             query.insert(0, ["", "begin-or", ""])
@@ -260,7 +260,7 @@ class PackagesCmd(rccommand.RCCommand):
 
         else:
             if options_dict.has_key("uninstalled-only"):
-                query = [["name-installed", "=", "false"]]
+                query = [["installed", "=", "false"]]
             else:
                 query = [["installed", "=", "true"]]
 
@@ -366,9 +366,9 @@ class PackageSearchCmd(rccommand.RCCommand):
             query.append(["", "end-or", ""])
 
         if options_dict.has_key("installed-only"):
-            query.append(["name-installed", "=", "true"])
+            query.append(["package-installed", "=", "true"])
         elif options_dict.has_key("uninstalled-only"):
-            query.append(["name-installed", "=", "false"])
+            query.append(["package-installed", "=", "false"])
 
         if options_dict.has_key("channel"):
             cname = options_dict["channel"]
@@ -380,22 +380,6 @@ class PackageSearchCmd(rccommand.RCCommand):
             query.append(["channel", "=", str(c["id"])])
 
         packages = server.rcd.packsys.search(query)
-
-        # We need to do this post filtering because we do a "name-installed"
-        # search above.  If we do a search for "foobar", then "foobar 1.2"
-        # from channel A, "foobar 1.2" from channel B, and "foobar 0.9" from
-        # channel C will all match if any "foobar" package is installed.
-        #
-        # If we have version 1.2 installed, we want to show both A and B,
-        # but not C.  This filtering step takes care of C.
-        #
-        # Really, this is a workaround.  Just doing an "installed" search
-        # will give us a channel guess, but it'll only give us one, even
-        # if we match multiple channels.  This could probably be fixed in
-        # the daemon.
-        if options_dict.has_key("installed-only") and \
-               not options_dict.has_key("channel"):
-            packages = filter(lambda x:x["installed"], packages)
 
         # Keep track of all of the installed packages where
         # we know that it comes from a certain channel.

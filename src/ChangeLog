@@ -1,5 +1,11 @@
 2002-09-11  Jon Trowbridge  <trow@ximian.com>
 
+	* rcpackagecmds.py (PackagesCmd.execute): When handling a -i or -u
+	option, query on "package-installed" instead of "name-installed".
+	(PackageSearchCmd.execute): Ditto.  Also removed some work-around
+	code that was necessary for name-installed but is no longer
+	needed.
+
 	* rcformat.py (package_to_row): Print a "v" in the status field
 	if a package is name-installed but not installed.
 
