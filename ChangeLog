@@ -1,4 +1,8 @@
-2003-11-09  Frank Belew <frb@ximian.com>
+2003-10-06  Joe Shaw  <joe@ximian.com>
+
+	* configure.in: 1.5.90
+
+2003-09-11  Frank Belew <frb@ximian.com>
 
 	* configure.in: use AM_PATH_PYTHON instead of AC_PATH_PROG
 
