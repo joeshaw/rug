@@ -1086,7 +1086,7 @@ class TransactCmd(rccommand.RCCommand):
 
             format_dependencies(server, dep_remove)
 
-        if not options_dict.has_key("no-confirmation") and (dep_install or dep_remove):
+        if not options_dict.has_key("no-confirmation"):
             confirm = raw_input("Do you want to continue? [Y/n] ")
             if confirm and not (confirm[0] == "y" or confirm[0] == "Y"):
                 rctalk.message("Aborted.")

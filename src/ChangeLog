@@ -1,3 +1,9 @@
+2002-07-24  Jon Trowbridge  <trow@ximian.com>
+
+	* rcpackagecmds.py (TransactCmd.transact): Always ask for
+	confirmation before transacting (unless we are in no-confirmation
+	mode, of course).
+
 2002-07-24  Joe Shaw  <joe@ximian.com>
 
 	* rcmain.py (main): Connect using HTTPS to the daemon.  Check for
