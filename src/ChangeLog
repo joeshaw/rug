@@ -1,5 +1,11 @@
 2003-05-29  Joe Shaw  <joe@ximian.com>
 
+	* rcpackagecmds.py (PackageForFileCmd): Added.  Gets the package
+	which provides a file on the filesystem.  Can't believe we didn't
+	have this before.
+
+2003-05-29  Joe Shaw  <joe@ximian.com>
+
 	* rccommand.py (RCCommand.usage): Change "rc" to "rug".
 
 	* rctransactcmds.py (PackageRollbackCmd): Add a -d/--download-only
