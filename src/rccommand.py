@@ -76,7 +76,6 @@ def construct(name):
         nl = alias_dict[nl]
 
     if not command_dict.has_key(nl):
-        rctalk.warning("Unknown command '"+name+"'")
         return None
 
     cons = command_dict[nl][1]
@@ -211,11 +210,14 @@ def usage_full():
 def extract_command_from_argv(argv):
     command = None
     i = 0
+    unknown_commands = []
     while i < len(argv) and not command:
         if argv[i][0] != "-":
             command = construct(argv[i])
             if command:
                 argv.pop(i)
+            else:
+                unknown_commands.append(argv[i])
         else:
             takes_arg = 0
             for o in default_opt_table:
@@ -232,6 +234,8 @@ def extract_command_from_argv(argv):
         i = i + 1
 
     if not command:
+        map(lambda x:rctalk.warning("Unknown command '%s'" % x),
+            unknown_commands)
         rctalk.warning("No command found on command line.")
         if "--help" in argv or "-?" in argv:
             usage_full()

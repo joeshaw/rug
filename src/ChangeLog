@@ -1,3 +1,11 @@
+2003-06-02  Joe Shaw  <joe@ximian.com>
+
+	* rccommand.py (extract_command_from_argv): Only display "Unknown
+	command" if we don't match any valid command.  Fixes #41061.
+	(construct): Don't display "Unknown command" here.
+
+	* rctransactcmds.py (check_licenses): Linebreak the licenses.
+
 2003-05-29  Tambet Ingo  <tambet@ximian.com>
 
 	* rcnewscmds.py (NewsCmd.execute): Change all white-space sequences

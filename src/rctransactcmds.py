@@ -236,7 +236,7 @@ class TransactCmd(rccommand.RCCommand):
             rctalk.message("")
 
             for l in licenses:
-                rctalk.message(l)
+                rctalk.message(string.join(rcformat.linebreak(l, 72), "\n"))
                 rctalk.message("")
 
             confirm = rctalk.prompt("Do you agree to the above "
