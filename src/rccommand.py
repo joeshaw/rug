@@ -47,16 +47,18 @@ default_orthogonal_opts = [["verbose", "terse", "normal-output", "quiet"]]
 command_dict = {}
 alias_dict = {}
 
+
 def register(constructor):
     obj = constructor()
     name = obj.name()
     aliases = obj.aliases()
+    hidden = obj.is_hidden()
     description = obj.description_short() or "<No Description Available>"
 
     if command_dict.has_key(name):
         rctalk.error("Command name collision: '"+name+"'")
     else:
-        command_dict[name] = (description, constructor, aliases)
+        command_dict[name] = (description, constructor, aliases, hidden)
 
     for a in aliases:
         al = string.lower(a)
@@ -87,19 +89,23 @@ def usage():
     rctalk.message("Usage: rc <command> <options> ...")
     rctalk.message("")
     rctalk.message("Valid commands are:")
+
     keys = command_dict.keys()
+
     if keys:
         keys.sort()
         cmd_list = []
         max_len = 0
         for k in keys:
             name = k
-            description = command_dict[k][0]
-            aliases = command_dict[k][2]
-            if aliases:
-                name = name + " (" + string.join(aliases, ", ") + ")"
-            cmd_list.append([name, description])
-            max_len = max(max_len, len(name))
+
+            description, constructor, aliases, hidden = command_dict[k]
+
+            if not hidden:
+                if aliases:
+                    name = name + " (" + string.join(aliases, ", ") + ")"
+                cmd_list.append([name, description])
+                max_len = max(max_len, len(name))
 
         for c in cmd_list:
             rctalk.message("  " + string.ljust(c[0], max_len) + "  " + c[1])
@@ -215,6 +221,11 @@ class RCCommand:
 
     def aliases(self):
         return []
+    
+    # If is_hidden returns true, the command will not appear in 'usage'
+    # list of available commands.
+    def is_hidden(self):
+        return 0
 
     def arguments(self):
         return "..."

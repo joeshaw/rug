@@ -1,5 +1,12 @@
 2002-07-09  Jon Trowbridge  <trow@ximian.com>
 
+	* rccommand.py (register): Check if a command is hidden
+	when we register it.
+	(usage): Don't print hidden commands.
+
+	* rcsystemcmds.py (ShutdownCmd.is_hidden): Hide the shutdown
+	command unless we are running as root.
+
 	* rcsystemcmds.py (ShutdownCmd): Added a command to
 	gracefully shut down the server.
 

@@ -16,6 +16,7 @@
 ###
 
 import sys
+import os
 import rctalk
 import rcformat
 import rccommand
@@ -62,6 +63,10 @@ class ShutdownCmd(rccommand.RCCommand):
 
     def name(self):
         return "shutdown"
+
+    def is_hidden(self):
+        # This command is hidden unless we are running as root.
+        return os.getuid() != 0
 
     def description_short(self):
         return "Shut down the server"
