@@ -20,7 +20,6 @@ import string
 import rctalk
 import rcformat
 import rccommand
-import rcpoll
 
 ###
 ### Useful channel-related subroutines
@@ -254,8 +253,6 @@ class RefreshChannelCmd(rccommand.RCCommand):
                    (options_dict.has_key("dry-run") or \
                     server.rcd.packsys.refresh_channel(int(c["id"]))):
                     rctalk.message("Refreshing channel "+channel_to_str(c))
-
-        rcpoll.poll_all_with_status(server)
 
 
 
