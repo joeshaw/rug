@@ -149,6 +149,7 @@ class ServiceAddCmd(rccommand.RCCommand):
                     raise
 
                 rctalk.error(f.faultString)
+                sys.exit(1)
             else:
                 rctalk.message("Service '%s' successfully added." % o)
 

@@ -1,3 +1,8 @@
+2005-09-06  Tambet Ingo  <tambet@ximian.com>
+
+	* rcservicecmds.py (ServiceAddCmd.execute): Exit with error code if
+	service addition fails.
+
 2005-01-14  Joe Shaw  <joeshaw@novell.com>
 
 	* rctransactcmds.py (PackageInstallCmd): If we're only downloading
@@ -20,7 +25,7 @@
 	(ListYouPatchesCmd.execute): Make sure server has patch support.
 	(InfoYouPatchCmd.execute): Ditto.
 	(InstallYouPatchCmd.execute): Ditto.
-g
+
 2004-08-27  Tambet Ingo  <tambet@ximian.com>
 
 	* rcyoucmds.py (ListYouPatchesCmd.execute): Add patch product to output.
