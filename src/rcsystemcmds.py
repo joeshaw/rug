@@ -94,7 +94,7 @@ class ShutdownCmd(rccommand.RCCommand):
         while 1:
             try:
                 server.rcd.system.ping()
-            except socket.error, e:
+            except (IOError, socket.error), e:
                 eno, str = e
                 if eno == errno.ENOENT \
                        or eno == errno.ECONNREFUSED \
@@ -147,7 +147,7 @@ class RestartCmd(rccommand.RCCommand):
         while 1:
             try:
                 server.rcd.system.ping()
-            except socket.error, e:
+            except (IOError, socket.error), e:
                 eno, str = e
                 if eno == errno.ENOENT \
                        or eno == errno.ECONNREFUSED \

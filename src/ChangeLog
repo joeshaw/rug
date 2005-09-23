@@ -1,3 +1,8 @@
+2005-09-23  James Willcox  <james@ximian.com>
+
+	* rcsystemcmds.py: correctly handle IO errors.  Fixes 118151.
+	Patch from Chris Rivera.
+
 2005-09-06  Tambet Ingo  <tambet@ximian.com>
 
 	* rcservicecmds.py (ServiceAddCmd.execute): Exit with error code if
