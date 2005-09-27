@@ -256,7 +256,11 @@ class ServiceMirrorsCmd(rccommand.RCCommand):
                 
             return cmp(aname, bname)
 
-        mirrors = server.rcd.service.get_mirrors(service["id"])
+        try:
+            mirrors = server.rcd.service.get_mirrors(service["id"])
+        except ximian_xmlrpclib.Fault, f:
+            if f.faultCode == rcfault.invalid_service:
+                mirrors = None
 
         if not mirrors:
             rctalk.message("--- No mirrors available ---")
