@@ -145,9 +145,6 @@ class ServiceAddCmd(rccommand.RCCommand):
             try:
                 server.rcd.service.add(o)
             except ximian_xmlrpclib.Fault, f:
-                if f.faultCode != rcfault.invalid_service:
-                    raise
-
                 rctalk.error(f.faultString)
                 sys.exit(1)
             else:
