@@ -440,7 +440,7 @@ class InstallYouPatchCmd(rccommand.RCCommand):
 
         install_list = []
 
-        if options_dict.has_key("download_only"):
+        if options_dict.has_key("download-only"):
             flags = rcmain.DOWNLOAD_ONLY
         else:
             flags = 0

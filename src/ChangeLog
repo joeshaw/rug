@@ -1,3 +1,8 @@
+2005-10-11  Michael Wolf  <maw@novell.com>
+
+	* rcyoucmds.py (InstallYouPatchCmd.execute):
+	s/download_only/download-only/, fixing rug pin -d.
+
 2005-10-05  Tambet Ingo  <tambet@ximian.com>
 
 	* rcservicecmds.py (ServiceAddCmd.execute): Exit with error code if
