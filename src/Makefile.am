@@ -35,6 +35,7 @@ rugcmds_DATA = 			\
 	rctransactcmds.py	\
 	rcusercmds.py		\
 	rcwhatcmds.py		\
+	rcyoucmds.py		\
 	$(patch_sources)
 
 
