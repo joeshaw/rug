@@ -402,7 +402,19 @@ class InstallYouPatchCmd(rccommand.RCCommand):
                     message_len = len(pending["messages"])
                     if message_len > message_offset:
                         for e in pending["messages"][message_offset:]:
-                            rctalk.message_finished(rcformat.transaction_status(e))
+                            if e[:len("patch")] == "patch":
+                                ## Patch messages look something like:
+                                ## "patch:Error installing 'foo'\n\n
+                                ## Skip this patch or abort the update?"
+                                ##
+                                ## First, remove the "patch: identifier,
+                                ## then the question from the end
+                                (id,m) = string.split(e, ":", 1)
+                                if m.index("\n\n") > 0:
+                                    m = m[:m.index("\n\n")]
+                                rctalk.message_status("Warning: %s\n" % m)
+                            else:
+                                rctalk.message_finished(rcformat.transaction_status(e))
                         message_offset = message_len
 
                     message_or_message_finished = rctalk.message

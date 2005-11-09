@@ -1,3 +1,8 @@
+2005-11-09  Tambet Ingo  <tambet@ximian.com>
+
+	* rcyoucmds.py (InstallYouPatchCmd.poll_transaction): Handle patch
+	messages. Fixes #128799.
+
 2005-10-11  Michael Wolf  <maw@novell.com>
 
 	* Makefile.am: Add rcyoucmds.py
